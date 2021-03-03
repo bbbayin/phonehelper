@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:background="@color/green"
+        android:layout_height="44dp">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:paddingHorizontal="20dp"
+            android:src="@mipmap/back_white"
+            android:scaleType="centerInside"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:text="设置"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:gravity="center"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/bind_rl"
+        android:layout_width="match_parent"
+        android:layout_height="54dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:textSize="17sp"
+            android:textColor="@color/color_454545"
+            android:text="绑定手机"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:background="@mipmap/right_arrow_grey"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_E0E0E0"/>
+
+    <RelativeLayout
+        android:id="@+id/modify_rl"
+        android:layout_width="match_parent"
+        android:layout_height="54dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:textSize="17sp"
+            android:textColor="@color/color_454545"
+            android:text="修改密码"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:background="@mipmap/right_arrow_grey"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_E0E0E0"/>
+
+    <TextView
+        android:id="@+id/zhuxiao"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="20dp"
+        android:text="注销账户"
+        android:textSize="18sp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/color_454545"
+        android:gravity="center"
+        android:background="@drawable/round_36_grey"
+        android:layout_height="50dp"/>
+
+    <TextView
+        android:id="@+id/exit"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="20dp"
+        android:text="退出当前账号"
+        android:textSize="18sp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:background="@drawable/round_36_red"
+        android:layout_height="50dp"/>
+</LinearLayout>
