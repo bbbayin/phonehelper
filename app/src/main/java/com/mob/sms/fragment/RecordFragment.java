@@ -46,6 +46,7 @@ public class RecordFragment extends BaseFragment {
     }
 
     private void initView(){
+        mFragments.clear();
         mFragments.add(new BhjlFragment());
         mFragments.add(new QbjlFragment());
         mFragments.add(new DxjlFragment());

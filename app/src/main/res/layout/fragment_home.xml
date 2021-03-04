@@ -270,6 +270,13 @@
                             android:layout_marginRight="20dp"
                             android:layout_alignParentRight="true"
                             android:layout_height="wrap_content"/>
+<!--                        <ImageView-->
+<!--                            android:id="@+id/btn_clear_dial_timeout"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_toEndOf="@+id/dsbh_tv"-->
+<!--                            android:layout_centerVertical="true"-->
+<!--                            android:src="@mipmap/close_grey"/>-->
                     </RelativeLayout>
 
                     <View

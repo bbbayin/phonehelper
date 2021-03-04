@@ -52,12 +52,7 @@ public class SettingActivity extends BaseActivity {
                 delUser();
                 break;
             case R.id.exit:
-                SPUtils.put(SPConstant.SP_USER_TOKEN, "");
-                SPUtils.put(SPConstant.SP_USER_NAME, "");
-                SPUtils.put(SPConstant.SP_USER_HEAD, "");
-                SPUtils.put(SPConstant.SP_USER_ID, "");
-                RxBus.getInstance().post(new ExitEvent());
-                finish();
+                logout();
                 break;
         }
     }
@@ -67,8 +62,7 @@ public class SettingActivity extends BaseActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {
-                        Toast.makeText(SettingActivity.this, "注销成功", Toast.LENGTH_LONG).show();
-                        System.exit(0);
+                        logout();
                     } else {
                         Toast.makeText(SettingActivity.this, baseBean.msg, Toast.LENGTH_LONG).show();
                     }
@@ -76,5 +70,12 @@ public class SettingActivity extends BaseActivity {
                     Toast.makeText(SettingActivity.this, "注销失败", Toast.LENGTH_LONG).show();
                     throwable.printStackTrace();
                 });
+    }
+
+
+    private void logout() {
+        SPUtils.clear();
+        RxBus.getInstance().post(new ExitEvent());
+        finish();
     }
 }

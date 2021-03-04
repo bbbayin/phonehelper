@@ -71,10 +71,8 @@ public class MainActivity extends BaseActivity {
 
     private Subscription mSub;
 
-    private String[] mPermissions = new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_CONTACTS,Manifest.permission.CALL_PHONE,
-            Manifest.permission.READ_PHONE_STATE};
-    private ArrayList<String> mPermissionList = new ArrayList<>();
+
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,15 +80,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setStatusBar(getResources().getColor(R.color.green));
-        for (int i = 0; i < mPermissions.length; i++) {
-            if (ContextCompat.checkSelfPermission(this, mPermissions[i]) != PackageManager.PERMISSION_GRANTED) {
-                mPermissionList.add(mPermissions[i]);//添加还未授予的权限
-            }
-        }
 
-        if (mPermissionList.size() > 0) {
-            ActivityCompat.requestPermissions(this, mPermissions, 1);
-        }
         initView();
         mSub =  RxBus.getInstance().toObserverable(ExitEvent.class)
                 .subscribeOn(AndroidSchedulers.mainThread())
@@ -200,21 +190,4 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        boolean hasPermissionDismiss = false;//有权限没有通过
-        if (1 == requestCode) {
-            for (int i = 0; i < grantResults.length; i++) {
-                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                    hasPermissionDismiss = true;
-                }
-            }
-            if (hasPermissionDismiss) {
-                finish();
-            } else {
-                initView();
-            }
-        }
-    }
 }
