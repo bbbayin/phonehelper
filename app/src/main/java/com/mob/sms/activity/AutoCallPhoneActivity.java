@@ -1,5 +1,6 @@
 package com.mob.sms.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -155,7 +156,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                 mTime.setText("拨打下一个号码还需要" + mInterval + "s");
                 mTm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
                 mHandler.removeCallbacksAndMessages(null);
-                mHandler.sendEmptyMessageDelayed(1, 1000);
+                mHandler.sendEmptyMessageDelayed(BATCH_CALL_MSG, 1000);
             } else {
                 mHandler.removeCallbacksAndMessages(null);
                 mTime.setText("拨打下一个号码还需要0s");
@@ -171,9 +172,9 @@ public class AutoCallPhoneActivity extends BaseActivity {
         if ("dhbd".equals(mType)) {
             mTip.setText("单号拨打电话");
             mMobile.setText(SPUtils.getString(SPConstant.SP_CALL_SRHM, ""));
-            mSendNum = SPUtils.getInt(SPConstant.SP_CALL_NUM, 0);
+            mSendNum = SPUtils.getInt(SPConstant.SP_CALL_NUM, 1);
             mDsbdTime  = SPUtils.getString(SPConstant.SP_CALL_TIMING, "");
-            mInterval =  SPUtils.getInt(SPConstant.SP_CALL_INTERVAL, 0);
+            mInterval =  SPUtils.getInt(SPConstant.SP_CALL_INTERVAL, 20);
 
             if (mSendIndex < mSendNum) {
                 if (TextUtils.isEmpty(mDsbdTime)) {
@@ -235,6 +236,10 @@ public class AutoCallPhoneActivity extends BaseActivity {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
             mInterval =  SPUtils.getInt(SPConstant.SP_CALL_JGSZ, 0);
+            if (mInterval < 0) {
+                // 随机
+                mInterval = Utils.getRandomNum(Math.abs(mInterval));
+            }
             mShowDaojishi = mInterval;
             mSendNum = mDatas.size();
             mMobile.setText(mDatas.get(mSendIndex).mobile);
@@ -242,7 +247,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
             callPhone(mDatas.get(mSendIndex).mobile);
             if (mSendIndex < mSendNum) {
                 mTime.setText("拨打下一个号码还需要" + mShowDaojishi + "s");
-                mHandler.sendEmptyMessageDelayed(1, 1000);
+                mHandler.sendEmptyMessageDelayed(BATCH_CALL_MSG, 1000);
             } else {
                 mTime.setText("拨打下一个号码还需要" + 0 + "s");
             }
@@ -294,6 +299,9 @@ public class AutoCallPhoneActivity extends BaseActivity {
         mHandler.sendEmptyMessageDelayed(2, 3000);
     }
 
+    // 批量拨打
+    private final int BATCH_CALL_MSG = 1;
+
     private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -318,13 +326,13 @@ public class AutoCallPhoneActivity extends BaseActivity {
                         mTime.setText("下一次拨打还需要" + 0 + "s");
                     }
                     break;
-                case 1:
+                case BATCH_CALL_MSG:
                     //批量拨打
                     if (mSendIndex < mSendNum) {
                         mShowDaojishi--;
                         if (mShowDaojishi > 0) {
                             mTime.setText("拨打下一个号码还需要" + mShowDaojishi + "s");
-                            sendEmptyMessageDelayed(1, 1000);
+                            sendEmptyMessageDelayed(BATCH_CALL_MSG, 1000);
                         } else {
                             mShowDaojishi = mInterval;
                             mSendIndex++;
@@ -386,7 +394,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                     mTime.setText("拨打下一个号码还需要" + mInterval + "s");
                     mTm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
                     callPhone(mDatas.get(mSendIndex).mobile);
-                    mHandler.sendEmptyMessageDelayed(1, 1000);
+                    mHandler.sendEmptyMessageDelayed(BATCH_CALL_MSG, 1000);
                 }
                 break;
             case R.id.next:
@@ -398,7 +406,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                     mTime.setText("拨打下一个号码还需要" + mInterval + "s");
                     mTm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
                     callPhone(mDatas.get(mSendIndex).mobile);
-                    mHandler.sendEmptyMessageDelayed(1, 1000);
+                    mHandler.sendEmptyMessageDelayed(BATCH_CALL_MSG, 1000);
                 }
                 break;
         }
@@ -470,7 +478,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                     });
         } else if("plbd".equals(mType)){
             RetrofitHelper.getApi().savePlCallRecord(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                    allNum, SPUtils.getString(SPConstant.SP_CALL_SKSZ, ""),time,
+                    allNum, SPUtils.getString(SPConstant.SP_CALL_SKSZ, "sim1"),time,
                     mInterval+"",
                     SPUtils.getBoolean(SPConstant.SP_CALL_PL_GD, false)?"1":"0",status,
                     mSendIndex+1, tel, SPUtils.getBoolean(SPConstant.SP_CALL_PL_GD, false)?"0":"1").subscribeOn(Schedulers.io())

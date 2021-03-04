@@ -207,6 +207,7 @@ public class HomeFragment extends BaseFragment {
                 });
                 break;
             case R.id.bdjg_rl:
+                // 拨打间隔
                 SetCallIntervalDialog setCallIntervalDialog = new SetCallIntervalDialog(getContext(), "call");
                 setCallIntervalDialog.show();
                 setCallIntervalDialog.setOnClickListener(new SetCallIntervalDialog.OnClickListener() {
@@ -311,7 +312,11 @@ public class HomeFragment extends BaseFragment {
                 setMultiCallIntervalDialog.setOnClickListener(new SetMultiCallIntervalDialog.OnClickListener() {
                     @Override
                     public void confirm(int second) {
-                        mCallJgszTip.setText(second + "s");
+                        if (second < 0) {
+                            mCallJgszTip.setText(String.format("%ss内随机", Math.abs(second)));
+                        }else {
+                            mCallJgszTip.setText(second + "s");
+                        }
                         SPUtils.put(SPConstant.SP_CALL_JGSZ, second);
                         changePlCallUi();
                     }
@@ -499,11 +504,14 @@ public class HomeFragment extends BaseFragment {
             mCallDsbhTv.setText(SPUtils.getString(SPConstant.SP_CALL_TIMING, "") + "后拨打");
         }
         setBdfs();
-        if (SPUtils.getInt(SPConstant.SP_CALL_NUM, 0) != 0) {
-            mCallBdcsTv.setText(SPUtils.getInt(SPConstant.SP_CALL_NUM, 0) + "次");
+        // 拨打次数默认1
+        if (SPUtils.getInt(SPConstant.SP_CALL_NUM, 1) != 0) {
+            mCallBdcsTv.setText(SPUtils.getInt(SPConstant.SP_CALL_NUM, 1) + "次");
         }
-        if (SPUtils.getInt(SPConstant.SP_CALL_INTERVAL, 0) != 0) {
-            mCallBdjgTv.setText(SPUtils.getInt(SPConstant.SP_CALL_INTERVAL, 0) + "s");
+        // 拨打间隔
+        int callInterval = SPUtils.getInt(SPConstant.SP_CALL_INTERVAL, 20);
+        if (callInterval != 0) {
+            mCallBdjgTv.setText(callInterval + "s");
         }
         if (SPUtils.getBoolean(SPConstant.SP_CALL_GD, true)) {
             mGdSwitch.setImageResource(R.mipmap.switch_on);
@@ -520,19 +528,24 @@ public class HomeFragment extends BaseFragment {
         } else {
             mCallHmdrTip.setText("已导入" + callContactTables.size() + "个联系人");
         }
-        if (TextUtils.isEmpty(SPUtils.getString(SPConstant.SP_CALL_SKSZ, ""))) {
+        String doubleSimSetting = SPUtils.getString(SPConstant.SP_CALL_SKSZ, "sim1");
+        if (TextUtils.isEmpty(doubleSimSetting)) {
             mCallSkszTip.setText("");
-        } else if ("sim1".equals(SPUtils.getString(SPConstant.SP_CALL_SKSZ, ""))){
+        } else if ("sim1".equals(doubleSimSetting)){
             mCallSkszTip.setText("使用卡1拨打");
-        } else if ("sim2".equals(SPUtils.getString(SPConstant.SP_CALL_SKSZ, ""))){
+        } else if ("sim2".equals(doubleSimSetting)){
             mCallSkszTip.setText("使用卡2拨打");
-        } else if ("sim_double".equals(SPUtils.getString(SPConstant.SP_CALL_SKSZ, ""))){
+        } else if ("sim_double".equals(doubleSimSetting)){
             mCallSkszTip.setText("双卡轮流拨打");
         }
-        if (SPUtils.getInt(SPConstant.SP_CALL_JGSZ, 0) == 0) {
+        // 批量间隔
+        int interval = SPUtils.getInt(SPConstant.SP_CALL_JGSZ, 0);
+        if (interval == 0) {
             mCallJgszTip.setText("");
-        } else {
-            mCallJgszTip.setText(SPUtils.getInt(SPConstant.SP_CALL_JGSZ, 0) + "s");
+        } else if (interval>0){
+            mCallJgszTip.setText(interval + "s");
+        }else {
+            mCallJgszTip.setText( String.format("%ss内随机",Math.abs(interval)));
         }
 
         //短信

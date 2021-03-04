@@ -189,7 +189,7 @@ public class ReCallPhoneActivity extends BaseActivity {
                 Intent intent = new Intent(Intent.ACTION_CALL);
                 intent.setData(Uri.parse("tel:" + mobile));
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                String sksz = SPUtils.getString(SPConstant.SP_CALL_SKSZ, "");
+                String sksz = SPUtils.getString(SPConstant.SP_CALL_SKSZ, "sim1");
                 for (int i = 0; i < dualSimTypes.length; i++) {
                     //1代表卡1,2代表卡2
                     if ("sim1".equals(sksz)) {

@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 public class Utils {
     public static boolean isNetworkAvailable(Context context) {
@@ -41,5 +42,9 @@ public class Utils {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public static int getRandomNum(int number) {
+        return new Random().nextInt(number);
     }
 }

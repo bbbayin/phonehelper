@@ -6,10 +6,14 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
 import com.mob.sms.R;
+import com.mob.sms.utils.Constants;
 import com.zyyoona7.wheel.WheelView;
 
 import java.util.ArrayList;
@@ -26,8 +30,17 @@ public class SetMultiCallIntervalDialog extends Dialog {
     WheelView mWheelView;
     @BindView(R.id.wheelview2)
     WheelView mWheelView2;
+    @BindView(R.id.btn_fixed_interval)
+    CheckBox cbFixedInterval;
+    @BindView(R.id.btn_random_interval)
+    CheckBox cbRandomInterval;
+    @BindView(R.id.tv_interval_suggest)
+    TextView tvIntervalSuggest;
+
     private int mMinValue;
     private int mSecondValue;
+    // 间隔类型
+    private String intervalType = Constants.FIXED;
 
     private OnClickListener mOnClickListener;
 
@@ -81,6 +94,29 @@ public class SetMultiCallIntervalDialog extends Dialog {
                 mSecondValue = position;
             }
         });
+
+        cbFixedInterval.setChecked(true);
+        cbRandomInterval.setChecked(false);
+
+        // 固定间隔
+        cbFixedInterval.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                cbRandomInterval.setChecked(false);
+                intervalType = Constants.FIXED;
+                tvIntervalSuggest.setVisibility(View.VISIBLE);
+            }
+        });
+        // 随机间隔
+        cbRandomInterval.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    cbFixedInterval.setChecked(false);
+                    intervalType = Constants.RANDOM;
+                    tvIntervalSuggest.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     @OnClick({R.id.cancel, R.id.confirm})
@@ -91,10 +127,12 @@ public class SetMultiCallIntervalDialog extends Dialog {
                 break;
             case R.id.confirm:
                 if (mOnClickListener != null) {
-                    if (mMinValue == 0) {
-                        mOnClickListener.confirm(mSecondValue);
-                    } else {
-                        mOnClickListener.confirm(mMinValue * 60 + mSecondValue);
+                    int interval = mMinValue * 60 + mSecondValue;
+                    if (Constants.FIXED.equals(intervalType)) {
+                        mOnClickListener.confirm(interval);
+                    }else {
+                        // 负数代表随机间隔
+                        mOnClickListener.confirm(-interval);
                     }
                 }
                 dismiss();

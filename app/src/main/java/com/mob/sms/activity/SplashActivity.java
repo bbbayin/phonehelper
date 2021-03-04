@@ -62,6 +62,17 @@ public class SplashActivity extends Activity {
             ActivityCompat.requestPermissions(this, mPermissions, 1);
         }
         initView();
+
+        initGlobalData();
+    }
+
+    private void initGlobalData() {
+        // 批量拨打，随机间隔
+        int interval = SPUtils.getInt(SPConstant.SP_CALL_JGSZ, 0);
+        if (interval == 0) {
+            // 默认随机30
+            SPUtils.put(SPConstant.SP_CALL_JGSZ, -30);
+        }
     }
 
     private void initView() {
