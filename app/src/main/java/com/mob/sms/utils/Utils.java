@@ -1,12 +1,30 @@
 package com.mob.sms.utils;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
+import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 public class Utils {
@@ -23,12 +41,12 @@ public class Utils {
     }
 
 
-    public static String getYear(){
+    public static String getYear() {
         long time = System.currentTimeMillis();
         String date = new SimpleDateFormat("yyyy-MM-dd HH:MM:ss").format(new Date(time));
-        if(date.contains("-")){
+        if (date.contains("-")) {
             return date.split("-")[0];
-        }else {
+        } else {
             return "2021";
         }
     }
@@ -46,5 +64,85 @@ public class Utils {
 
     public static int getRandomNum(int number) {
         return new Random().nextInt(number);
+    }
+
+    public static void callPhone(String phoneNumber, Activity activity, int slotId) {
+        if (!TextUtils.isEmpty(phoneNumber)) {
+            PhoneAccountHandle phoneAccountHandle = getPhoneAccountHandle(activity, slotId);
+            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNumber));
+            intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandle);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(intent);
+        }
+    }
+    /**
+     * 拨打电话，根据sim卡
+     * @param activity
+     * @param slotId 0:卡1  1:卡2
+     */
+    public static void callPhone(Activity activity, int slotId) {
+        String phone = SPUtils.getString(SPConstant.SP_CALL_SRHM, "");
+        callPhone(phone, activity, slotId);
+    }
+
+    private static String TAG = "UTILS";
+
+    private static PhoneAccountHandle getPhoneAccountHandle(Activity activity, int slotId) {
+        TelecomManager tm = (TelecomManager) activity.getSystemService(Context.TELECOM_SERVICE);
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            return null;
+        }
+        List<PhoneAccountHandle> handles = getAccountHandles(activity);
+        if (handles!= null && handles.size()>0) {
+            return handles.get(0);
+        }
+        SubscriptionManager sm = SubscriptionManager.from(activity);
+        if (handles != null) {
+            for (PhoneAccountHandle handle : handles) {
+                if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    return null;
+                }
+                SubscriptionInfo info = sm.getActiveSubscriptionInfoForSimSlotIndex(slotId);
+                if (info != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (TextUtils.equals(info.getIccId(), handle.getId())) {
+                            Log.d(TAG, "getPhoneAccountHandle for slot" + slotId + " " + handle);
+                            return handle;
+                        }
+                    } else {
+                        if (TextUtils.equals(info.getSubscriptionId() + "", handle.getId())) {
+                            Log.d(TAG, "getPhoneAccountHandle for slot" + slotId + " " + handle);
+                            return handle;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static List<PhoneAccountHandle> getAccountHandles(Context context) {
+        Class c;
+        Method m;
+        TelecomManager telecomManager;
+        List<PhoneAccountHandle> accountHandles;
+        try {
+            c = Class.forName("android.telecom.TelecomManager");
+            Method m1 = c.getMethod("from", Context.class);
+            telecomManager = (TelecomManager) m1.invoke(null, context);
+            m = c.getMethod("getCallCapablePhoneAccounts");
+            accountHandles = (List<PhoneAccountHandle>) m.invoke(telecomManager);
+            return accountHandles;
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

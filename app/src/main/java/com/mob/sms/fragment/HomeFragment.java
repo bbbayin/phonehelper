@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.j256.ormlite.stmt.query.In;
 import com.mob.sms.R;
 import com.mob.sms.activity.AutoCallPhoneActivity;
 import com.mob.sms.activity.AutoSendSmsActivity;
@@ -41,7 +39,6 @@ import com.mob.sms.dialog.SetMultiCallIntervalDialog;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -76,7 +73,7 @@ public class HomeFragment extends BaseFragment {
     ImageView mGdSwitch;
     @BindView(R.id.gd_switch2)
     ImageView mGdSwitch2;
-    @BindView(R.id.call_tv)
+    @BindView(R.id.home_btn_single_call_now)
     TextView mCallTv;
     //批量拨打
     @BindView(R.id.call_hmdr_tip)
@@ -145,7 +142,7 @@ public class HomeFragment extends BaseFragment {
     }
 
     @OnClick({R.id.top1_ll, R.id.top2_ll, R.id.top3_ll, R.id.txl_iv, R.id.dsbh_rl, R.id.bdcs_rl, R.id.bdjg_rl, R.id.bdfs_rl,
-            R.id.gd_switch, R.id.gd_switch2, R.id.call_tv,
+            R.id.gd_switch, R.id.gd_switch2, R.id.home_btn_single_call_now,
             R.id.hmdr_rl, R.id.skzs_rl, R.id.jgsz_rl,R.id.pl_switch_gd,R.id.pl_switch_gd2,R.id.pl_call_tv,
             R.id.dhfs_switch, R.id.sms_txl_iv, R.id.sms_dsfs_rl, R.id.sms_fscs_rl, R.id.plfs_switch,
             R.id.sms_hmdr_rl, R.id.sms_sksz_rl, R.id.sms_fsjg_rl, R.id.bjdx_rl, R.id.sms_ljfs})
@@ -235,7 +232,7 @@ public class HomeFragment extends BaseFragment {
                 mGdSwitch2.setImageResource(mCallGd?R.mipmap.switch_off:R.mipmap.switch_on);
                 SPUtils.put(SPConstant.SP_CALL_GD, mCallGd);
                 break;
-            case R.id.call_tv:
+            case R.id.home_btn_single_call_now:
                 if (!TextUtils.isEmpty(mCallMobileEt.getText().toString()) &&
                         !TextUtils.isEmpty(mCallBdcsTv.getText().toString()) &&
                         !TextUtils.isEmpty(mCallBdjgTv.getText().toString()) &&
