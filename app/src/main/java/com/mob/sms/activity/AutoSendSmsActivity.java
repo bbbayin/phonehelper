@@ -217,7 +217,7 @@ public class AutoSendSmsActivity extends BaseActivity {
                     sInfo = list.get(0);
                 } else if ("sim2".equals(sksz)) {
                     sInfo = list.get(1);
-                }  else if ("sim_double".equals(sksz)) {
+                }  else {
                     sInfo = list.get(mSim1Send?0:1);
                     mSim1Send = !mSim1Send;
                 }

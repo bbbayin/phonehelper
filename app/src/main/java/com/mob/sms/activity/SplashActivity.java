@@ -42,25 +42,14 @@ public class SplashActivity extends Activity {
     @BindView(R.id.welcome_rl)
     RelativeLayout mWelcomeRl;
 
-    private String[] mPermissions = new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_CONTACTS,Manifest.permission.CALL_PHONE,
-            Manifest.permission.READ_PHONE_STATE};
-    private ArrayList<String> mPermissionList = new ArrayList<>();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         ButterKnife.bind(this);
-        for (int i = 0; i < mPermissions.length; i++) {
-            if (ContextCompat.checkSelfPermission(this, mPermissions[i]) != PackageManager.PERMISSION_GRANTED) {
-                mPermissionList.add(mPermissions[i]);//添加还未授予的权限
-            }
-        }
 
-        if (mPermissionList.size() > 0) {
-            ActivityCompat.requestPermissions(this, mPermissions, 1);
-        }
         initView();
 
         initGlobalData();
