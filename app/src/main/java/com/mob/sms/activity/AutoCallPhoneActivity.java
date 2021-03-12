@@ -270,7 +270,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                     } else if ("sim2".equals(sksz)) {
                         intent.putExtra(dualSimTypes[i], 1);
                     }  else if ("sim_double".equals(sksz)) {
-                        intent.putExtra(dualSimTypes[i], mSim1Call?1:2);
+                        intent.putExtra(dualSimTypes[i], mSim1Call?0:1);
                         mSim1Call = !mSim1Call;
                     }
                 }

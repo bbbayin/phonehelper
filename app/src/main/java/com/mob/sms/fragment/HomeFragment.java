@@ -113,6 +113,10 @@ public class HomeFragment extends BaseFragment {
     TextView mBjdxTip;
     @BindView(R.id.sms_ljfs)
     TextView mSmsLjfs;
+    @BindView(R.id.home_single_btn_clear_phone)
+    ImageView ivClearSinglePhoneNumber;
+    @BindView(R.id.home_single_btn_clear_time)
+    ImageView ivClearTime;
 
     private final int REQUEST_CODE_TAB1_SRHM = 1;
     private final int REQUEST_CODE_TAB1_CALL_TYPE = 2;
@@ -127,10 +131,15 @@ public class HomeFragment extends BaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         ButterKnife.bind(this, view);
+        initView();
         return view;
     }
 
-    private void setBdfs(){
+    private void initView() {
+
+    }
+
+    private void setBdfs() {
         String call_type = SPUtils.getString(SPConstant.SP_CALL_TYPE, "sim1");
         if ("sim1".equals(call_type)) {
             mCallBdfsTv.setText("使用手机卡1拨打");
@@ -143,11 +152,24 @@ public class HomeFragment extends BaseFragment {
 
     @OnClick({R.id.top1_ll, R.id.top2_ll, R.id.top3_ll, R.id.txl_iv, R.id.dsbh_rl, R.id.bdcs_rl, R.id.bdjg_rl, R.id.bdfs_rl,
             R.id.gd_switch, R.id.gd_switch2, R.id.home_btn_single_call_now,
-            R.id.hmdr_rl, R.id.skzs_rl, R.id.jgsz_rl,R.id.pl_switch_gd,R.id.pl_switch_gd2,R.id.pl_call_tv,
+            R.id.hmdr_rl, R.id.skzs_rl, R.id.jgsz_rl, R.id.pl_switch_gd, R.id.pl_switch_gd2, R.id.pl_call_tv,
             R.id.dhfs_switch, R.id.sms_txl_iv, R.id.sms_dsfs_rl, R.id.sms_fscs_rl, R.id.plfs_switch,
-            R.id.sms_hmdr_rl, R.id.sms_sksz_rl, R.id.sms_fsjg_rl, R.id.bjdx_rl, R.id.sms_ljfs})
+            R.id.sms_hmdr_rl, R.id.sms_sksz_rl, R.id.sms_fsjg_rl, R.id.bjdx_rl, R.id.sms_ljfs, R.id.home_single_btn_clear_phone,
+            R.id.home_single_btn_clear_time})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.home_single_btn_clear_time:// 清除定时
+                SPUtils.remove(SPConstant.SP_CALL_TIMING);
+                mCallDsbhTv.setText("");
+                ivClearTime.setVisibility(View.GONE);
+                changeCallUi();
+                break;
+            case R.id.home_single_btn_clear_phone:// 清除手机号
+                SPUtils.remove(SPConstant.SP_CALL_SRHM);
+                mCallMobileEt.setText("");
+                ivClearSinglePhoneNumber.setVisibility(View.GONE);
+                changeCallUi();
+                break;
             case R.id.top1_ll:
                 mVisibleTab = 0;
                 bddh_ll.setVisibility(View.VISIBLE);
@@ -188,6 +210,7 @@ public class HomeFragment extends BaseFragment {
                     public void confirm(String value) {
                         SPUtils.put(SPConstant.SP_CALL_TIMING, value);
                         mCallDsbhTv.setText(value + "后拨打");
+                        ivClearTime.setVisibility(View.VISIBLE);
                     }
                 });
                 break;
@@ -198,7 +221,7 @@ public class HomeFragment extends BaseFragment {
                     @Override
                     public void confirm(int num) {
                         SPUtils.put(SPConstant.SP_CALL_NUM, num);
-                        mCallBdcsTv.setText(num+ "次");
+                        mCallBdcsTv.setText(num + "次");
                         changeCallUi();
                     }
                 });
@@ -211,7 +234,7 @@ public class HomeFragment extends BaseFragment {
                     @Override
                     public void confirm(int second) {
                         SPUtils.put(SPConstant.SP_CALL_INTERVAL, second);
-                        mCallBdjgTv.setText(second+ "s");
+                        mCallBdjgTv.setText(second + "s");
                         changeCallUi();
                     }
                 });
@@ -222,14 +245,14 @@ public class HomeFragment extends BaseFragment {
                 break;
             case R.id.gd_switch:
                 mCallGd = !mCallGd;
-                mGdSwitch.setImageResource(mCallGd?R.mipmap.switch_on:R.mipmap.switch_off);
-                mGdSwitch2.setImageResource(mCallGd?R.mipmap.switch_off:R.mipmap.switch_on);
+                mGdSwitch.setImageResource(mCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
+                mGdSwitch2.setImageResource(mCallGd ? R.mipmap.switch_off : R.mipmap.switch_on);
                 SPUtils.put(SPConstant.SP_CALL_GD, mCallGd);
                 break;
             case R.id.gd_switch2:
                 mCallGd = !mCallGd;
-                mGdSwitch.setImageResource(mCallGd?R.mipmap.switch_on:R.mipmap.switch_off);
-                mGdSwitch2.setImageResource(mCallGd?R.mipmap.switch_off:R.mipmap.switch_on);
+                mGdSwitch.setImageResource(mCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
+                mGdSwitch2.setImageResource(mCallGd ? R.mipmap.switch_off : R.mipmap.switch_on);
                 SPUtils.put(SPConstant.SP_CALL_GD, mCallGd);
                 break;
             case R.id.home_btn_single_call_now:
@@ -311,7 +334,7 @@ public class HomeFragment extends BaseFragment {
                     public void confirm(int second) {
                         if (second < 0) {
                             mCallJgszTip.setText(String.format("%ss内随机", Math.abs(second)));
-                        }else {
+                        } else {
                             mCallJgszTip.setText(second + "s");
                         }
                         SPUtils.put(SPConstant.SP_CALL_JGSZ, second);
@@ -321,14 +344,14 @@ public class HomeFragment extends BaseFragment {
                 break;
             case R.id.pl_switch_gd:
                 mPlCallGd = !mPlCallGd;
-                mPlGdSwitch.setImageResource(mPlCallGd?R.mipmap.switch_on:R.mipmap.switch_off);
-                mPlGdSwitch2.setImageResource(mPlCallGd?R.mipmap.switch_off:R.mipmap.switch_on);
+                mPlGdSwitch.setImageResource(mPlCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
+                mPlGdSwitch2.setImageResource(mPlCallGd ? R.mipmap.switch_off : R.mipmap.switch_on);
                 SPUtils.put(SPConstant.SP_CALL_PL_GD, mPlCallGd);
                 break;
             case R.id.pl_switch_gd2:
                 mPlCallGd = !mPlCallGd;
-                mPlGdSwitch.setImageResource(mPlCallGd?R.mipmap.switch_on:R.mipmap.switch_off);
-                mPlGdSwitch2.setImageResource(mPlCallGd?R.mipmap.switch_off:R.mipmap.switch_on);
+                mPlGdSwitch.setImageResource(mPlCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
+                mPlGdSwitch2.setImageResource(mPlCallGd ? R.mipmap.switch_off : R.mipmap.switch_on);
                 SPUtils.put(SPConstant.SP_CALL_PL_GD, mPlCallGd);
                 break;
             case R.id.pl_call_tv:
@@ -339,13 +362,13 @@ public class HomeFragment extends BaseFragment {
                     startActivity(intent);
                 }
                 break;
-                //短信定时
+            //短信定时
             case R.id.dhfs_switch:
                 sms_dhfs_open = !sms_dhfs_open;
-                dhfs_switch.setImageResource(sms_dhfs_open?R.mipmap.switch_on:R.mipmap.switch_off);
-                dhfs_ll.setVisibility(sms_dhfs_open?View.VISIBLE:View.GONE);
-                plfs_switch.setImageResource(sms_dhfs_open?R.mipmap.switch_off:R.mipmap.switch_on);
-                plfs_ll.setVisibility(sms_dhfs_open?View.GONE:View.VISIBLE);
+                dhfs_switch.setImageResource(sms_dhfs_open ? R.mipmap.switch_on : R.mipmap.switch_off);
+                dhfs_ll.setVisibility(sms_dhfs_open ? View.VISIBLE : View.GONE);
+                plfs_switch.setImageResource(sms_dhfs_open ? R.mipmap.switch_off : R.mipmap.switch_on);
+                plfs_ll.setVisibility(sms_dhfs_open ? View.GONE : View.VISIBLE);
                 changeSmsUi();
                 break;
             case R.id.sms_txl_iv:
@@ -371,17 +394,17 @@ public class HomeFragment extends BaseFragment {
                     @Override
                     public void confirm(int num) {
                         SPUtils.put(SPConstant.SP_SMS_FSCS, num);
-                        mSmsFscsTip.setText(num+ "次");
+                        mSmsFscsTip.setText(num + "次");
                         changeSmsUi();
                     }
                 });
                 break;
             case R.id.plfs_switch:
                 sms_dhfs_open = !sms_dhfs_open;
-                dhfs_switch.setImageResource(sms_dhfs_open?R.mipmap.switch_on:R.mipmap.switch_off);
-                dhfs_ll.setVisibility(sms_dhfs_open?View.VISIBLE:View.GONE);
-                plfs_switch.setImageResource(sms_dhfs_open?R.mipmap.switch_off:R.mipmap.switch_on);
-                plfs_ll.setVisibility(sms_dhfs_open?View.GONE:View.VISIBLE);
+                dhfs_switch.setImageResource(sms_dhfs_open ? R.mipmap.switch_on : R.mipmap.switch_off);
+                dhfs_ll.setVisibility(sms_dhfs_open ? View.VISIBLE : View.GONE);
+                plfs_switch.setImageResource(sms_dhfs_open ? R.mipmap.switch_off : R.mipmap.switch_on);
+                plfs_ll.setVisibility(sms_dhfs_open ? View.GONE : View.VISIBLE);
                 changeSmsUi();
                 break;
             case R.id.sms_hmdr_rl:
@@ -452,7 +475,7 @@ public class HomeFragment extends BaseFragment {
                     @Override
                     public void confirm(int second) {
                         SPUtils.put(SPConstant.SP_SMS_FSJG, second);
-                        mSmsFsjgTip.setText(second+ "s");
+                        mSmsFsjgTip.setText(second + "s");
                         changeSmsUi();
                     }
                 });
@@ -489,16 +512,22 @@ public class HomeFragment extends BaseFragment {
         super.onResume();
 
         //拨打电话
-        if (TextUtils.isEmpty(SPUtils.getString(SPConstant.SP_CALL_SRHM, ""))) {
+        String singlePhoneNumber = SPUtils.getString(SPConstant.SP_CALL_SRHM, "");
+        if (TextUtils.isEmpty(singlePhoneNumber)) {
             mCallMobileEt.setText("");
             mCallMobileEt.setHint("请输入手机号码");
+            ivClearSinglePhoneNumber.setVisibility(View.GONE);
         } else {
-            mCallMobileEt.setText(SPUtils.getString(SPConstant.SP_CALL_SRHM, ""));
+            mCallMobileEt.setText(singlePhoneNumber);
+            ivClearSinglePhoneNumber.setVisibility(View.VISIBLE);
         }
+
         if (TextUtils.isEmpty(SPUtils.getString(SPConstant.SP_CALL_TIMING, ""))) {
             mCallDsbhTv.setText("");
+            ivClearTime.setVisibility(View.GONE);
         } else {
             mCallDsbhTv.setText(SPUtils.getString(SPConstant.SP_CALL_TIMING, "") + "后拨打");
+            ivClearTime.setVisibility(View.VISIBLE);
         }
         setBdfs();
         // 拨打次数默认1
@@ -528,21 +557,21 @@ public class HomeFragment extends BaseFragment {
         String doubleSimSetting = SPUtils.getString(SPConstant.SP_CALL_SKSZ, "sim1");
         if (TextUtils.isEmpty(doubleSimSetting)) {
             mCallSkszTip.setText("");
-        } else if ("sim1".equals(doubleSimSetting)){
+        } else if ("sim1".equals(doubleSimSetting)) {
             mCallSkszTip.setText("使用卡1拨打");
-        } else if ("sim2".equals(doubleSimSetting)){
+        } else if ("sim2".equals(doubleSimSetting)) {
             mCallSkszTip.setText("使用卡2拨打");
-        } else if ("sim_double".equals(doubleSimSetting)){
+        } else if ("sim_double".equals(doubleSimSetting)) {
             mCallSkszTip.setText("双卡轮流拨打");
         }
         // 批量间隔
         int interval = SPUtils.getInt(SPConstant.SP_CALL_JGSZ, 0);
         if (interval == 0) {
             mCallJgszTip.setText("");
-        } else if (interval>0){
+        } else if (interval > 0) {
             mCallJgszTip.setText(interval + "s");
-        }else {
-            mCallJgszTip.setText( String.format("%ss内随机",Math.abs(interval)));
+        } else {
+            mCallJgszTip.setText(String.format("%ss内随机", Math.abs(interval)));
         }
 
         //短信
@@ -571,11 +600,11 @@ public class HomeFragment extends BaseFragment {
         }
         if (TextUtils.isEmpty(SPUtils.getString(SPConstant.SP_SMS_SKSZ, ""))) {
             mSmsSkszTip.setText("");
-        } else if ("sim1".equals(SPUtils.getString(SPConstant.SP_SMS_SKSZ, ""))){
+        } else if ("sim1".equals(SPUtils.getString(SPConstant.SP_SMS_SKSZ, ""))) {
             mSmsSkszTip.setText("使用卡1发送");
-        } else if ("sim2".equals(SPUtils.getString(SPConstant.SP_SMS_SKSZ, ""))){
+        } else if ("sim2".equals(SPUtils.getString(SPConstant.SP_SMS_SKSZ, ""))) {
             mSmsSkszTip.setText("使用卡2发送");
-        } else if ("sim_double".equals(SPUtils.getString(SPConstant.SP_SMS_SKSZ, ""))){
+        } else if ("sim_double".equals(SPUtils.getString(SPConstant.SP_SMS_SKSZ, ""))) {
             mSmsSkszTip.setText("双卡轮流发送");
         }
 
@@ -603,8 +632,14 @@ public class HomeFragment extends BaseFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                SPUtils.put(SPConstant.SP_CALL_SRHM, mCallMobileEt.getText().toString());
+                String phone = mCallMobileEt.getText().toString();
+                SPUtils.put(SPConstant.SP_CALL_SRHM, phone);
                 changeCallUi();
+                if (TextUtils.isEmpty(phone)) {
+                    ivClearSinglePhoneNumber.setVisibility(View.GONE);
+                } else {
+                    ivClearSinglePhoneNumber.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -632,7 +667,7 @@ public class HomeFragment extends BaseFragment {
         changeSmsUi();
     }
 
-    private void changeCallUi(){
+    private void changeCallUi() {
         //拨打电话
         if (!TextUtils.isEmpty(mCallMobileEt.getText().toString()) &&
                 !TextUtils.isEmpty(mCallBdcsTv.getText().toString()) &&
@@ -644,7 +679,7 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
-    private void changePlCallUi(){
+    private void changePlCallUi() {
         //批量拨打电话
         if (!TextUtils.isEmpty(mCallHmdrTip.getText().toString()) &&
                 !TextUtils.isEmpty(mCallJgszTip.getText().toString())) {
@@ -654,7 +689,7 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
-    private void changeSmsUi(){
+    private void changeSmsUi() {
         //短信定时
         if (sms_dhfs_open) {
             //单号发送
@@ -680,7 +715,7 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_CODE_TAB1_CALL_TYPE:
                 setBdfs();
                 break;
