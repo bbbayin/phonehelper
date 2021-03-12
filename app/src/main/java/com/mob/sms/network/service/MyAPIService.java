@@ -10,6 +10,7 @@ import com.mob.sms.network.bean.LoginBean;
 import com.mob.sms.network.bean.OnlineContactBean;
 import com.mob.sms.network.bean.OrderBean;
 import com.mob.sms.network.bean.OrderHistoryBean;
+import com.mob.sms.network.bean.PolicyBean;
 import com.mob.sms.network.bean.QuestionBean;
 import com.mob.sms.network.bean.QuestionDetailBean;
 import com.mob.sms.network.bean.RecordBean;

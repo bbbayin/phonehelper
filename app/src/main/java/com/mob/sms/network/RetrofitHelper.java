@@ -6,6 +6,7 @@ import com.mob.sms.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
@@ -25,6 +26,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitHelper {
     private static OkHttpClient mOkHttpClient;
+    private static MyAPIService sApi;
 
     static {
         initOkHttpClient();
@@ -44,8 +46,11 @@ public class RetrofitHelper {
         return retrofit.create(clazz);
     }
 
-    public static MyAPIService getApi(){
-        return createApi(MyAPIService.class, "http://dial.shengzewang.cn/");
+    public static synchronized MyAPIService getApi() {
+        if (sApi == null) {
+            sApi = createApi(MyAPIService.class, "http://dial.shengzewang.cn/");
+        }
+        return sApi;
     }
 
     /**

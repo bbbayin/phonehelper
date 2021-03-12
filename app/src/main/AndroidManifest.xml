@@ -164,6 +164,9 @@
             android:name="com.tencent.connect.common.AssistActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity android:name=".policy.PolicyActivity"
+            android:screenOrientation="portrait"/>
+
         <provider
             android:authorities="com.mob.sms.fileprovider2"
             android:name="androidx.core.content.FileProvider"
