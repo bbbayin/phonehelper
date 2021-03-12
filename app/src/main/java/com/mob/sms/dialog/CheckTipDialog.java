@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -16,7 +17,10 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class CheckTipDialog extends Dialog {
-    private Unbinder bind;
+    private View btnCancel;
+    private View btnLine;
+    private View btnConfirm;
+    private View.OnClickListener cancelListener, confirmListener;
 
     public CheckTipDialog(@NonNull Context context) {
         this(context, R.style.dialogNoBg);
@@ -26,26 +30,52 @@ public class CheckTipDialog extends Dialog {
         super(context, themeResId);
 
         View view = View.inflate(context, R.layout.dialog_check_tip, null);
-        bind = ButterKnife.bind(this, view);
-
         setContentView(view);
+
+        btnCancel = findViewById(R.id.dialog_btn_cancel);
+        btnLine = findViewById(R.id.dialog_btn_line);
+        btnConfirm = findViewById(R.id.dialog_btn_confirm);
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (cancelListener!=null) {
+                    cancelListener.onClick(v);
+                }
+            }
+        });
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (confirmListener != null) {
+                    confirmListener.onClick(v);
+                }
+            }
+        });
     }
 
-    @OnClick({R.id.confirm})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.confirm:
-                dismiss();
-                break;
+    public void setContent(String content) {
+        TextView tvcontent = findViewById(R.id.tip);
+        tvcontent.setText(content);
+    }
+
+    public void setTitle(String title) {
+        TextView tvTitle = findViewById(R.id.title);
+        tvTitle.setText(title);
+    }
+
+    public void setCancelListener(View.OnClickListener cancelListener) {
+        if (cancelListener != null) {
+            this.cancelListener = cancelListener;
+            btnLine.setVisibility(View.VISIBLE);
+            btnCancel.setVisibility(View.VISIBLE);
         }
     }
-
-    @Override
-    public void dismiss() {
-        super.dismiss();
-        bind.unbind();
+    
+    public void setPositiveListener(View.OnClickListener listener){
+        this.confirmListener = listener;
     }
 }

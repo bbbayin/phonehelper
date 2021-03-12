@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
+import com.mob.sms.dialog.CheckTipDialog;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.rx.ExitEvent;
 import com.mob.sms.rx.RxBus;
@@ -49,7 +50,22 @@ public class SettingActivity extends BaseActivity {
                 startActivity(intent);
                 break;
             case R.id.zhuxiao:
-                delUser();
+                CheckTipDialog checkTipDialog = new CheckTipDialog(this);
+                checkTipDialog.setTitle("提示");
+                checkTipDialog.setContent("注销账号后将清除账号的所有信息，是否确认注销？");
+                checkTipDialog.setCancelListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // do nothing
+                    }
+                });
+                checkTipDialog.setPositiveListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        delUser();
+                    }
+                });
+                checkTipDialog.show();
                 break;
             case R.id.exit:
                 logout();

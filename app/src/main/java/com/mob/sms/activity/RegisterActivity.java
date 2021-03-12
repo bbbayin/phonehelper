@@ -51,6 +51,13 @@ public class RegisterActivity extends BaseActivity {
     @BindView(R.id.register)
     ImageView mRegister;
 
+    @OnClick({R.id.register_back})
+    public void click(View view) {
+        if (view.getId() == R.id.register_back) {
+            finish();
+        }
+    }
+
     private boolean mCanSeePwd;
     private boolean mCanSeePwd2;
 
