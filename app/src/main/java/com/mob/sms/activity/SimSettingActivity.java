@@ -1,4 +1,5 @@
 package com.mob.sms.activity;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -11,6 +12,8 @@ import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
+
+import java.math.BigDecimal;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,6 +40,10 @@ public class SimSettingActivity extends BaseActivity {
     View mDivider1;
     @BindView(R.id.divider2)
     View mDivider2;
+    @BindView(R.id.sim1_num)
+    TextView tvSim1Num;
+    @BindView(R.id.sim2_num)
+    TextView tvSim2Num;
 
     private String mType;
     private String mSimType;
@@ -44,6 +51,8 @@ public class SimSettingActivity extends BaseActivity {
     private final String SIM1 = "sim1";
     private final String SIM2 = "sim2";
     private final String SIM_DOUBLE = "sim_double";
+
+    private int sim1Count = 1, sim2Count = 1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,7 +63,7 @@ public class SimSettingActivity extends BaseActivity {
         initView();
     }
 
-    private void initView(){
+    private void initView() {
         mType = getIntent().getStringExtra("type");
         if ("call".equals(mType)) {
             mSimType = SPUtils.getString(SPConstant.SP_CALL_SKSZ, SIM1);
@@ -91,12 +100,44 @@ public class SimSettingActivity extends BaseActivity {
             mSimDoubleRl2.setVisibility(View.VISIBLE);
             mDivider1.setVisibility(View.VISIBLE);
             mDivider2.setVisibility(View.VISIBLE);
+
+            String sim1count = SPUtils.getString(SPConstant.SP_SIM_1_CALL_COUNT, "1");
+            String sim2count = SPUtils.getString(SPConstant.SP_SIM_2_CALL_COUNT, "1");
+            tvSim1Num.setText(sim1count);
+            tvSim2Num.setText(sim2count);
+            sim1Count = Integer.parseInt(sim1count);
+            sim2Count = Integer.parseInt(sim2count);
         }
     }
 
-    @OnClick({R.id.back, R.id.sim1_iv, R.id.sim2_iv, R.id.sim_double_iv})
+    @OnClick({R.id.back, R.id.sim1_iv, R.id.sim2_iv, R.id.sim_double_iv,
+            R.id.sim1_subtract, R.id.sim1_plus, R.id.sim2_subtract, R.id.sim2_plus})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.sim1_subtract:// 卡1减
+                if (sim1Count > 1) {
+                    sim1Count--;
+                    tvSim1Num.setText(String.valueOf(sim1Count));
+                    SPUtils.put(SPConstant.SP_SIM_1_CALL_COUNT, String.valueOf(sim1Count));
+                }
+                break;
+            case R.id.sim2_subtract:// 卡2减
+                if (sim2Count > 1) {
+                    sim2Count--;
+                    tvSim2Num.setText(String.valueOf(sim2Count));
+                    SPUtils.put(SPConstant.SP_SIM_2_CALL_COUNT, String.valueOf(sim2Count));
+                }
+                break;
+            case R.id.sim1_plus:// 卡1 加
+                sim1Count++;
+                tvSim1Num.setText(String.valueOf(sim1Count));
+                SPUtils.put(SPConstant.SP_SIM_1_CALL_COUNT, String.valueOf(sim1Count));
+                break;
+            case R.id.sim2_plus:// 卡2 加
+                sim2Count++;
+                tvSim2Num.setText(String.valueOf(sim2Count));
+                SPUtils.put(SPConstant.SP_SIM_2_CALL_COUNT, String.valueOf(sim2Count));
+                break;
             case R.id.back:
                 finish();
                 break;

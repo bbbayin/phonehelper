@@ -20,6 +20,8 @@ public class SPConstant {
     public static String SP_CALL_SKSZ = "sp_call_sksz"; //双卡设置
     public static String SP_CALL_JGSZ = "sp_call_jgsz"; //间隔设置
     public static String SP_CALL_PL_GD = "sp_call_pl_gd"; //批量挂断方式
+    public static String SP_SIM_1_CALL_COUNT = "sp_sim1_call_count";// sim1拨打次数
+    public static String SP_SIM_2_CALL_COUNT = "sp_sim2_call_count";// sim2拨打次数
 
     // 短信定时
     public static String SP_SMS_CHOOSE_TYPE = "sp_sms_choose_type"; //单号发送或者批量发送

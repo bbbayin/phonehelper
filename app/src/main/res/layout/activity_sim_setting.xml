@@ -142,6 +142,7 @@
             android:layout_height="match_parent">
 
             <ImageView
+                android:id="@+id/sim1_subtract"
                 android:layout_width="wrap_content"
                 android:scaleType="centerInside"
                 android:src="@mipmap/jian_icon"
@@ -154,10 +155,11 @@
                 android:textColor="@color/color_454545"
                 android:text="15"
                 android:layout_gravity="center_vertical"
-                android:id="@+id/num1"
+                android:id="@+id/sim1_num"
                 android:layout_height="wrap_content"/>
 
             <ImageView
+                android:id="@+id/sim1_plus"
                 android:layout_width="wrap_content"
                 android:scaleType="centerInside"
                 android:paddingHorizontal="12dp"
@@ -196,6 +198,7 @@
             android:layout_height="match_parent">
 
             <ImageView
+                android:id="@+id/sim2_subtract"
                 android:layout_width="wrap_content"
                 android:scaleType="centerInside"
                 android:src="@mipmap/jian_icon"
@@ -208,10 +211,11 @@
                 android:textColor="@color/color_454545"
                 android:text="15"
                 android:layout_gravity="center_vertical"
-                android:id="@+id/num2"
+                android:id="@+id/sim2_num"
                 android:layout_height="wrap_content"/>
 
             <ImageView
+                android:id="@+id/sim2_plus"
                 android:layout_width="wrap_content"
                 android:scaleType="centerInside"
                 android:paddingHorizontal="12dp"
