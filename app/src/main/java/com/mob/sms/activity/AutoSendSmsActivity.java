@@ -383,8 +383,7 @@ public class AutoSendSmsActivity extends BaseActivity {
 
         String time = new SimpleDateFormat("yyyy-MM-dd HH:MM:ss").format(new Date(System.currentTimeMillis()));
         if("dhfs".equals(mType)){
-            RetrofitHelper.getApi().saveSmsRecord(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                    allNum, "plfs".equals(mType)?"1":"0", SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""),time,
+            RetrofitHelper.getApi().saveSmsRecord(allNum, "plfs".equals(mType)?"1":"0", SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""),time,
                     "dhfs".equals(mType)?"1":"0", mSendNum, status,
                     mSuccessNum, tel, mDsfsTime).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -393,8 +392,7 @@ public class AutoSendSmsActivity extends BaseActivity {
                         throwable.printStackTrace();
                     });
         } else if("plfs".equals(mType)){
-            RetrofitHelper.getApi().saveSmsRecord(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                    allNum, "plfs".equals(mType)?"1":"0", SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""),time,
+            RetrofitHelper.getApi().saveSmsRecord(allNum, "plfs".equals(mType)?"1":"0", SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""),time,
                     "dhfs".equals(mType)?"1":"0", 0, status,
                     mSuccessNum, tel, "").subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())

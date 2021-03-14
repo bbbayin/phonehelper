@@ -26,6 +26,7 @@ import com.mob.sms.activity.DocImportActivity;
 import com.mob.sms.activity.EditSmsActivity;
 import com.mob.sms.activity.ImportContactsActivity;
 import com.mob.sms.activity.SimSettingActivity;
+import com.mob.sms.auto.SingleAutoTaskActivity;
 import com.mob.sms.base.BaseFragment;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
@@ -140,7 +141,7 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void setBdfs() {
-        String call_type = SPUtils.getString(SPConstant.SP_CALL_TYPE, "sim1");
+        String call_type = SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, "sim1");
         if ("sim1".equals(call_type)) {
             mCallBdfsTv.setText("使用手机卡1拨打");
         } else if ("sim2".equals(call_type)) {
@@ -260,7 +261,7 @@ public class HomeFragment extends BaseFragment {
                         !TextUtils.isEmpty(mCallBdcsTv.getText().toString()) &&
                         !TextUtils.isEmpty(mCallBdjgTv.getText().toString()) &&
                         !TextUtils.isEmpty(mCallBdfsTv.getText().toString())) {
-                    intent = new Intent(getContext(), AutoCallPhoneActivity.class);
+                    intent = new Intent(getContext(), SingleAutoTaskActivity.class);
                     intent.putExtra("type", "dhbd");
                     startActivity(intent);
                 }

@@ -281,8 +281,7 @@ public class ReSendSmsActivity extends BaseActivity {
             allNum = mRecords.size();
             type = 4;
         }
-        RetrofitHelper.getApi().saveRecord(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                allNum, mPauseState?"0":"1", mSendIndex+1, mPhone, type).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().saveRecord(allNum, mPauseState?"0":"1", mSendIndex+1, mPhone, type).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                 }, throwable -> {

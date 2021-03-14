@@ -74,7 +74,7 @@ public class SettingActivity extends BaseActivity {
     }
 
     private void delUser() {
-        RetrofitHelper.getApi().delUser(SPUtils.getString(SPConstant.SP_USER_TOKEN, "")).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().delUser().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {

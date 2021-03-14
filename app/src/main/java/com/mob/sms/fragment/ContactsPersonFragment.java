@@ -205,7 +205,7 @@ public class ContactsPersonFragment extends BaseFragment {
     }
 
     private void delete(String ids){
-        RetrofitHelper.getApi().deleteContacts(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""), ids).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().deleteContacts(ids).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {
@@ -228,7 +228,7 @@ public class ContactsPersonFragment extends BaseFragment {
 //            e.printStackTrace();
 //        }
 
-        RetrofitHelper.getApi().getContacts(SPUtils.getString(SPConstant.SP_USER_TOKEN, "")).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().getContacts().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onlineContactBean -> {
                     if (onlineContactBean != null && onlineContactBean.code == 200) {

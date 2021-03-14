@@ -44,7 +44,7 @@ public class OrderHistoryActivity extends BaseActivity {
     }
 
     private void getData() {
-        RetrofitHelper.getApi().getOrderHistory(SPUtils.getString(SPConstant.SP_USER_TOKEN, "")).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().getOrderHistory().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(orderHistoryBean -> {
                     if (orderHistoryBean != null && orderHistoryBean.code == 200 && orderHistoryBean.data != null) {

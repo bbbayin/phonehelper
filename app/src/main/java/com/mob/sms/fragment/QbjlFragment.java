@@ -160,8 +160,7 @@ public class QbjlFragment extends BaseFragment {
     }
 
     private void getData(){
-        RetrofitHelper.getApi().getPlCallRecords(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                mPage, mPageSize).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().getPlCallRecords(mPage, mPageSize).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {
@@ -220,7 +219,7 @@ public class QbjlFragment extends BaseFragment {
     }
 
     private void delete(String ids){
-        RetrofitHelper.getApi().deletePlCallRecord(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""), ids).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().deletePlCallRecord( ids).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {

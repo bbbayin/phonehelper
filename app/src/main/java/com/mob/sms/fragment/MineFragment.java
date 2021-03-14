@@ -28,6 +28,7 @@ import com.mob.sms.activity.ShareQrcodeActivity;
 import com.mob.sms.activity.UserInfoActivity;
 import com.mob.sms.activity.VipActivity;
 import com.mob.sms.base.BaseFragment;
+import com.mob.sms.debug.DebugActivity;
 import com.mob.sms.dialog.ShareDialog;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.ShareBean;
@@ -87,7 +88,7 @@ public class MineFragment extends BaseFragment {
     }
 
     private void getUserInfo() {
-        RetrofitHelper.getApi().getUserInfo(SPUtils.getString(SPConstant.SP_USER_TOKEN, "")).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().getUserInfo().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(userInfoBean -> {
                     if (userInfoBean != null && userInfoBean.code == 200) {
@@ -104,6 +105,7 @@ public class MineFragment extends BaseFragment {
                             SPUtils.put(SPConstant.SP_USER_NAME, mUserInfo.nickName);
                             mName.setText(mUserInfo.nickName);
                         }
+                        SPUtils.put(SPConstant.SP_USER_PHONE, mUserInfo.username);
                         mProgressbar.setMax(mUserInfo.allMinute);
                         mProgressbar.setProgress(mUserInfo.useMinute);
                     }
@@ -113,9 +115,12 @@ public class MineFragment extends BaseFragment {
     }
 
     @OnClick({R.id.vip_rl, R.id.about_rl, R.id.question_rl, R.id.share_rl, R.id.problem_rl, R.id.xiaofei_rl,
-            R.id.setting_rl, R.id.qiye_rl, R.id.user_ll})
+            R.id.setting_rl, R.id.qiye_rl, R.id.user_ll,R.id.settings_btn_debug})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.settings_btn_debug:
+                startActivity(new Intent(getContext(), DebugActivity.class));
+                break;
             case R.id.vip_rl:
                 startActivity(new Intent(getContext(), VipActivity.class));
                 break;

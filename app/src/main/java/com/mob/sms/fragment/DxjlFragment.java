@@ -166,8 +166,7 @@ public class DxjlFragment extends BaseFragment {
     }
 
     private void getData(){
-        RetrofitHelper.getApi().getSmsRecords(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                mPage, mPageSize).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().getSmsRecords(mPage, mPageSize).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(smsRecordBean -> {
                     if (smsRecordBean != null && smsRecordBean.code == 200) {
@@ -226,7 +225,7 @@ public class DxjlFragment extends BaseFragment {
     }
 
     private void delete(String ids){
-        RetrofitHelper.getApi().deleteSmsRecord(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""), ids).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().deleteSmsRecord(ids).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {

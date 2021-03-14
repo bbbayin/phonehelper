@@ -166,6 +166,9 @@
             android:configChanges="orientation|keyboardHidden|screenSize"/>
         <activity android:name=".policy.PolicyActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".debug.DebugActivity" />
+        <activity android:name=".auto.SingleAutoTaskActivity"
+            android:launchMode="singleTask"/>
 
         <provider
             android:authorities="com.mob.sms.fileprovider2"

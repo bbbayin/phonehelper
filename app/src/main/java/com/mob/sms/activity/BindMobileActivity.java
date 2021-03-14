@@ -80,6 +80,7 @@ public class BindMobileActivity extends BaseActivity {
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {
                         ToastUtil.show("绑定成功");
+                        SPUtils.put(SPConstant.SP_USER_PHONE, mMobileEt.getText().toString());
                         finish();
                     } else {
                         ToastUtil.show(baseBean.msg);

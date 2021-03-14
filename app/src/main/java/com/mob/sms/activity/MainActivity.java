@@ -73,7 +73,7 @@ public class MainActivity extends BaseActivity {
     private Subscription mSub;
 
     private String[] mPermissions = new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_CONTACTS,Manifest.permission.CALL_PHONE,
+            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_CONTACTS, Manifest.permission.CALL_PHONE,
             Manifest.permission.READ_PHONE_STATE};
     private ArrayList<String> mPermissionList = new ArrayList<>();
 
@@ -95,7 +95,7 @@ public class MainActivity extends BaseActivity {
             ActivityCompat.requestPermissions(this, mPermissions, 1);
         }
         initView();
-        mSub =  RxBus.getInstance().toObserverable(ExitEvent.class)
+        mSub = RxBus.getInstance().toObserverable(ExitEvent.class)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::finishPage);
 
@@ -117,7 +117,7 @@ public class MainActivity extends BaseActivity {
         return true;
     }
 
-    private void initView(){
+    private void initView() {
         fragmentsList.add(new HomeFragment());
         fragmentsList.add(new RecordFragment());
         fragmentsList.add(new ContactsFragment());
@@ -202,7 +202,6 @@ public class MainActivity extends BaseActivity {
             mSub.unsubscribe();
         }
     }
-
 
 
     @Override

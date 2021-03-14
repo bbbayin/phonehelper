@@ -100,8 +100,7 @@ public class VipActivity extends BaseActivity {
         final IWXAPI msgApi = WXAPIFactory.createWXAPI(this, null);
         // 将该app注册到微信
         msgApi.registerApp("wx5fe8deafb48e5513");
-        RetrofitHelper.getApi().createOrder(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                mDatas.get(0).memberId).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().createOrder(mDatas.get(0).memberId).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(orderBean -> {
                     if(orderBean!=null&&orderBean.code==200){
@@ -113,7 +112,7 @@ public class VipActivity extends BaseActivity {
     }
 
     private void pay(int orderId,  String payType){
-        RetrofitHelper.getApi().pay(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""), orderId, payType).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().pay(orderId, payType).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {
@@ -170,8 +169,7 @@ public class VipActivity extends BaseActivity {
     }
 
     private void aliPay(){
-        RetrofitHelper.getApi().createOrder(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                mDatas.get(0).memberId).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().createOrder(mDatas.get(0).memberId).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(orderBean -> {
                     if(orderBean!=null&&orderBean.code==200){

@@ -7,14 +7,16 @@ public class SPConstant {
     public static String SP_USER_NAME = "sp_user_name";
     public static String SP_USER_HEAD = "sp_user_head";
     public static String SP_USER_LOGIN_TYPE = "sp_user_login_type";
+    public static String SP_USER_PHONE = "sp_user_phone";
 
     //拨打电话
     public static String SP_CALL_SRHM = "sp_call_srhm"; //输入号码
     public static String SP_CALL_TIMING = "sp_call_timing"; //定时拨号
     public static String SP_CALL_NUM = "sp_call_num"; //拨打次数
     public static String SP_CALL_INTERVAL = "sp_call_interval"; //拨打间隔
-    public static String SP_CALL_TYPE = "sp_call_type"; //拨打方式
+    public static String SP_SIM_CARD_TYPE = "sp_call_type"; //拨打方式
     public static String SP_CALL_GD = "sp_call_gd"; //挂断方式
+    public static String SP_SECRET_SIM_NO = "secret_sim_no";// 隐私拨号的sim卡
 
     //批量拨打
     public static String SP_CALL_SKSZ = "sp_call_sksz"; //双卡设置

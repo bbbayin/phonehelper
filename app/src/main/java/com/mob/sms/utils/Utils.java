@@ -23,10 +23,13 @@ import android.view.WindowManager;
 import androidx.annotation.ColorInt;
 import androidx.core.app.ActivityCompat;
 
+import com.mob.sms.dialog.CheckTipDialog;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -79,10 +82,12 @@ public class Utils {
             activity.startActivity(intent);
         }
     }
+
     /**
      * 拨打电话，根据sim卡
+     *
      * @param activity
-     * @param slotId 0:卡1  1:卡2
+     * @param slotId   0:卡1  1:卡2
      */
     public static void callPhone(Activity activity, int slotId) {
         String phone = SPUtils.getString(SPConstant.SP_CALL_SRHM, "");
@@ -97,7 +102,7 @@ public class Utils {
             return null;
         }
         List<PhoneAccountHandle> handles = getAccountHandles(activity);
-        if (handles!= null && handles.size()>0) {
+        if (handles != null && handles.size() > 0) {
             return handles.get(0);
         }
         SubscriptionManager sm = SubscriptionManager.from(activity);
@@ -129,24 +134,27 @@ public class Utils {
         Class c;
         Method m;
         TelecomManager telecomManager;
-        List<PhoneAccountHandle> accountHandles;
+        List<PhoneAccountHandle> accountHandles = new ArrayList<>();
         try {
             c = Class.forName("android.telecom.TelecomManager");
             Method m1 = c.getMethod("from", Context.class);
             telecomManager = (TelecomManager) m1.invoke(null, context);
             m = c.getMethod("getCallCapablePhoneAccounts");
             accountHandles = (List<PhoneAccountHandle>) m.invoke(telecomManager);
-            return accountHandles;
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return accountHandles;
+    }
+
+    public static void showDialog(Activity activity, String content,
+                           String title,
+                           View.OnClickListener positiveListener, View.OnClickListener cancelListener) {
+        CheckTipDialog tipDialog = new CheckTipDialog(activity);
+        tipDialog.setTitle(title);
+        tipDialog.setPositiveListener(positiveListener);
+        tipDialog.setCancelListener(cancelListener);
+        tipDialog.setContent(content);
+        tipDialog.show();
     }
 }

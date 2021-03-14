@@ -101,8 +101,7 @@ public class FeedBackHistoryActivity extends BaseActivity {
     }
 
     private void getData(){
-        RetrofitHelper.getApi().getFeedback(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                mPage, mPageSize).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().getFeedback(mPage, mPageSize).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {

@@ -163,8 +163,7 @@ public class BhjlFragment extends BaseFragment {
     }
 
     private void getData(){
-        RetrofitHelper.getApi().getCallRecords(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                mPage, mPageSize).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().getCallRecords(mPage, mPageSize).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(callRecordBean -> {
                     if (callRecordBean != null && callRecordBean.code == 200) {
@@ -223,7 +222,7 @@ public class BhjlFragment extends BaseFragment {
     }
 
     private void delete(String ids){
-        RetrofitHelper.getApi().deleteCallRecord(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""), ids).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().deleteCallRecord(ids).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {

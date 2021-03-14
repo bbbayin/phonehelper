@@ -81,8 +81,7 @@ public class FeedBackActivity extends BaseActivity {
     }
 
     private void addFeedback() {
-        RetrofitHelper.getApi().addFeedback(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                mContentEt.getText().toString(), mImage,
+        RetrofitHelper.getApi().addFeedback(mContentEt.getText().toString(), mImage,
                 mMobileEt.getText().toString()).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {

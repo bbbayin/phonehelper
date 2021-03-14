@@ -1,5 +1,6 @@
 package com.mob.sms.network.service;
 
+import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.network.bean.AuthoLoginBean;
 import com.mob.sms.network.bean.BaseBean;
 import com.mob.sms.network.bean.CallRecordBean;
@@ -29,8 +30,6 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
-import retrofit2.http.Header;
-import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
@@ -64,7 +63,7 @@ public interface MyAPIService {
 
     //注销
     @POST("prod-api/restApi/appUser/delUser")
-    Observable<BaseBean> delUser(@Header("Authorization") String Authorization);
+    Observable<BaseBean> delUser();
 
     //授权登录
     @POST("prod-api/restApi/appUser/authLogin")
@@ -93,17 +92,16 @@ public interface MyAPIService {
 
     //获取历史反馈
     @POST("prod-api/restApi/feedback/getHistory")
-    Observable<HistoryFeedBackBean> getFeedback(@Header("Authorization") String Authorization, @Query("pageNum") int pageNum,
-                                                @Query("pageSize") int pageSize);
+    Observable<HistoryFeedBackBean> getFeedback(@Query("pageNum") int pageNum, @Query("pageSize") int pageSize);
 
     //增加反馈
     @POST("prod-api/restApi/feedback/add")
-    Observable<BaseBean> addFeedback(@Header("Authorization") String Authorization, @Query("content") String content,
+    Observable<BaseBean> addFeedback(@Query("content") String content,
                                      @Query("image") String image, @Query("phone") String phone);
 
     //回复反馈
     @POST("prod-api/restApi/feedback/reply")
-    Observable<BaseBean> replyFeedback(@Header("Authorization") String Authorization, @Query("content") String content,
+    Observable<BaseBean> replyFeedback(@Query("content") String content,
                                      @Query("feedbackId") int feedbackId, @Query("img") String img);
 
     //反馈详情
@@ -120,41 +118,41 @@ public interface MyAPIService {
 
     //添加联系人
     @POST("prod-api/restApi/address/addList")
-    Observable<BaseBean> addContact(@Header("Authorization") String Authorization, @Query("name") String name,
+    Observable<BaseBean> addContact(@Query("name") String name,
                                      @Query("tel") String tel);
 
     //获取联系人
     @POST("prod-api/restApi/address/getList")
-    Observable<OnlineContactBean> getContacts(@Header("Authorization") String Authorization);
+    Observable<OnlineContactBean> getContacts();
 
     //删除联系人
     @POST("prod-api/restApi/address/delete")
-    Observable<BaseBean> deleteContacts(@Header("Authorization") String Authorization, @Query("ids") String ids);
+    Observable<BaseBean> deleteContacts(@Query("ids") String ids);
 
     //获取短信记录
     @POST("prod-api/restApi/record/recordNote")
-    Observable<SmsRecordBean> getSmsRecords(@Header("Authorization") String Authorization, @Query("pageNum") int pageNum,
+    Observable<SmsRecordBean> getSmsRecords(@Query("pageNum") int pageNum,
                                             @Query("pageSize") int pageSize);
 
     //获取拨号记录
     @POST("prod-api/restApi/record/recordDial")
-    Observable<CallRecordBean> getCallRecords(@Header("Authorization") String Authorization, @Query("pageNum") int pageNum,
+    Observable<CallRecordBean> getCallRecords(@Query("pageNum") int pageNum,
                                               @Query("pageSize") int pageSize);
 
     //获取群拨记录
     @POST("prod-api/restApi/record/recordBatch")
-    Observable<CallRecordBean> getPlCallRecords(@Header("Authorization") String Authorization, @Query("pageNum") int pageNum,
+    Observable<CallRecordBean> getPlCallRecords(@Query("pageNum") int pageNum,
                                          @Query("pageSize") int pageSize);
 
     //保存记录
     @POST("prod-api/restApi/record/saveRecord")
-    Observable<BaseBean> saveRecord(@Header("Authorization") String Authorization, @Query("allNum") int allNum,
+    Observable<BaseBean> saveRecord(@Query("allNum") int allNum,
                                              @Query("status") String status, @Query("successNum") int successNum,
                                              @Query("tels") String tels, @Query("type") int type);
 
     //保存短信记录
     @POST("prod-api/restApi/record/saveRecordNote")
-    Observable<BaseBean> saveSmsRecord(@Header("Authorization") String Authorization, @Query("allNum") int allNum,
+    Observable<BaseBean> saveSmsRecord(@Query("allNum") int allNum,
                                     @Query("batchSend") String batchSend, @Query("content") String content,
                                     @Query("createTime") String createTime, @Query("oneSend") String oneSend,
                                        @Query("sendNum") int sendNum, @Query("status") String status,
@@ -163,7 +161,7 @@ public interface MyAPIService {
 
     //保存拨号记录
     @POST("prod-api/restApi/record/saveRecordDial")
-    Observable<BaseBean> saveCallRecord(@Header("Authorization") String Authorization, @Query("allNum") int allNum,
+    Observable<BaseBean> saveCallRecord(@Query("allNum") int allNum,
                                        @Query("createTime") String createTime, @Query("dialInterval") String dialInterval,
                                        @Query("dialNum") int dialNum, @Query("dialType") String dialType,
                                        @Query("onHang") String onHang, @Query("status") String status,
@@ -172,7 +170,7 @@ public interface MyAPIService {
 
     //保存群拨记录
     @POST("prod-api/restApi/record/saveRecordBatch")
-    Observable<BaseBean> savePlCallRecord(@Header("Authorization") String Authorization, @Query("allNum") int allNum,
+    Observable<BaseBean> savePlCallRecord(@Query("allNum") int allNum,
                                         @Query("cardSet") String cardSet, @Query("createTime") String createTime,
                                         @Query("intervalSet") String intervalSet, @Query("onHang") String onHang,
                                           @Query("status") String status, @Query("successNum") int successNum,
@@ -180,19 +178,19 @@ public interface MyAPIService {
 
     //删除记录
     @POST("prod-api/restApi/record/deleteRecord")
-    Observable<BaseBean> deleteRecord(@Header("Authorization") String Authorization, @Query("ids") String ids);
+    Observable<BaseBean> deleteRecord(@Query("ids") String ids);
 
     //删除短信记录
     @POST("prod-api/restApi/record/deleteRecordNote")
-    Observable<BaseBean> deleteSmsRecord(@Header("Authorization") String Authorization, @Query("ids") String ids);
+    Observable<BaseBean> deleteSmsRecord( @Query("ids") String ids);
 
     //删除拨号记录
     @POST("prod-api/restApi/record/deleteRecordDial")
-    Observable<BaseBean> deleteCallRecord(@Header("Authorization") String Authorization, @Query("ids") String ids);
+    Observable<BaseBean> deleteCallRecord(@Query("ids") String ids);
 
     //删除群拨记录
     @POST("prod-api/restApi/record/deleteRecordBatch")
-    Observable<BaseBean> deletePlCallRecord(@Header("Authorization") String Authorization, @Query("ids") String ids);
+    Observable<BaseBean> deletePlCallRecord(@Query("ids") String ids);
 
     @Multipart
     @POST("prod-api/restApi/appUser/upload")
@@ -200,33 +198,37 @@ public interface MyAPIService {
 
     //修改用户信息
     @POST("prod-api/restApi/appUser/updateUser")
-    Observable<BaseBean> updateUser(@Header("Authorization") String Authorization, @Query("avatar") String avatar,
+    Observable<BaseBean> updateUser(@Query("avatar") String avatar,
                                     @Query("nickName") String nickName);
 
     //支付订单
     @POST("prod-api/restApi/pay/toPay")
-    Observable<BaseBean> pay(@Header("Authorization") String Authorization, @Query("orderId") int orderId,
+    Observable<BaseBean> pay(@Query("orderId") int orderId,
                                     @Query("payType") String payType);
 
     //创建订单
     @POST("prod-api/restApi/order/createOrder")
-    Observable<OrderBean> createOrder(@Header("Authorization") String Authorization, @Query("relationId") int relationId);
+    Observable<OrderBean> createOrder(@Query("relationId") int relationId);
 
     //获取用户信息
     @POST("prod-api/restApi/appUser/getUser")
-    Observable<UserInfoBean> getUserInfo(@Header("Authorization") String Authorization);
+    Observable<UserInfoBean> getUserInfo();
 
     //消费记录
     @POST("prod-api/restApi/order/history")
-    Observable<OrderHistoryBean> getOrderHistory(@Header("Authorization") String Authorization);
+    Observable<OrderHistoryBean> getOrderHistory();
 
     //保存通话记录
     @POST("prod-api/restApi/call/saveLog")
-    Observable<OrderHistoryBean> saveLog(@Header("Authorization") String Authorization, @Query("dialTime") String dialTime,
+    Observable<OrderHistoryBean> saveLog(@Query("dialTime") String dialTime,
                                          @Query("name") String name, @Query("tel") String tel);
 
     //获取通话记录
     @POST("prod-api/restApi/call/list")
-    Observable<OrderHistoryBean> getLog(@Header("Authorization") String Authorization, @Query("pageNum") int pageNum,
+    Observable<OrderHistoryBean> getLog(@Query("pageNum") int pageNum,
                                          @Query("pageSize") int pageSize);
+
+    // 云拨号
+    @POST("prod-api/restApi/cloud/useCloudDial")
+    Observable<CloudPermissionBean> cloudDial();
 }

@@ -73,8 +73,7 @@ public class AddContactActivity extends BaseActivity {
     }
 
     private void save(){
-        RetrofitHelper.getApi().addContact(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                mNameEt.getText().toString(), mMobileEt.getText().toString()).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().addContact(mNameEt.getText().toString(), mMobileEt.getText().toString()).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {

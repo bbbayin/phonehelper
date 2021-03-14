@@ -1,9 +1,12 @@
 package com.mob.sms.activity;
 
+import android.Manifest;
+import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +24,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,8 +32,10 @@ import com.mob.sms.R;
 import com.mob.sms.adapter.CallPhoneRecordsAdapter;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.bean.CallPhoneRecord;
+import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
+import com.mob.sms.dialog.CheckTipDialog;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.pns.BaiduPnsServiceImpl;
 import com.mob.sms.receiver.PhoneStateReceiver;
@@ -38,8 +44,10 @@ import com.mob.sms.rx.RxBus;
 import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
+import com.mob.sms.utils.ToastUtil;
 import com.mob.sms.utils.Utils;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -52,6 +60,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class AutoCallPhoneActivity extends BaseActivity {
@@ -91,6 +100,8 @@ public class AutoCallPhoneActivity extends BaseActivity {
     private boolean mPauseState;
     private boolean mSim1Call = true;// 双卡轮流拨打情况使用
     private TelephonyManager mTm;
+    private String mSimCard;// 用的sim卡
+    private String dialNumber;// 要拨打的电话
 
     //指定SIM卡拨打
     private String[] dualSimTypes = {"subscription", "Subscription",
@@ -100,6 +111,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
             "simSlot"};
 
     private Subscription mSub;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -116,6 +128,152 @@ public class AutoCallPhoneActivity extends BaseActivity {
         mSub = RxBus.getInstance().toObserverable(CallEvent.class)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::nextCall);
+
+        initData();
+    }
+
+    private void showProgress(String msg) {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+        }
+        if (!progressDialog.isShowing()) {
+            progressDialog.setTitle(msg);
+            if (isDestroyed() || isFinishing()) {
+                return;
+            }
+            progressDialog.show();
+        }
+    }
+
+    private void hideProgress() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+            }
+        });
+    }
+
+    private void bindSecretNumber() {
+        String phone = SPUtils.getString(SPConstant.SP_USER_PHONE, "");
+        if (TextUtils.isEmpty(phone)) {
+            Utils.showDialog(this, "请先绑定手机号", "提示",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(AutoCallPhoneActivity.this, BindMobileActivity.class));
+                        }
+                    },
+                    null);
+        } else {
+            showProgress("获取隐私号码...");
+            new Thread() {
+                @Override
+                public void run() {
+                    BaiduPnsServiceImpl impl = new BaiduPnsServiceImpl();
+                    String callNumber = SPUtils.getString(SPConstant.SP_CALL_SRHM, "");
+                    String s = impl.bindingAxb(phone, callNumber);
+                    Log.d("绑定隐私号结果", s);
+                    hideProgress();
+                    //{"code":"0","msg":"成功","data":{"bindId":"2411790078574043902","telX":"18468575717"}}
+                    try {
+                        JSONObject jsonObject = new JSONObject(s);
+                        JSONObject data = jsonObject.optJSONObject("data");
+                        if (data != null) {
+                            String telX = data.optString("telX");
+                            if (!TextUtils.isEmpty(telX)) {
+                                bindTelxSuccess(telX);
+                            } else {
+                                bindTelxFailed();
+                            }
+                        } else {
+                            bindTelxFailed();
+                        }
+                    } catch (JSONException e) {
+                        bindTelxFailed();
+                    }
+                }
+            }.start();
+
+        }
+    }
+
+    private void bindTelxSuccess(String telX) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialNumber = telX;
+            }
+        });
+    }
+
+    private void bindTelxFailed() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Utils.showDialog(AutoCallPhoneActivity.this, "隐私号码获取失败，请重试",
+                        "提示", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                bindSecretNumber();
+                            }
+                        },
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                finish();
+                            }
+                        });
+            }
+        });
+    }
+
+    private void initData() {
+
+        mSimCard = SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, Constants.SIM_TYPE_SIM_1);
+        if (mSimCard.equals(Constants.SIM_TYPE_SECRET)) {
+            // 隐私拨号
+            bindSecretNumber();
+
+//            RetrofitHelper.getApi().cloudDial()
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(new Action1<CloudPermissionBean>() {
+//                        @Override
+//                        public void call(CloudPermissionBean permissionBean) {
+//                            if (permissionBean != null) {
+//                                if ("200".equals(permissionBean.code)) {
+//                                    // 获取隐私号
+//                                    bindSecretNumber();
+//                                    BaiduPnsServiceImpl impl = new BaiduPnsServiceImpl();
+//
+//                                } else {
+//                                    CheckTipDialog dialog = new CheckTipDialog(AutoCallPhoneActivity.this);
+//                                    dialog.setContent(permissionBean.msg);
+//                                    dialog.setPositiveListener(new View.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(View v) {
+//                                            finish();
+//                                        }
+//                                    });
+//                                    dialog.show();
+//                                }
+//                            } else {
+//                                CheckTipDialog dialog = new CheckTipDialog(AutoCallPhoneActivity.this);
+//                                dialog.setContent("隐私拨打不能使用，您还未购买套餐");
+//                                dialog.setPositiveListener(new View.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(View v) {
+//                                        finish();
+//                                    }
+//                                });
+//                                dialog.show();
+//                            }
+//                        }
+//                    });
+        }
     }
 
     private void useAxb() {
@@ -166,11 +324,11 @@ public class AutoCallPhoneActivity extends BaseActivity {
     private void initView() {
         mTm = (TelephonyManager) getSystemService(Service.TELEPHONY_SERVICE);
         mTm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
-
+        dialNumber = SPUtils.getString(SPConstant.SP_CALL_SRHM, "");
         mType = getIntent().getStringExtra("type");
         if (Constants.CALL_STYLE_SINGLE.equals(mType)) {
             mTip.setText("单号拨打电话");
-            mMobile.setText(SPUtils.getString(SPConstant.SP_CALL_SRHM, ""));
+            mMobile.setText(dialNumber);
             // 拨打次数
             mTotalCallTimes = SPUtils.getInt(SPConstant.SP_CALL_NUM, 1);
             mDsbdTime = SPUtils.getString(SPConstant.SP_CALL_TIMING, "");
@@ -264,8 +422,9 @@ public class AutoCallPhoneActivity extends BaseActivity {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 String simType = Constants.SIM_TYPE_SIM_1;
                 if (Constants.CALL_STYLE_SINGLE.equals(mType)) {
-                    simType = SPUtils.getString(SPConstant.SP_CALL_TYPE, Constants.SIM_TYPE_SIM_1);
+                    simType = SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, Constants.SIM_TYPE_SIM_1);
                 } else {
+                    // 批量拨打类型
                     simType = SPUtils.getString(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_1);
                 }
                 for (int i = 0; i < dualSimTypes.length; i++) {
@@ -278,7 +437,8 @@ public class AutoCallPhoneActivity extends BaseActivity {
                         intent.putExtra(dualSimTypes[i], mSim1Call ? 0 : 1);
                         mSim1Call = !mSim1Call;
                     } else if (Constants.SIM_TYPE_SECRET.equals(simType)) {
-                        // TODO: 2021/3/13 隐私拨打 
+                        // TODO: 2021/3/13 隐私拨打
+                        intent.putExtra(dualSimTypes[i], 1);
                     }
                 }
 //                List<PhoneAccountHandle> phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
@@ -290,6 +450,8 @@ public class AutoCallPhoneActivity extends BaseActivity {
                         intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(1));
                     } else if (Constants.SIM_TYPE_SIM_MIX.equals(simType)) {
                         intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(mSim1Call ? 1 : 0));
+                    } else if (Constants.SIM_TYPE_SECRET.equals(simType)) {
+                        intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(1));
                     }
                 }
                 startActivity(intent);
@@ -362,7 +524,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                             mNum.setText("(" + (mSendIndex + 1) + "/" + mTotalCallTimes + "次)");
                             mTime.setText("下一次拨打还需要" + mInterval + "s");
                             mTm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
-                            callPhone(SPUtils.getString(SPConstant.SP_CALL_SRHM, ""));
+                            callPhone(dialNumber);
                         }
                     } else {
                         mTime.setText("下一次拨打还需要" + 0 + "s");
@@ -468,8 +630,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
 
         String time = new SimpleDateFormat("yyyy-MM-dd HH:MM:ss").format(new Date(System.currentTimeMillis()));
         if ("dhbd".equals(mType)) {
-            RetrofitHelper.getApi().saveCallRecord(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                    allNum, time, mInterval + "", mTotalCallTimes, SPUtils.getString(SPConstant.SP_CALL_TYPE, ""),
+            RetrofitHelper.getApi().saveCallRecord(allNum, time, mInterval + "", mTotalCallTimes, SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, ""),
                     SPUtils.getBoolean(SPConstant.SP_CALL_GD, false) ? "1" : "0", status,
                     mSendIndex + 1, tel, mDsbdTime, SPUtils.getBoolean(SPConstant.SP_CALL_GD, false) ? "0" : "1").subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -478,8 +639,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                         throwable.printStackTrace();
                     });
         } else if ("plbd".equals(mType)) {
-            RetrofitHelper.getApi().savePlCallRecord(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""),
-                    allNum, SPUtils.getString(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_1), time,
+            RetrofitHelper.getApi().savePlCallRecord(allNum, SPUtils.getString(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_1), time,
                     mInterval + "",
                     SPUtils.getBoolean(SPConstant.SP_CALL_PL_GD, false) ? "1" : "0", status,
                     mSendIndex + 1, tel, SPUtils.getBoolean(SPConstant.SP_CALL_PL_GD, false) ? "0" : "1").subscribeOn(Schedulers.io())
