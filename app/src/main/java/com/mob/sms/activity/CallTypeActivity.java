@@ -1,6 +1,7 @@
 package com.mob.sms.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -96,8 +97,17 @@ public class CallTypeActivity extends BaseActivity {
                 finish();
                 break;
             case R.id.ysh_rl:
-                cloudDialCheck();
+                Intent intent = new Intent(this, SetSecretInfoActivity.class);
+                startActivityForResult(intent, 1234);
                 break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1234 && resultCode == RESULT_OK) {
+            enableCloudCall();
         }
     }
 

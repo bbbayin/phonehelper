@@ -169,6 +169,7 @@
         <activity android:name=".debug.DebugActivity" />
         <activity android:name=".auto.SingleAutoTaskActivity"
             android:launchMode="singleTask"/>
+        <activity android:name=".activity.SetSecretInfoActivity" />
 
         <provider
             android:authorities="com.mob.sms.fileprovider2"

@@ -26,8 +26,10 @@ import com.mob.sms.activity.DocImportActivity;
 import com.mob.sms.activity.EditSmsActivity;
 import com.mob.sms.activity.ImportContactsActivity;
 import com.mob.sms.activity.SimSettingActivity;
+import com.mob.sms.activity.VipActivity;
 import com.mob.sms.auto.SingleAutoTaskActivity;
 import com.mob.sms.base.BaseFragment;
+import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
 import com.mob.sms.db.SmsContactTable;
@@ -37,6 +39,7 @@ import com.mob.sms.dialog.SetCallIntervalDialog;
 import com.mob.sms.dialog.SetCallNumDialog;
 import com.mob.sms.dialog.SetCallTimingDialog;
 import com.mob.sms.dialog.SetMultiCallIntervalDialog;
+import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 
@@ -45,6 +48,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class HomeFragment extends BaseFragment {
     @BindView(R.id.bddh_ll)
@@ -261,9 +267,15 @@ public class HomeFragment extends BaseFragment {
                         !TextUtils.isEmpty(mCallBdcsTv.getText().toString()) &&
                         !TextUtils.isEmpty(mCallBdjgTv.getText().toString()) &&
                         !TextUtils.isEmpty(mCallBdfsTv.getText().toString())) {
-                    intent = new Intent(getContext(), SingleAutoTaskActivity.class);
-                    intent.putExtra("type", "dhbd");
-                    startActivity(intent);
+                    // 判断是否隐私拨号
+                    String s = mCallBdfsTv.getText().toString();
+                    if (s.contains("隐私")) {
+                        checkPermission();
+                    } else {
+                        intent = new Intent(getContext(), SingleAutoTaskActivity.class);
+                        intent.putExtra("type", "dhbd");
+                        startActivity(intent);
+                    }
                 }
                 break;
             case R.id.hmdr_rl:
@@ -506,6 +518,27 @@ public class HomeFragment extends BaseFragment {
                 }
                 break;
         }
+    }
+
+    private void checkPermission() {
+        RetrofitHelper.getApi().cloudDial()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<CloudPermissionBean>() {
+                    @Override
+                    public void call(CloudPermissionBean permissionBean) {
+                        // TODO: 2021/3/14
+                        permissionBean.code = "200";
+                        if (permissionBean != null && "200".equals(permissionBean.code)) {
+                            // 有权限
+                            Intent intent = new Intent(getContext(), SingleAutoTaskActivity.class);
+                            intent.putExtra("type", "dhbd");
+                            startActivity(intent);
+                        } else {
+                            startActivity(new Intent(getContext(), VipActivity.class));
+                        }
+                    }
+                });
     }
 
     @Override

@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 
 import com.mob.sms.R;
 import com.mob.sms.activity.BindMobileActivity;
+import com.mob.sms.activity.SetSecretInfoActivity;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.databinding.ActivityAutoCallPhoneBinding;
 import com.mob.sms.pns.BaiduPnsServiceImpl;
@@ -105,11 +106,11 @@ public class SingleAutoTaskActivity extends BaseActivity {
     private void bindSecretNumber() {
         String phone = SPUtils.getString(SPConstant.SP_USER_PHONE, "");
         if (TextUtils.isEmpty(phone)) {
-            Utils.showDialog(this, "请先绑定手机号", "提示",
+            Utils.showDialog(this, "请先设置隐私拨号信息", "提示",
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            startActivity(new Intent(SingleAutoTaskActivity.this, BindMobileActivity.class));
+                            startActivity(new Intent(SingleAutoTaskActivity.this, SetSecretInfoActivity.class));
                         }
                     },
                     null);
