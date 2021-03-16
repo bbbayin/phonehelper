@@ -79,7 +79,7 @@ public class SingleAutoTaskActivity extends BaseActivity {
         if (mTaskType == VALUE_TASK_DIAL) {
             binding.tip.setText("单号拨打电话");
             // 判断是否隐私拨打
-            String type = SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, "");
+            String type = SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, Constants.SIM_TYPE_SIM_1);
             if (Constants.SIM_TYPE_SECRET.equals(type)) {
                 // 隐私拨号
                 mIsSecretDial = true;

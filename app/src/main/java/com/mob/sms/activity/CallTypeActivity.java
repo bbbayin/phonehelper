@@ -59,15 +59,16 @@ public class CallTypeActivity extends BaseActivity {
                 mDivider2.setVisibility(View.GONE);
             }
         }
-        if ("sim1".equals(SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, "sim1"))) {
+        String type = SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, Constants.SIM_TYPE_SIM_1);
+        if (Constants.SIM_TYPE_SIM_1.equals(type)) {
             mGouIv.setVisibility(View.VISIBLE);
             mGouIv2.setVisibility(View.GONE);
             mGouIv3.setVisibility(View.GONE);
-        } else if ("sim2".equals(SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, "sim1"))) {
+        } else if (Constants.SIM_TYPE_SIM_2.equals(type)) {
             mGouIv.setVisibility(View.GONE);
             mGouIv2.setVisibility(View.VISIBLE);
             mGouIv3.setVisibility(View.GONE);
-        } else if ("ysh".equals(SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, "sim1"))) {
+        } else if (Constants.SIM_TYPE_SECRET.equals(type)) {
             mGouIv.setVisibility(View.GONE);
             mGouIv2.setVisibility(View.GONE);
             mGouIv3.setVisibility(View.VISIBLE);

@@ -121,6 +121,7 @@
                 android:layout_height="18dp"/>
 
             <TextView
+                android:id="@+id/login_tv_policy"
                 android:layout_width="wrap_content"
                 android:textSize="12sp"
                 android:text="我已阅读"

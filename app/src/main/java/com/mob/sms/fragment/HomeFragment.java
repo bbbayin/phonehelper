@@ -40,6 +40,7 @@ import com.mob.sms.dialog.SetCallNumDialog;
 import com.mob.sms.dialog.SetCallTimingDialog;
 import com.mob.sms.dialog.SetMultiCallIntervalDialog;
 import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 
@@ -147,12 +148,12 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void setBdfs() {
-        String call_type = SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, "sim1");
-        if ("sim1".equals(call_type)) {
+        String call_type = SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, Constants.SIM_TYPE_SIM_1);
+        if (Constants.SIM_TYPE_SIM_1.equals(call_type)) {
             mCallBdfsTv.setText("使用手机卡1拨打");
-        } else if ("sim2".equals(call_type)) {
+        } else if (Constants.SIM_TYPE_SIM_2.equals(call_type)) {
             mCallBdfsTv.setText("使用手机卡2拨打");
-        } else if ("ysh".equals(call_type)) {
+        } else if (Constants.SIM_TYPE_SECRET.equals(call_type)) {
             mCallBdfsTv.setText("使用隐私号拨打");
         }
     }

@@ -48,20 +48,20 @@ public class PolicyActivity extends BaseActivity {
 
     private void initData() {
         int type = getIntent().getIntExtra(KEY_POLICY_TYPE, TYPE_ABOUT_US);
-//        if (type == TYPE_SECRET) {
-//            tvTitle.setText("隐私政策");
-//        } else if (type == TYPE_USER) {
-//            tvTitle.setText("用户协议");
-//        } else {
-//            tvTitle.setText("关于我们");
-//        }
+        if (type == TYPE_SECRET) {
+            tvTitle.setText("隐私政策");
+        } else if (type == TYPE_USER) {
+            tvTitle.setText("用户协议");
+        } else {
+            tvTitle.setText("关于我们");
+        }
         WebSettings settings = webview.getSettings();
         settings.setJavaScriptEnabled(true);
         RetrofitHelper.getApi().getRule(type).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(ruleBean -> {
                     if (ruleBean != null && ruleBean.code == 200 && ruleBean.data != null) {
-                        tvTitle.setText(ruleBean.data.name);
+//                        tvTitle.setText(ruleBean.data.name);
                         webview.loadDataWithBaseURL(null, ruleBean.data.content, "text/html", "utf-8", null);
                     }
                 }, Throwable::printStackTrace);

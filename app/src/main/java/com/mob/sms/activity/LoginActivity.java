@@ -1,12 +1,19 @@
 package com.mob.sms.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -14,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.j256.ormlite.stmt.query.In;
@@ -21,6 +29,7 @@ import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.dialog.UserAgreementDialog;
 import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.policy.PolicyActivity;
 import com.mob.sms.rx.LoginEvent;
 import com.mob.sms.rx.RxBus;
 import com.mob.sms.utils.SPConstant;
@@ -53,6 +62,8 @@ public class LoginActivity extends BaseActivity {
     TextView mQqTip;
     @BindView(R.id.select_iv)
     ImageView mSelectIv;
+    @BindView(R.id.login_tv_policy)
+    TextView tvPolicy;
 
     private boolean mCanSeePwd;
 
@@ -72,6 +83,49 @@ public class LoginActivity extends BaseActivity {
         mSub =  RxBus.getInstance().toObserverable(LoginEvent.class)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::finishPage);
+        initPolicy();
+    }
+
+    private void initPolicy() {
+        String content = "我已阅读并同意《用户协议》和《隐私政策》";
+        SpannableString spannableString = new SpannableString(content);
+        int start1 = content.indexOf("《用");
+        int center = content.indexOf("《隐");
+        int end2 = content.indexOf("了解详");
+        spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#00C296")),
+                start1,
+                end2,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(
+                new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        // 用户协议
+                        toPolicy(LoginActivity.this, PolicyActivity.TYPE_USER);
+                    }
+                },
+                start1,
+                center,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(
+                new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        // 隐私政策
+                        toPolicy(LoginActivity.this, PolicyActivity.TYPE_SECRET);
+                    }
+                },
+                center,
+                end2,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        tvPolicy.setMovementMethod(LinkMovementMethod.getInstance());
+        tvPolicy.setText(spannableString);
+    }
+
+    private void toPolicy(Context context, int type) {
+        Intent intent = new Intent(context, PolicyActivity.class);
+        intent.putExtra(PolicyActivity.KEY_POLICY_TYPE, type);
+        context.startActivity(intent);
     }
 
     private void finishPage(LoginEvent event) {
