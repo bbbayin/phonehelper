@@ -50,6 +50,7 @@ public class PhoneInfoActivity extends BaseActivity {
     private String mType2;//sms  call
     private String mFilePath;
     private String mCopyContent;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +60,7 @@ public class PhoneInfoActivity extends BaseActivity {
         initView();
     }
 
-    private void initView(){
+    private void initView() {
         mTitleTv.setText(getIntent().getStringExtra("title"));
         mType = getIntent().getIntExtra("type", 0);
         mFilePath = getIntent().getStringExtra("filePath");
@@ -96,8 +97,8 @@ public class PhoneInfoActivity extends BaseActivity {
     }
 
     private void readExcel(String strFilePath) {
-        File file=  new File(strFilePath);
-        Log.e("yy","file="+file.getAbsolutePath());
+        File file = new File(strFilePath);
+        Log.e("yy", "file=" + file.getAbsolutePath());
         String str = "";
         String v = null;
         boolean flat = false;
@@ -180,9 +181,9 @@ public class PhoneInfoActivity extends BaseActivity {
         }
     }
 
-    private void readWord(String strFilePath){
+    private void readWord(String strFilePath) {
         FileInputStream in;
-        String text = null ;
+        String text = null;
         try {
             in = new FileInputStream(new File(strFilePath));
             WordExtractor extractor = null;
@@ -225,61 +226,63 @@ public class PhoneInfoActivity extends BaseActivity {
         }
     }
 
-    @OnClick({R.id.back, R.id.confirm, R.id.delete})
+    @OnClick({R.id.back, R.id.delete})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.back:
                 finish();
                 break;
-            case R.id.confirm:
-                ArrayList<PhoneInfoBean> datas = new ArrayList<>();
-                for (int i = 0; i < mDatas.size(); i++) {
-                    if (mDatas.get(i).isSelected) {
-                        datas.add(mDatas.get(i));
-                    }
-                }
-                if (datas.size() > 0) {
-                    if ("call".equals(mType2)) {
-                        List<CallContactTable> callContactTables = DatabaseBusiness.getCallContacts();
-                        if (callContactTables.size() > 0) {
-                            for (CallContactTable callContactTable : callContactTables) {
-                                DatabaseBusiness.delCallContact(callContactTable);
-                            }
-                        }
-                        for (int i = 0; i < datas.size(); i++) {
-                            DatabaseBusiness.createCallContact(new CallContactTable(datas.get(i).name, datas.get(i).phone));
-                        }
-                    } else if ("sms".equals(mType2)) {
-                        List<SmsContactTable> smsContactTables = DatabaseBusiness.getSmsContacts();
-                        if (smsContactTables.size() > 0) {
-                            for (SmsContactTable smsContactTable : smsContactTables) {
-                                DatabaseBusiness.delSmsContact(smsContactTable);
-                            }
-                        }
-                        for (int i = 0; i < datas.size(); i++) {
-                            DatabaseBusiness.createSmsContact(new SmsContactTable(datas.get(i).name, datas.get(i).phone));
-                        }
-                    }
-                    finish();
-                } else {
-                    ToastUtil.show("请选择联系人电话");
-                }
-                break;
             case R.id.delete:
-                datas = new ArrayList<>();
-                for (int i = 0; i < mDatas.size(); i++) {
-                    if(mDatas.get(i).isSelected){
-                        datas.add(mDatas.get(i));
+                confirm();
+
+                break;
+        }
+    }
+
+    private void confirm() {
+        ArrayList<PhoneInfoBean> datas = new ArrayList<>();
+        for (int i = 0; i < mDatas.size(); i++) {
+            if (mDatas.get(i).isSelected) {
+                datas.add(mDatas.get(i));
+            }
+        }
+        if (datas.size() > 0) {
+            if ("call".equals(mType2)) {
+                List<CallContactTable> callContactTables = DatabaseBusiness.getCallContacts();
+                if (callContactTables.size() > 0) {
+                    for (CallContactTable callContactTable : callContactTables) {
+                        DatabaseBusiness.delCallContact(callContactTable);
                     }
                 }
-                if (datas.size() > 0) {
-                    mDatas.removeAll(datas);
-                    mPhoneInfoAdapter.notifyDataSetChanged();
-                    mNumTv.setText(mDatas.size() + "个联系人");
-                } else {
-                    ToastUtil.show("请选择要删除的联系人电话");
+                for (int i = 0; i < datas.size(); i++) {
+                    DatabaseBusiness.createCallContact(new CallContactTable(datas.get(i).name, datas.get(i).phone));
                 }
-                break;
+            } else if ("sms".equals(mType2)) {
+                List<SmsContactTable> smsContactTables = DatabaseBusiness.getSmsContacts();
+                if (smsContactTables.size() > 0) {
+                    for (SmsContactTable smsContactTable : smsContactTables) {
+                        DatabaseBusiness.delSmsContact(smsContactTable);
+                    }
+                }
+                for (int i = 0; i < datas.size(); i++) {
+                    DatabaseBusiness.createSmsContact(new SmsContactTable(datas.get(i).name, datas.get(i).phone));
+                }
+            }
+            finish();
+        } else {
+            ToastUtil.show("请选择联系人电话");
+        }
+        for (int i = 0; i < mDatas.size(); i++) {
+            if (mDatas.get(i).isSelected) {
+                datas.add(mDatas.get(i));
+            }
+        }
+        if (datas.size() > 0) {
+            mDatas.removeAll(datas);
+            mPhoneInfoAdapter.notifyDataSetChanged();
+            mNumTv.setText(mDatas.size() + "个联系人");
+        } else {
+            ToastUtil.show("请选择要删除的联系人电话");
         }
     }
 }

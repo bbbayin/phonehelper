@@ -43,6 +43,7 @@ import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
+import com.mob.sms.utils.Utils;
 
 import java.util.List;
 
@@ -125,6 +126,12 @@ public class HomeFragment extends BaseFragment {
     ImageView ivClearSinglePhoneNumber;
     @BindView(R.id.home_single_btn_clear_time)
     ImageView ivClearTime;
+    @BindView(R.id.multi_iv_clear_interval)
+    ImageView ivMultiClearInterval;
+    @BindView(R.id.sms_iv_clear_phone)
+    ImageView ivClearSmsPhone;
+    @BindView(R.id.sms_iv_clear_timeout)
+    ImageView ivClearSmsTimeout;
 
     private final int REQUEST_CODE_TAB1_SRHM = 1;
     private final int REQUEST_CODE_TAB1_CALL_TYPE = 2;
@@ -144,7 +151,28 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void initView() {
+        mSmsDsfsTip.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String timeout = s.toString();
+                if (TextUtils.isEmpty(timeout)) {
+                    ivClearSmsTimeout.setVisibility(View.GONE);
+                } else {
+                    ivClearSmsTimeout.setVisibility(View.VISIBLE);
+                }
+
+            }
+        });
     }
 
     private void setBdfs() {
@@ -163,9 +191,24 @@ public class HomeFragment extends BaseFragment {
             R.id.hmdr_rl, R.id.skzs_rl, R.id.jgsz_rl, R.id.pl_switch_gd, R.id.pl_switch_gd2, R.id.pl_call_tv,
             R.id.dhfs_switch, R.id.sms_txl_iv, R.id.sms_dsfs_rl, R.id.sms_fscs_rl, R.id.plfs_switch,
             R.id.sms_hmdr_rl, R.id.sms_sksz_rl, R.id.sms_fsjg_rl, R.id.bjdx_rl, R.id.sms_ljfs, R.id.home_single_btn_clear_phone,
-            R.id.home_single_btn_clear_time})
+            R.id.home_single_btn_clear_time, R.id.multi_iv_clear_interval, R.id.sms_iv_clear_phone, R.id.sms_iv_clear_timeout})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.sms_iv_clear_timeout:// 短信，清除定时发送
+                ivClearSmsTimeout.setVisibility(View.GONE);
+                mSmsDsfsTip.setText("");
+                changeSmsUi();
+                break;
+            case R.id.sms_iv_clear_phone:// 发短信，清除号码
+                mSmsMobileEt.setText("");
+                changeSmsUi();
+                break;
+            case R.id.multi_iv_clear_interval:// 批量拨打，清除间隔
+                mCallJgszTip.setText("");
+                SPUtils.remove(SPConstant.SP_CALL_JGSZ);
+                ivMultiClearInterval.setVisibility(View.GONE);
+                changePlCallUi();
+                break;
             case R.id.home_single_btn_clear_time:// 清除定时
                 SPUtils.remove(SPConstant.SP_CALL_TIMING);
                 mCallDsbhTv.setText("");
@@ -345,13 +388,10 @@ public class HomeFragment extends BaseFragment {
                 setMultiCallIntervalDialog.show();
                 setMultiCallIntervalDialog.setOnClickListener(new SetMultiCallIntervalDialog.OnClickListener() {
                     @Override
-                    public void confirm(int second) {
-                        if (second < 0) {
-                            mCallJgszTip.setText(String.format("%ss内随机", Math.abs(second)));
-                        } else {
-                            mCallJgszTip.setText(second + "s");
-                        }
-                        SPUtils.put(SPConstant.SP_CALL_JGSZ, second);
+                    public void confirm(String time) {
+                        SPUtils.put(SPConstant.SP_CALL_JGSZ, time);
+                        mCallJgszTip.setText(Utils.getCallInterval());
+                        ivMultiClearInterval.setVisibility(View.VISIBLE);
                         changePlCallUi();
                     }
                 });
@@ -528,8 +568,6 @@ public class HomeFragment extends BaseFragment {
                 .subscribe(new Action1<CloudPermissionBean>() {
                     @Override
                     public void call(CloudPermissionBean permissionBean) {
-                        // TODO: 2021/3/14
-                        permissionBean.code = "200";
                         if (permissionBean != null && "200".equals(permissionBean.code)) {
                             // 有权限
                             Intent intent = new Intent(getContext(), SingleAutoTaskActivity.class);
@@ -600,14 +638,7 @@ public class HomeFragment extends BaseFragment {
             mCallSkszTip.setText("双卡轮流拨打");
         }
         // 批量间隔
-        int interval = SPUtils.getInt(SPConstant.SP_CALL_JGSZ, 0);
-        if (interval == 0) {
-            mCallJgszTip.setText("");
-        } else if (interval > 0) {
-            mCallJgszTip.setText(interval + "s");
-        } else {
-            mCallJgszTip.setText(String.format("%ss内随机", Math.abs(interval)));
-        }
+        mCallJgszTip.setText(Utils.getCallInterval());
 
         //短信
         if (TextUtils.isEmpty(SPUtils.getString(SPConstant.SP_SMS_SRHM, ""))) {
@@ -691,10 +722,17 @@ public class HomeFragment extends BaseFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                SPUtils.put(SPConstant.SP_SMS_SRHM, mSmsMobileEt.getText().toString());
+                String phone = mSmsMobileEt.getText().toString();
+                SPUtils.put(SPConstant.SP_SMS_SRHM, phone);
+                if (TextUtils.isEmpty(phone)) {
+                    ivClearSmsPhone.setVisibility(View.GONE);
+                } else {
+                    ivClearSmsPhone.setVisibility(View.VISIBLE);
+                }
                 changeSmsUi();
             }
         });
+
 
         changeCallUi();
         changePlCallUi();

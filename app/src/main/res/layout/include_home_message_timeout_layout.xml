@@ -3,8 +3,7 @@
     android:id="@+id/dxds_ll"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:visibility="gone">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -42,37 +41,47 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="54dp">
-
-            <TextView
-                style="@style/HomeItemText"
-                android:text="请输入号码:" />
-
-            <EditText
-                android:id="@+id/sms_mobile_et"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@+id/sms_txl_iv"
-                android:background="@null"
-                android:hint="请输入手机号码"
-                android:inputType="number"
-                android:textColor="@color/color_454545"
-                android:textColorHint="@color/color_A6A6A6"
-                android:textSize="17sp" />
+            android:layout_height="54dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp"
+            android:paddingEnd="16dp">
 
             <ImageView
                 android:id="@+id/sms_txl_iv"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="20dp"
                 android:scaleType="centerInside"
                 android:src="@mipmap/lxr_icon" />
-        </RelativeLayout>
+
+            <TextView
+                style="@style/HomeItemText"
+                android:layout_marginStart="4dp"
+                android:text="请输入号码:" />
+
+            <EditText
+                android:id="@+id/sms_mobile_et"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="请输入手机号码"
+                android:inputType="number"
+                android:paddingStart="10dp"
+                android:textColor="@color/color_454545"
+                android:textColorHint="@color/color_A6A6A6"
+                android:textSize="17sp" />
+
+            <ImageView
+                android:id="@+id/sms_iv_clear_phone"
+                android:visibility="gone"
+                style="@style/ClearBtn" />
+
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -80,29 +89,41 @@
             android:layout_marginHorizontal="20dp"
             android:background="#e0e0e0" />
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/sms_dsfs_rl"
             android:layout_width="match_parent"
-            android:layout_height="54dp">
+            android:layout_height="54dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                style="@style/HomeLeftIcon"
+                android:background="@mipmap/bdjg_icon" />
 
             <TextView
                 style="@style/HomeItemText"
+                android:layout_marginStart="4dp"
                 android:text="定时发送" />
 
             <TextView
                 android:id="@+id/sms_dsfs_tip"
                 style="@style/HomeItemHintText"
-                android:layout_toLeftOf="@+id/sms_dsfs_arrow" />
+                android:layout_width="0dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/sms_iv_clear_timeout"
+                android:layout_marginEnd="6dp"
+                android:visibility="gone"
+                style="@style/ClearBtn" />
 
             <ImageView
                 android:id="@+id/sms_dsfs_arrow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="20dp"
                 android:background="@mipmap/right_arrow_grey" />
-        </RelativeLayout>
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -110,19 +131,27 @@
             android:layout_marginHorizontal="20dp"
             android:background="#e0e0e0" />
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/sms_fscs_rl"
             android:layout_width="match_parent"
-            android:layout_height="54dp">
+            android:layout_height="54dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                style="@style/HomeLeftIcon"
+                android:background="@mipmap/dsbh_icon" />
 
             <TextView
                 style="@style/HomeItemText"
+                android:layout_marginStart="4dp"
                 android:text="发送次数" />
 
             <TextView
                 android:id="@+id/sms_fscs_tip"
                 style="@style/HomeItemHintText"
-                android:layout_toLeftOf="@+id/sms_fscs_arrow" />
+                android:layout_weight="1" />
 
             <ImageView
                 android:id="@+id/sms_fscs_arrow"
@@ -130,9 +159,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="20dp"
                 android:background="@mipmap/right_arrow_grey" />
-        </RelativeLayout>
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -309,7 +337,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="20dp"
+            android:layout_marginRight="16dp"
             android:background="@mipmap/right_arrow_grey" />
     </RelativeLayout>
 

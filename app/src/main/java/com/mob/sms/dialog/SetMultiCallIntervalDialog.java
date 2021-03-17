@@ -36,16 +36,20 @@ public class SetMultiCallIntervalDialog extends Dialog {
     CheckBox cbRandomInterval;
     @BindView(R.id.tv_interval_suggest)
     TextView tvIntervalSuggest;
+    @BindView(R.id.multi_dialog_tv_left_title)
+    TextView tvLeftTitle;
+    @BindView(R.id.multi_dialog_tv_right_title)
+    TextView tvRightTitle;
 
-    private int mMinValue;
-    private int mSecondValue;
+    private int mLeftValue;
+    private int mRightValue;
     // 间隔类型
     private String intervalType = Constants.FIXED;
 
     private OnClickListener mOnClickListener;
 
     public interface OnClickListener {
-        void confirm(int second);
+        void confirm(String time);
     }
 
     public void setOnClickListener(OnClickListener onClickListener) {
@@ -76,22 +80,22 @@ public class SetMultiCallIntervalDialog extends Dialog {
         }
         mWheelView.setData(list);
         mWheelView.setSelectedItemPosition(0);
-        mMinValue = 0;
+        mLeftValue = 0;
 
         mWheelView2.setData(list);
         mWheelView2.setSelectedItemPosition(6);
-        mSecondValue = 6;
+        mRightValue = 6;
 
         mWheelView.setOnItemSelectedListener(new WheelView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(WheelView wheelView, Object data, int position) {
-                mMinValue = position;
+                mLeftValue = position;
             }
         });
         mWheelView2.setOnItemSelectedListener(new WheelView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(WheelView wheelView, Object data, int position) {
-                mSecondValue = position;
+                mRightValue = position;
             }
         });
 
@@ -103,7 +107,8 @@ public class SetMultiCallIntervalDialog extends Dialog {
             if (isChecked) {
                 cbRandomInterval.setChecked(false);
                 intervalType = Constants.FIXED;
-                tvIntervalSuggest.setVisibility(View.VISIBLE);
+                tvLeftTitle.setText("分");
+                tvRightTitle.setText("秒");
             }
         });
         // 随机间隔
@@ -113,7 +118,8 @@ public class SetMultiCallIntervalDialog extends Dialog {
                 if (isChecked) {
                     cbFixedInterval.setChecked(false);
                     intervalType = Constants.RANDOM;
-                    tvIntervalSuggest.setVisibility(View.GONE);
+                    tvLeftTitle.setText("时间上限");
+                    tvRightTitle.setText("时间下限");
                 }
             }
         });
@@ -127,12 +133,12 @@ public class SetMultiCallIntervalDialog extends Dialog {
                 break;
             case R.id.confirm:
                 if (mOnClickListener != null) {
-                    int interval = mMinValue * 60 + mSecondValue;
+                    int interval = mLeftValue * 60 + mRightValue;
                     if (Constants.FIXED.equals(intervalType)) {
-                        mOnClickListener.confirm(interval);
+                        mOnClickListener.confirm(String.valueOf(interval));
                     }else {
                         // 负数代表随机间隔
-                        mOnClickListener.confirm(-interval);
+                        mOnClickListener.confirm(String.format("%s-%s", mRightValue, mLeftValue));
                     }
                 }
                 dismiss();

@@ -99,6 +99,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
+                    android:id="@+id/multi_dialog_tv_left_title"
                     android:layout_width="wrap_content"
                     android:text="分"
                     android:textSize="17sp"
@@ -130,6 +131,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
+                    android:id="@+id/multi_dialog_tv_right_title"
                     android:layout_width="wrap_content"
                     android:text="秒"
                     android:textSize="17sp"

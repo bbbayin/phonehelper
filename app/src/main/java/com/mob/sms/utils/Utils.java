@@ -148,13 +148,39 @@ public class Utils {
     }
 
     public static void showDialog(Activity activity, String content,
-                           String title,
-                           View.OnClickListener positiveListener, View.OnClickListener cancelListener) {
+                                  String title,
+                                  View.OnClickListener positiveListener, View.OnClickListener cancelListener) {
         CheckTipDialog tipDialog = new CheckTipDialog(activity);
         tipDialog.setTitle(title);
         tipDialog.setPositiveListener(positiveListener);
         tipDialog.setCancelListener(cancelListener);
         tipDialog.setContent(content);
         tipDialog.show();
+    }
+
+    public static String getCallInterval() {
+        String interval = SPUtils.getString(SPConstant.SP_CALL_JGSZ, "");
+        if (interval.contains("-")) {
+            return String.format("随机%s秒", interval);
+        } else {
+            return String.format("%s秒", interval);
+        }
+    }
+
+    public static int generateRandomInterval() {
+        String interval = SPUtils.getString(SPConstant.SP_CALL_JGSZ, "");
+        if (interval.contains("-")) {
+            String[] split = interval.split("-");
+            int min = Integer.parseInt(split[0]);
+            int max = Integer.parseInt(split[1]);
+
+            Random random = new Random();
+            int rand = random.nextInt(max - min);
+            return min + rand;
+        } else {
+            Random random = new Random();
+            int rand = random.nextInt(15);
+            return 15 + rand;
+        }
     }
 }

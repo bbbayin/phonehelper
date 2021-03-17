@@ -393,10 +393,10 @@ public class AutoCallPhoneActivity extends BaseActivity {
             mRecyclerView.setAdapter(mCallPhoneRecordsAdapter);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-            mInterval = SPUtils.getInt(SPConstant.SP_CALL_JGSZ, 0);
-            if (mInterval < 0) {
+            String interval = SPUtils.getString(SPConstant.SP_CALL_JGSZ, "");
+            if (interval.contains("-")) {
                 // 随机
-                mInterval = Utils.getRandomNum(Math.abs(mInterval));
+                mInterval = Utils.generateRandomInterval();
             }
             mShowDaojishi = mInterval;
             mTotalCallTimes = mDatas.size();

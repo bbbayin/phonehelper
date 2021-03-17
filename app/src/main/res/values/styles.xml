@@ -52,4 +52,12 @@
         <item name="android:textColor">@color/color_A6A6A6</item>
         <item name="android:textSize">17sp</item>
     </style>
+
+    <style name="ClearBtn">
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:src">@mipmap/clear</item>
+    </style>
 </resources>

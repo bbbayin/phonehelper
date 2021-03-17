@@ -57,10 +57,10 @@ public class SplashActivity extends Activity {
 
     private void initGlobalData() {
         // 批量拨打，随机间隔
-        int interval = SPUtils.getInt(SPConstant.SP_CALL_JGSZ, 0);
-        if (interval == 0) {
+        String interval = SPUtils.getString(SPConstant.SP_CALL_JGSZ, "");
+        if (TextUtils.isEmpty(interval)) {
             // 默认随机30
-            SPUtils.put(SPConstant.SP_CALL_JGSZ, -30);
+            SPUtils.put(SPConstant.SP_CALL_JGSZ, "15-30");
         }
     }
 
