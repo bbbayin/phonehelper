@@ -17,6 +17,7 @@ import android.telephony.SubscriptionManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,6 +39,8 @@ import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
 import com.mob.sms.utils.Utils;
+
+import org.apache.poi.ss.formula.functions.T;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -79,7 +82,7 @@ public class AutoSendSmsActivity extends BaseActivity {
     private static PendingIntent sentPI;
     private static String SENT_SMS_ACTION = "SENT_SMS_ACTION";
     private int mSendNum;//总发送次数
-    private int mSendIndex;//当前发送序列
+    private int mSendIndex = 0;//当前发送序列
     private int mSuccessNum;//成功次数
     private int mFailNum;//失败次数
     private String mDsfsTime;//定时发送
@@ -99,9 +102,21 @@ public class AutoSendSmsActivity extends BaseActivity {
         ButterKnife.bind(this);
         setStatusBar(getResources().getColor(R.color.green));
         initView();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    private void initView(){
+    private <T> T get(List<T> list, int index) {
+        if (list != null) {
+            if (index >= 0) {
+                if (list.size() > index) {
+                    return list.get(index);
+                }
+            }
+        }
+        return null;
+    }
+
+    private void initView() {
         Intent sentIntent = new Intent(SENT_SMS_ACTION);
         sentPI = PendingIntent.getBroadcast(this, 0, sentIntent, 0);
         registerReceiver(sendMessage, new IntentFilter(SENT_SMS_ACTION));
@@ -122,7 +137,7 @@ public class AutoSendSmsActivity extends BaseActivity {
                     mTime.setText("下一次发送还需要" + mShowDaojishi + "s");
                     //无定时发送
                     mHandler.sendEmptyMessageDelayed(0, 1000);
-                } else if(mDsfsTime.contains("秒")){
+                } else if (mDsfsTime.contains("秒")) {
                     mNum.setText("(0/" + mSendNum + "次)");
                     Log.i("jqt", "mDsfsTime: " + mDsfsTime);
                     int hour = Integer.parseInt(mDsfsTime.split("时")[0]);
@@ -130,29 +145,29 @@ public class AutoSendSmsActivity extends BaseActivity {
                     int sec = Integer.parseInt(mDsfsTime.split("时")[1].split("分")[1].split("秒")[0]);
 
                     long time = ((hour * 60 + min) * 60 + sec) * 1000;
-                    mShowDaojishi = (int)(time/1000);
+                    mShowDaojishi = (int) (time / 1000);
                     mTime.setText("下一次发送还需要" + mShowDaojishi + "s");
                     mHandler.sendEmptyMessageDelayed(0, 1000);
                 } else {
                     mNum.setText("(0/" + mSendNum + "次)");
-                    if(mDsfsTime.contains("上午")){
+                    if (mDsfsTime.contains("上午")) {
                         String date = mDsfsTime.split("上午")[0];
                         int hour = Integer.parseInt(mDsfsTime.split("上午")[1].split("时")[0]);
                         int min = Integer.parseInt(mDsfsTime.split("上午")[1].split("时")[1].split("分")[0]);
                         String sendDate = Utils.getYear() + "-" + date + " " + hour + ":" + min + ":" + "00";
 
                         long time = Utils.getTime(sendDate);
-                        mShowDaojishi = (int)(time/1000);
+                        mShowDaojishi = (int) (time / 1000);
                         mTime.setText("下一次发送还需要" + mShowDaojishi + "s");
                         mHandler.sendEmptyMessageDelayed(0, 1000);
-                    } else if(mDsfsTime.contains("下午")){
+                    } else if (mDsfsTime.contains("下午")) {
                         String date = mDsfsTime.split("下午")[0];
                         int hour = Integer.parseInt(mDsfsTime.split("下午")[1].split("时")[0]);
                         int min = Integer.parseInt(mDsfsTime.split("下午")[1].split("时")[1].split("分")[0]);
-                        String sendDate = Utils.getYear() + "-" + date + " " + (hour+12) + ":" + min + ":" + "00";
+                        String sendDate = Utils.getYear() + "-" + date + " " + (hour + 12) + ":" + min + ":" + "00";
 
                         long time = Utils.getTime(sendDate);
-                        mShowDaojishi = (int)(time/1000);
+                        mShowDaojishi = (int) (time / 1000);
                         mTime.setText("下一次发送还需要" + mShowDaojishi + "s");
                         mHandler.sendEmptyMessageDelayed(0, 1000);
                     }
@@ -180,7 +195,7 @@ public class AutoSendSmsActivity extends BaseActivity {
             mMobile.setText(mDatas.get(mSendIndex).mobile);
             mNum.setText("(" + 1 + "/" + mDatas.size() + "联系人)");
             sendSms(mDatas.get(mSendIndex).mobile, SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""));
-            mSendIndex++;
+
             if (mSendIndex < mSendNum) {
                 mTime.setText("发送下一个号码还需要" + mShowDaojishi + "s");
                 mHandler.sendEmptyMessageDelayed(1, 1000);
@@ -217,8 +232,8 @@ public class AutoSendSmsActivity extends BaseActivity {
                     sInfo = list.get(0);
                 } else if ("sim2".equals(sksz)) {
                     sInfo = list.get(1);
-                }  else {
-                    sInfo = list.get(mSim1Send?0:1);
+                } else {
+                    sInfo = list.get(mSim1Send ? 0 : 1);
                     mSim1Send = !mSim1Send;
                 }
             } else {//single card
@@ -229,56 +244,60 @@ public class AutoSendSmsActivity extends BaseActivity {
                     .getSmsManagerForSubscriptionId(subId);
 
             manager.sendTextMessage(mobile, null, content, sentPI, null);
-        } catch (SecurityException e){
+        } catch (SecurityException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private Handler mHandler = new Handler(){
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what){
-                case 0:
-                    if (mSendIndex < mSendNum) {
-                        mShowDaojishi--;
-                        if (mShowDaojishi > 0) {
-                            mTime.setText("下一次发送还需要" + mShowDaojishi + "s");
-                        } else {
-                            mShowDaojishi = mInterval;
-                            mSendIndex++;
-                            mNum.setText("(" + (mSendIndex) + "/" + mSendNum + "次)");
-                            mTime.setText("下一次发送还需要" + mInterval + "s");
-                            sendSms(SPUtils.getString(SPConstant.SP_SMS_SRHM, ""), SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""));
-                        }
-                        sendEmptyMessageDelayed(0, 1000);
-                    } else {
-                        mTime.setText("下一次发送还需要" + 0 + "s");
+    private Handler mHandler =
+            new Handler() {
+                @Override
+                public void handleMessage(@NonNull Message msg) {
+                    super.handleMessage(msg);
+                    switch (msg.what) {
+                        case 0:
+                            if (mSendIndex < mSendNum) {
+                                mShowDaojishi--;
+                                if (mShowDaojishi > 0) {
+                                    mTime.setText("下一次发送还需要" + mShowDaojishi + "s");
+                                } else {
+                                    mShowDaojishi = mInterval;
+                                    mSendIndex++;
+                                    mNum.setText("(" + (mSendIndex) + "/" + mSendNum + "次)");
+                                    mTime.setText("下一次发送还需要" + mInterval + "s");
+                                    sendSms(SPUtils.getString(SPConstant.SP_SMS_SRHM, ""), SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""));
+                                }
+                                sendEmptyMessageDelayed(0, 1000);
+                            } else {
+                                mTime.setText("下一次发送还需要" + 0 + "s");
+                            }
+                            break;
+                        case 1:
+                            if (mSendIndex < mSendNum) {
+                                mShowDaojishi--;
+                                if (mShowDaojishi > 0) {
+                                    mTime.setText("发送下一个号码还需要" + mShowDaojishi + "s");
+                                } else {
+                                    mShowDaojishi = mInterval;
+                                    mSendIndex++;
+                                    SmsContactTable smsContactTable = get(mDatas, mSendIndex);
+                                    if (smsContactTable != null) {
+                                        mMobile.setText(smsContactTable.mobile);
+                                        mNum.setText("(" + (mSendIndex) + "/" + mDatas.size() + "联系人)");
+                                        mTime.setText("发送下一个号码还需要" + mInterval + "s");
+                                        sendSms(smsContactTable.mobile, SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""));
+                                    }
+                                }
+                                sendEmptyMessageDelayed(1, 1000);
+                            } else {
+                                mTime.setText("发送下一个号码还需要" + 0 + "s");
+                            }
+                            break;
                     }
-                    break;
-                case 1:
-                    if (mSendIndex < mSendNum) {
-                        mShowDaojishi--;
-                        if (mShowDaojishi > 0) {
-                            mTime.setText("发送下一个号码还需要" + mShowDaojishi + "s");
-                        } else {
-                            mShowDaojishi = mInterval;
-                            mSendIndex++;
-                            mMobile.setText(mDatas.get(mSendIndex).mobile);
-                            mNum.setText("(" + (mSendIndex) + "/" + mDatas.size() + "联系人)");
-                            mTime.setText("发送下一个号码还需要" + mInterval + "s");
-                            sendSms(mDatas.get(mSendIndex).mobile, SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""));
-                        }
-                        sendEmptyMessageDelayed(1, 1000);
-                    } else {
-                        mTime.setText("发送下一个号码还需要" + 0 + "s");
-                    }
-                    break;
-            }
-        }
-    };
+                }
+            };
 
     private BroadcastReceiver sendMessage = new BroadcastReceiver() {
 
@@ -323,7 +342,7 @@ public class AutoSendSmsActivity extends BaseActivity {
                 finish();
                 break;
             case R.id.pre:
-                if(mSendIndex-1>=0){
+                if (mSendIndex - 1 >= 0) {
                     mHandler.removeCallbacksAndMessages(null);
                     mShowDaojishi = mInterval;
                     mSendIndex--;
@@ -335,7 +354,7 @@ public class AutoSendSmsActivity extends BaseActivity {
                 }
                 break;
             case R.id.next:
-                if(mSendIndex+1<mDatas.size()) {
+                if (mSendIndex + 1 < mDatas.size()) {
                     mHandler.removeCallbacksAndMessages(null);
                     mShowDaojishi = mInterval;
                     mSendIndex++;
@@ -356,16 +375,16 @@ public class AutoSendSmsActivity extends BaseActivity {
         saveRecord();
     }
 
-    private void saveRecord(){
+    private void saveRecord() {
         int allNum = 0;
         String tel = "";
-        if("dhfs".equals(mType)){
+        if ("dhfs".equals(mType)) {
             allNum = 1;
             tel = SPUtils.getString(SPConstant.SP_SMS_SRHM, "");
-        } else if("plfs".equals(mType)){
+        } else if ("plfs".equals(mType)) {
             allNum = mDatas.size();
-            for (SmsContactTable smsContactTable:mDatas){
-                if(TextUtils.isEmpty(tel)){
+            for (SmsContactTable smsContactTable : mDatas) {
+                if (TextUtils.isEmpty(tel)) {
                     tel = smsContactTable.mobile;
                 } else {
                     tel = tel + "," + smsContactTable.mobile;
@@ -382,18 +401,18 @@ public class AutoSendSmsActivity extends BaseActivity {
         }
 
         String time = new SimpleDateFormat("yyyy-MM-dd HH:MM:ss").format(new Date(System.currentTimeMillis()));
-        if("dhfs".equals(mType)){
-            RetrofitHelper.getApi().saveSmsRecord(allNum, "plfs".equals(mType)?"1":"0", SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""),time,
-                    "dhfs".equals(mType)?"1":"0", mSendNum, status,
+        if ("dhfs".equals(mType)) {
+            RetrofitHelper.getApi().saveSmsRecord(allNum, "plfs".equals(mType) ? "1" : "0", SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""), time,
+                    "dhfs".equals(mType) ? "1" : "0", mSendNum, status,
                     mSuccessNum, tel, mDsfsTime).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(baseBean -> {
                     }, throwable -> {
                         throwable.printStackTrace();
                     });
-        } else if("plfs".equals(mType)){
-            RetrofitHelper.getApi().saveSmsRecord(allNum, "plfs".equals(mType)?"1":"0", SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""),time,
-                    "dhfs".equals(mType)?"1":"0", 0, status,
+        } else if ("plfs".equals(mType)) {
+            RetrofitHelper.getApi().saveSmsRecord(allNum, "plfs".equals(mType) ? "1" : "0", SPUtils.getString(SPConstant.SP_SMS_CONTENT, ""), time,
+                    "dhfs".equals(mType) ? "1" : "0", 0, status,
                     mSuccessNum, tel, "").subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(baseBean -> {

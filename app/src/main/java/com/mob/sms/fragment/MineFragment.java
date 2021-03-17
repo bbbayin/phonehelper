@@ -61,7 +61,7 @@ public class MineFragment extends BaseFragment {
 
     private ShareBean.DataBean mShareInfo;
     private UserInfoBean.DataBean mUserInfo;
-
+    private boolean isCreated = false;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -72,6 +72,7 @@ public class MineFragment extends BaseFragment {
 //        Glide.with(getContext()).load(SPUtils.getString(SPConstant.SP_USER_HEAD, "")).into(mHead);
         getShareInfo();
         getUserInfo();
+        isCreated = true;
         return view;
     }
 
@@ -105,7 +106,6 @@ public class MineFragment extends BaseFragment {
                             SPUtils.put(SPConstant.SP_USER_NAME, mUserInfo.nickName);
                             mName.setText(mUserInfo.nickName);
                         }
-                        SPUtils.put(SPConstant.SP_USER_PHONE, mUserInfo.username);
                         mProgressbar.setMax(mUserInfo.allMinute);
                         mProgressbar.setProgress(mUserInfo.useMinute);
                     }
@@ -194,5 +194,13 @@ public class MineFragment extends BaseFragment {
         super.onResume();
         mName.setText(SPUtils.getString(SPConstant.SP_USER_NAME, ""));
         Glide.with(getContext()).load(SPUtils.getString(SPConstant.SP_USER_HEAD, "")).into(mHead);
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && isCreated) {
+            getUserInfo();
+        }
     }
 }

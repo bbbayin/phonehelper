@@ -14,7 +14,7 @@
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
-            android:text="《服务协议》和《隐私说明》"
+            android:text="《服务协议》和《隐私政策》"
             android:textSize="17sp"
             android:textStyle="bold"
             android:layout_centerHorizontal="true"

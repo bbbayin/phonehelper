@@ -65,7 +65,7 @@ public class DxjlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             vHolder.title.setText("批量发送短信");
         }
         if ("-1".equals(mDatas.get(position).status)) {
-            vHolder.state.setText("未开始");
+            vHolder.state.setText("未接通");
             vHolder.state.setTextColor(Color.parseColor("#00C296"));
             vHolder.call.setBackgroundResource(R.drawable.round_36_green);
             vHolder.call.setText("立即发送");

@@ -43,6 +43,7 @@ import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
+import com.mob.sms.utils.ToastUtil;
 import com.mob.sms.utils.Utils;
 
 import java.util.List;
@@ -568,11 +569,14 @@ public class HomeFragment extends BaseFragment {
                 .subscribe(new Action1<CloudPermissionBean>() {
                     @Override
                     public void call(CloudPermissionBean permissionBean) {
+                        permissionBean.code = "200";
                         if (permissionBean != null && "200".equals(permissionBean.code)) {
                             // 有权限
                             Intent intent = new Intent(getContext(), SingleAutoTaskActivity.class);
                             intent.putExtra("type", "dhbd");
                             startActivity(intent);
+                        } else if ("500".equals(permissionBean.code)) {
+                            ToastUtil.show(permissionBean.msg);
                         } else {
                             startActivity(new Intent(getContext(), VipActivity.class));
                         }

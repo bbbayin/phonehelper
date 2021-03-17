@@ -1,6 +1,7 @@
 package com.mob.sms.auto;
 
 import android.app.ProgressDialog;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,19 +11,22 @@ import android.os.CountDownTimer;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
 import com.mob.sms.R;
-import com.mob.sms.activity.BindMobileActivity;
 import com.mob.sms.activity.SetSecretInfoActivity;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.databinding.ActivityAutoCallPhoneBinding;
+import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.pns.BaiduPnsServiceImpl;
 import com.mob.sms.receiver.PhoneStateReceiver;
+import com.mob.sms.service.CallService;
 import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
@@ -32,7 +36,12 @@ import com.mob.sms.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * 单一任务：单号拨打/发短信
@@ -60,6 +69,17 @@ public class SingleAutoTaskActivity extends BaseActivity {
     private boolean mIsSecretDial;// 使用使用隐私拨打
     private ProgressDialog progressDialog;
 
+    private PhoneStateListener listener = new PhoneStateListener() {
+
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            super.onCallStateChanged(state, incomingNumber);
+            Log.i("jjjjjj", "state: " + state + "," + incomingNumber);
+            telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE);
+        }
+
+    };
+    private TelephonyManager telephonyManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,6 +92,7 @@ public class SingleAutoTaskActivity extends BaseActivity {
         initView();
         initClick();
         initData();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void initData() {
@@ -253,6 +274,7 @@ public class SingleAutoTaskActivity extends BaseActivity {
     }
 
     private void initView() {
+        telephonyManager = (TelephonyManager) getSystemService(Service.TELEPHONY_SERVICE);
         mDialNumber = SPUtils.getString(SPConstant.SP_CALL_SRHM, "");
         binding.tip.setText("单号拨打电话");
         binding.mobile.setText(mDialNumber);
@@ -297,12 +319,13 @@ public class SingleAutoTaskActivity extends BaseActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("android.intent.action.NEW_OUTGOING_CALL");
         intentFilter.addAction("android.intent.action.PHONE_STATE");
+        intentFilter.addAction("CustomAction.PRECISE_CALL_STATE");
         registerReceiver(new PhoneStateReceiver(), intentFilter);
     }
 
     private void initClick() {
-        binding.back.setOnClickListener(v -> finish());
-        binding.stop.setOnClickListener(v -> finish());
+        binding.back.setOnClickListener(v -> back());
+        binding.stop.setOnClickListener(v -> back());
         binding.pause.setOnClickListener(v -> {
             // 手动暂停
             if (isManualStop) {
@@ -323,6 +346,7 @@ public class SingleAutoTaskActivity extends BaseActivity {
             // 1. 获取拨打的sim卡
             TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
             if (telecomManager != null) {
+                telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
                 Intent intent = new Intent(Intent.ACTION_CALL);
                 intent.setData(Uri.parse("tel:" + mDialNumber));
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -356,5 +380,38 @@ public class SingleAutoTaskActivity extends BaseActivity {
             timer = null;
         }
         isRunning = false;
+    }
+
+    private void back() {
+        finish();
+        saveRecord();
+    }
+
+    @Override
+    public void onBackPressed() {
+
+    }
+
+    private void saveRecord() {
+        String status;
+        if (mCurrentCount == 0) {
+            status = "-1";
+        } else if (mCurrentCount < mTotalCallTimes) {
+            status = "0";
+        } else {
+            status = "1";
+        }
+        String time = new SimpleDateFormat("yyyy-MM-dd HH:MM:ss").format(new Date(System.currentTimeMillis()));
+        String mDsbdTime = SPUtils.getString(SPConstant.SP_CALL_TIMING, "");
+        Boolean gd = SPUtils.getBoolean(SPConstant.SP_CALL_GD, false);
+        RetrofitHelper.getApi().saveCallRecord(1, time, mInterval + "", mTotalCallTimes,
+                mSim == 0 ? Constants.SIM_TYPE_SIM_1 : Constants.SIM_TYPE_SIM_2,
+                gd ? "1" : "0", status,
+                mCurrentCount + 1, mDialNumber, mDsbdTime, gd ? "0" : "1").subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(baseBean -> {
+                }, throwable -> {
+                    throwable.printStackTrace();
+                });
     }
 }

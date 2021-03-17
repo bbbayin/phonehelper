@@ -128,9 +128,7 @@ public class CallTypeActivity extends BaseActivity {
                 .subscribe(new Action1<CloudPermissionBean>() {
                     @Override
                     public void call(CloudPermissionBean permissionBean) {
-                        // TODO: 2021/3/13  test
                         if (permissionBean != null) {
-                            permissionBean.code = "200";
                             if ("200".equals(permissionBean.code)) {
                                 enableCloudCall();
                             }else {

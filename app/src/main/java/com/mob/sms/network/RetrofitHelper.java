@@ -58,7 +58,7 @@ public class RetrofitHelper {
      */
     private static void initOkHttpClient() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         if (mOkHttpClient == null) {
             synchronized (RetrofitHelper.class) {
                 if (mOkHttpClient == null) {

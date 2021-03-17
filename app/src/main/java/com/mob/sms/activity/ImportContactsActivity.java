@@ -45,6 +45,8 @@ public class ImportContactsActivity extends BaseActivity {
     TextView mTopTv;
     @BindView(R.id.select_num)
     TextView mSelectNumTv;
+    @BindView(R.id.import_contacts_select_all)
+    TextView btSelectAll;
 
     private ContactsAdapter mContactsAdapter;
     private ArrayList<ContactsBean> mDatas = new ArrayList<>();
@@ -161,9 +163,18 @@ public class ImportContactsActivity extends BaseActivity {
         }
     }
 
-    @OnClick({R.id.back, R.id.import_tv})
+    boolean isSelectAll = false;
+
+    @OnClick({R.id.back, R.id.import_tv, R.id.import_contacts_select_all})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.import_contacts_select_all:
+                for (int i = 0; i < mSortList.size(); i++) {
+                    mSortList.get(i).setChecked(!isSelectAll);
+                }
+                isSelectAll = !isSelectAll;
+                mContactsAdapter.notifyDataSetChanged();
+                break;
             case R.id.back:
                 finish();
                 break;

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
@@ -73,6 +74,7 @@ public class LoginActivity extends BaseActivity {
 
     private Subscription mSub;
     private boolean mSelectAgreement;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +82,7 @@ public class LoginActivity extends BaseActivity {
         ButterKnife.bind(this);
         setStatusBar(getResources().getColor(R.color.white));
         initView();
-        mSub =  RxBus.getInstance().toObserverable(LoginEvent.class)
+        mSub = RxBus.getInstance().toObserverable(LoginEvent.class)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::finishPage);
         initPolicy();
@@ -89,13 +91,20 @@ public class LoginActivity extends BaseActivity {
     private void initPolicy() {
         String content = "我已阅读并同意《用户协议》和《隐私政策》";
         SpannableString spannableString = new SpannableString(content);
-        int start1 = content.indexOf("《用");
-        int center = content.indexOf("《隐");
-        int end2 = content.indexOf("了解详");
-        spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#00C296")),
+        int start1 = content.indexOf("《");
+        int end1 = content.indexOf("》");
+        int start2 = content.lastIndexOf("《");
+        int end2 = content.length();
+        int color = Color.parseColor("#33C197");
+        spannableString.setSpan(new ForegroundColorSpan(color),
                 start1,
+                end1+1,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(new ForegroundColorSpan(color),
+                start2,
                 end2,
-                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
         spannableString.setSpan(
                 new ClickableSpan() {
                     @Override
@@ -103,10 +112,15 @@ public class LoginActivity extends BaseActivity {
                         // 用户协议
                         toPolicy(LoginActivity.this, PolicyActivity.TYPE_USER);
                     }
+
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint ds) {
+                        ds.setUnderlineText(false);
+                    }
                 },
                 start1,
-                center,
-                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                end1,
+                Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         spannableString.setSpan(
                 new ClickableSpan() {
                     @Override
@@ -114,10 +128,15 @@ public class LoginActivity extends BaseActivity {
                         // 隐私政策
                         toPolicy(LoginActivity.this, PolicyActivity.TYPE_SECRET);
                     }
+
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint ds) {
+                        ds.setUnderlineText(false);
+                    }
                 },
-                center,
+                start2,
                 end2,
-                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
         tvPolicy.setMovementMethod(LinkMovementMethod.getInstance());
         tvPolicy.setText(spannableString);
     }
@@ -132,7 +151,7 @@ public class LoginActivity extends BaseActivity {
         finish();
     }
 
-    private void initView(){
+    private void initView() {
         mMobileEt.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -141,17 +160,17 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(!TextUtils.isEmpty(charSequence.toString())){
+                if (!TextUtils.isEmpty(charSequence.toString())) {
                     mTxMobile = true;
                 } else {
                     mTxMobile = false;
                 }
-                if(mTxMobile && mTxPwd&& mSelectAgreement){
+                if (mTxMobile && mTxPwd && mSelectAgreement) {
                     mCanLogin = true;
                 } else {
                     mCanLogin = false;
                 }
-                mLoginIv.setBackgroundResource(mCanLogin?R.mipmap.login_bg_green:R.mipmap.login_bg_grey);
+                mLoginIv.setBackgroundResource(mCanLogin ? R.mipmap.login_bg_green : R.mipmap.login_bg_grey);
             }
 
             @Override
@@ -167,27 +186,27 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(!TextUtils.isEmpty(charSequence.toString())){
+                if (!TextUtils.isEmpty(charSequence.toString())) {
                     mTxPwd = true;
                 } else {
                     mTxPwd = false;
                 }
-                if(mTxMobile && mTxPwd&& mSelectAgreement){
+                if (mTxMobile && mTxPwd && mSelectAgreement) {
                     mCanLogin = true;
                 } else {
                     mCanLogin = false;
                 }
-                mLoginIv.setBackgroundResource(mCanLogin?R.mipmap.login_bg_green:R.mipmap.login_bg_grey);
+                mLoginIv.setBackgroundResource(mCanLogin ? R.mipmap.login_bg_green : R.mipmap.login_bg_grey);
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
             }
         });
-        if("qq".equals(SPUtils.getString(SPConstant.SP_USER_LOGIN_TYPE, ""))){
+        if ("qq".equals(SPUtils.getString(SPConstant.SP_USER_LOGIN_TYPE, ""))) {
             mQqTip.setVisibility(View.VISIBLE);
             mWxTip.setVisibility(View.INVISIBLE);
-        } else if("wx".equals(SPUtils.getString(SPConstant.SP_USER_LOGIN_TYPE, ""))){
+        } else if ("wx".equals(SPUtils.getString(SPConstant.SP_USER_LOGIN_TYPE, ""))) {
             mQqTip.setVisibility(View.INVISIBLE);
             mWxTip.setVisibility(View.VISIBLE);
         } else {
@@ -201,8 +220,7 @@ public class LoginActivity extends BaseActivity {
         return true;
     }
 
-    @OnClick({R.id.register, R.id.forget, R.id.eye_icon, R.id.login, R.id.wx_login, R.id.qq_login, R.id.select_iv,
-            R.id.agreement})
+    @OnClick({R.id.register, R.id.forget, R.id.eye_icon, R.id.login, R.id.wx_login, R.id.qq_login, R.id.select_iv})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.register:
@@ -213,8 +231,8 @@ public class LoginActivity extends BaseActivity {
                 break;
             case R.id.eye_icon:
                 mCanSeePwd = !mCanSeePwd;
-                mPwdEt.setTransformationMethod(mCanSeePwd? PasswordTransformationMethod.getInstance(): HideReturnsTransformationMethod.getInstance());
-                mEyeIcon.setBackgroundResource(mCanSeePwd?R.mipmap.eye_icon:R.mipmap.eye2_icon);
+                mPwdEt.setTransformationMethod(mCanSeePwd ? PasswordTransformationMethod.getInstance() : HideReturnsTransformationMethod.getInstance());
+                mEyeIcon.setBackgroundResource(mCanSeePwd ? R.mipmap.eye_icon : R.mipmap.eye2_icon);
                 break;
             case R.id.wx_login:
                 UMShareAPI.get(this).getPlatformInfo(this, SHARE_MEDIA.WEIXIN, new UMAuthListener() {
@@ -282,12 +300,12 @@ public class LoginActivity extends BaseActivity {
                         mSelectIv.setBackgroundResource(R.mipmap.selected_icon);
                         userAgreementDialog.dismiss();
 
-                        if(mTxMobile && mTxPwd&& mSelectAgreement){
+                        if (mTxMobile && mTxPwd && mSelectAgreement) {
                             mCanLogin = true;
                         } else {
                             mCanLogin = false;
                         }
-                        mLoginIv.setBackgroundResource(mCanLogin?R.mipmap.login_bg_green:R.mipmap.login_bg_grey);
+                        mLoginIv.setBackgroundResource(mCanLogin ? R.mipmap.login_bg_green : R.mipmap.login_bg_grey);
                     }
 
                     @Override
@@ -296,12 +314,12 @@ public class LoginActivity extends BaseActivity {
                         mSelectIv.setBackgroundResource(R.mipmap.unselected_icon);
                         userAgreementDialog.dismiss();
 
-                        if(mTxMobile && mTxPwd&& mSelectAgreement){
+                        if (mTxMobile && mTxPwd && mSelectAgreement) {
                             mCanLogin = true;
                         } else {
                             mCanLogin = false;
                         }
-                        mLoginIv.setBackgroundResource(mCanLogin?R.mipmap.login_bg_green:R.mipmap.login_bg_grey);
+                        mLoginIv.setBackgroundResource(mCanLogin ? R.mipmap.login_bg_green : R.mipmap.login_bg_grey);
                     }
                 });
                 break;
@@ -328,7 +346,7 @@ public class LoginActivity extends BaseActivity {
                 });
     }
 
-    private void login(){
+    private void login() {
         RetrofitHelper.getApi().login(mMobileEt.getText().toString(), mPwdEt.getText().toString()).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(loginBean -> {
