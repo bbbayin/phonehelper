@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 
 import com.mob.sms.R;
 import com.mob.sms.utils.Constants;
+import com.mob.sms.utils.ToastUtil;
 import com.zyyoona7.wheel.WheelView;
 
 import java.util.ArrayList;
@@ -118,8 +119,10 @@ public class SetMultiCallIntervalDialog extends Dialog {
                 if (isChecked) {
                     cbFixedInterval.setChecked(false);
                     intervalType = Constants.RANDOM;
-                    tvLeftTitle.setText("时间上限");
-                    tvRightTitle.setText("时间下限");
+                    tvLeftTitle.setText("时间下限");
+                    tvRightTitle.setText("时间上限");
+                    mWheelView.setSelectedItemPosition(15);
+                    mWheelView2.setSelectedItemPosition(30);
                 }
             }
         });
@@ -137,8 +140,11 @@ public class SetMultiCallIntervalDialog extends Dialog {
                     if (Constants.FIXED.equals(intervalType)) {
                         mOnClickListener.confirm(String.valueOf(interval));
                     }else {
-                        // 负数代表随机间隔
-                        mOnClickListener.confirm(String.format("%s-%s", mRightValue, mLeftValue));
+                        if (mLeftValue >= mRightValue) {
+                            ToastUtil.show("时间上限要大于时间下限");
+                            return;
+                        }
+                        mOnClickListener.confirm(String.format("%s-%s", mLeftValue, mRightValue));
                     }
                 }
                 dismiss();

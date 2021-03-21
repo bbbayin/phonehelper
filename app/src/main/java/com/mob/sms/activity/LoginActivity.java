@@ -86,6 +86,7 @@ public class LoginActivity extends BaseActivity {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::finishPage);
         initPolicy();
+        showPolicyDialog();
     }
 
     private void initPolicy() {
@@ -290,40 +291,43 @@ public class LoginActivity extends BaseActivity {
                 }
                 break;
             case R.id.select_iv:
-            case R.id.agreement:
-                UserAgreementDialog userAgreementDialog = new UserAgreementDialog(this);
-                userAgreementDialog.show();
-                userAgreementDialog.setOnClickListener(new UserAgreementDialog.OnClickListener() {
-                    @Override
-                    public void agree() {
-                        mSelectAgreement = true;
-                        mSelectIv.setBackgroundResource(R.mipmap.selected_icon);
-                        userAgreementDialog.dismiss();
-
-                        if (mTxMobile && mTxPwd && mSelectAgreement) {
-                            mCanLogin = true;
-                        } else {
-                            mCanLogin = false;
-                        }
-                        mLoginIv.setBackgroundResource(mCanLogin ? R.mipmap.login_bg_green : R.mipmap.login_bg_grey);
-                    }
-
-                    @Override
-                    public void refuse() {
-                        mSelectAgreement = false;
-                        mSelectIv.setBackgroundResource(R.mipmap.unselected_icon);
-                        userAgreementDialog.dismiss();
-
-                        if (mTxMobile && mTxPwd && mSelectAgreement) {
-                            mCanLogin = true;
-                        } else {
-                            mCanLogin = false;
-                        }
-                        mLoginIv.setBackgroundResource(mCanLogin ? R.mipmap.login_bg_green : R.mipmap.login_bg_grey);
-                    }
-                });
+                showPolicyDialog();
                 break;
         }
+    }
+
+    private void showPolicyDialog() {
+        UserAgreementDialog userAgreementDialog = new UserAgreementDialog(this);
+        userAgreementDialog.show();
+        userAgreementDialog.setOnClickListener(new UserAgreementDialog.OnClickListener() {
+            @Override
+            public void agree() {
+                mSelectAgreement = true;
+                mSelectIv.setBackgroundResource(R.mipmap.selected_icon);
+                userAgreementDialog.dismiss();
+
+                if (mTxMobile && mTxPwd && mSelectAgreement) {
+                    mCanLogin = true;
+                } else {
+                    mCanLogin = false;
+                }
+                mLoginIv.setBackgroundResource(mCanLogin ? R.mipmap.login_bg_green : R.mipmap.login_bg_grey);
+            }
+
+            @Override
+            public void refuse() {
+                mSelectAgreement = false;
+                mSelectIv.setBackgroundResource(R.mipmap.unselected_icon);
+                userAgreementDialog.dismiss();
+
+                if (mTxMobile && mTxPwd && mSelectAgreement) {
+                    mCanLogin = true;
+                } else {
+                    mCanLogin = false;
+                }
+                mLoginIv.setBackgroundResource(mCanLogin ? R.mipmap.login_bg_green : R.mipmap.login_bg_grey);
+            }
+        });
     }
 
     private void authLogin(String avatar, String loginType, String nickName, String openid, String originate) {

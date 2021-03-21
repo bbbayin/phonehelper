@@ -3,66 +3,34 @@ package com.mob.sms.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.session.PlaybackState;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.mob.sms.auto.SingleAutoTaskActivity;
+import com.mob.sms.rx.CallEvent;
+import com.mob.sms.rx.RxBus;
 
 public class PhoneStateReceiver extends BroadcastReceiver {
-    private String TAG = "xxxxx";
+    private String TAG = "电话广播";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i("xxxxx", "onReceive: " + intent.getAction() + "--------");
+        Log.i(TAG, "onReceive: " + intent.getAction() + "--------");
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-        Log.d("xxxxx", "电话状态：" + state);
-
+        Log.d(TAG, "电话状态：" + state);
+        if ("IDLE".equals(state)) {
+            RxBus.getInstance().post(new CallEvent(state));
+        }
         if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
             // 去电，可以用定时挂断
-        } else {
-            //来电
-            Log.i("jqt", "PhoneStateReceiver onReceive state: " + state);
             if ("IDLE".equals(state)) {
                 SingleAutoTaskActivity.phoneIdleFlag = true;
             }
-            if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING)) {
-                Log.i("jqt", "PhoneStateReceiver onReceive endCall");
+        } else {
+            //来电
+            if (TelephonyManager.EXTRA_STATE_RINGING.equalsIgnoreCase(state)) {
+                Log.i(TAG, "PhoneStateReceiver onReceive endCall");
             }
-        }
-
-        if (intent.getAction() == null) {
-            return;
-        }
-        switch (intent.getAction()) {
-            case "CustomAction.PRECISE_CALL_STATE":
-                int callState = intent.getIntExtra("foreground_state", -2);
-                switch (callState) {
-                    case PreciseCallState.PRECISE_CALL_STATE_IDLE:
-                        Log.d(TAG, "IDLE");
-                        break;
-                    case PreciseCallState.PRECISE_CALL_STATE_DIALING:
-                        Log.d(TAG, "DIALING");
-                        break;
-                    case PreciseCallState.PRECISE_CALL_STATE_ALERTING:
-                        Log.d(TAG, "ALERTING isHandFree=");
-                        break;
-                    case PreciseCallState.PRECISE_CALL_STATE_ACTIVE:
-                        Log.d(TAG, "ACTIVE");
-                        break;
-                    case PreciseCallState.PRECISE_CALL_STATE_INCOMING:
-                        Log.d(TAG, "INCOMING来电");
-                        break;
-                    case PreciseCallState.PRECISE_CALL_STATE_DISCONNECTING:
-                        Log.d(TAG, "DISCONNECTING");
-                        break;
-                    case PreciseCallState.PRECISE_CALL_STATE_DISCONNECTED:
-                        Log.d(TAG, "DISCONNECTED");
-                        break;
-                }
-                break;
-            case TelephonyManager.ACTION_PHONE_STATE_CHANGED:
-                break;
         }
     }
 

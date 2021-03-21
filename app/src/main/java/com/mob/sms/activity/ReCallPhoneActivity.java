@@ -26,7 +26,6 @@ import com.mob.sms.R;
 import com.mob.sms.adapter.CallPhoneRecordsAdapter;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.bean.CallPhoneRecord;
-import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.rx.CallEvent;
 import com.mob.sms.rx.RxBus;
 import com.mob.sms.utils.SPConstant;
@@ -39,7 +38,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class ReCallPhoneActivity extends BaseActivity {
     @BindView(R.id.tip)
@@ -90,7 +88,7 @@ public class ReCallPhoneActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_auto_call_phone);
+        setContentView(R.layout.activity_auto_single_task_layout);
         ButterKnife.bind(this);
         setStatusBar(getResources().getColor(R.color.green));
         initView();

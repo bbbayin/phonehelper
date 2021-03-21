@@ -11,11 +11,13 @@ import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 
 public class CallService extends InCallService {
+    private String TAG = "[CallService]";
+
     private Call.Callback callback = new Call.Callback() {
         @Override
         public void onStateChanged(Call call, int state) {
             super.onStateChanged(call, state);
-            Log.i("jqt", "state: " + state);
+            Log.i(TAG, "state: " + state);
             switch (state) {
                 case Call.STATE_ACTIVE: {
                     //接通后自动挂断
@@ -26,10 +28,7 @@ public class CallService extends InCallService {
                     break; // 通话中
                 }
                 case Call.STATE_DISCONNECTED: {
-                    if (SPUtils.getBoolean(SPConstant.SP_CALL_GD, true)) {
-                        call.disconnect();
-                        RxBus.getInstance().post(new CallEvent());
-                    }
+
                     break; // 通话结束
                 }
             }
@@ -39,11 +38,11 @@ public class CallService extends InCallService {
     @Override
     public void onCallAdded(Call call) {
         super.onCallAdded(call);
-        Log.i("jqt", "onCallAdded");
+        Log.i(TAG, "onCallAdded");
         call.registerCallback(callback);
         PhoneCallManager.call = call; // 传入call
 
-        Log.i("jqt", "call.getState(): " + call.getState());
+        Log.i(TAG, "call.getState(): " + call.getState());
         if (call.getState() == Call.STATE_RINGING) {
         } else if (call.getState() == Call.STATE_CONNECTING) {
             //没有接通自动挂断
@@ -57,7 +56,7 @@ public class CallService extends InCallService {
     @Override
     public void onCallRemoved(Call call) {
         super.onCallRemoved(call);
-        Log.i("jqt", "onCallRemoved");
+        Log.i(TAG, "onCallRemoved");
         call.unregisterCallback(callback);
         PhoneCallManager.call = null;
     }

@@ -232,5 +232,8 @@ public interface MyAPIService {
     @POST("prod-api/restApi/cloud/useCloudDial")
     Observable<CloudPermissionBean> cloudDial();
 
+    // 扣件云拨号分钟
+    @POST("prod-api/restApi/cloud/reduceMinute")
+    Observable<BaseBean> chargeCloudDial(@Query("minute")int minutes);
 
 }

@@ -79,8 +79,8 @@
 
             <ImageView
                 android:id="@+id/sms_iv_clear_phone"
-                android:visibility="gone"
-                style="@style/ClearBtn" />
+                style="@style/ClearBtn"
+                android:visibility="gone" />
 
         </LinearLayout>
 
@@ -115,9 +115,9 @@
 
             <ImageView
                 android:id="@+id/sms_iv_clear_timeout"
+                style="@style/ClearBtn"
                 android:layout_marginEnd="6dp"
-                android:visibility="gone"
-                style="@style/ClearBtn" />
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/sms_dsfs_arrow"
@@ -204,18 +204,20 @@
         android:id="@+id/plfs_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:orientation="vertical">
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/sms_hmdr_rl"
             android:layout_width="match_parent"
-            android:layout_height="54dp">
+            android:layout_height="54dp"
+            android:paddingEnd="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_marginLeft="50dp"
                 android:text="号码导入:"
                 android:textColor="@color/color_454545"
@@ -224,17 +226,19 @@
             <TextView
                 android:id="@+id/sms_hmdr_tip"
                 style="@style/HomeItemHintText"
-                android:layout_toLeftOf="@+id/sms_hmdr_arrow" />
+                android:paddingStart="10dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/sms_btn_clear_phone"
+                style="@style/ClearBtn" />
 
             <ImageView
                 android:id="@+id/sms_hmdr_arrow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="20dp"
                 android:background="@mipmap/right_arrow_grey" />
-        </RelativeLayout>
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"

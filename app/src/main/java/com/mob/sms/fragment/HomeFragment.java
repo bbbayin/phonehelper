@@ -133,6 +133,10 @@ public class HomeFragment extends BaseFragment {
     ImageView ivClearSmsPhone;
     @BindView(R.id.sms_iv_clear_timeout)
     ImageView ivClearSmsTimeout;
+    @BindView(R.id.multi_btn_clear_phone)
+    ImageView ivMultiCLearPhone;
+    @BindView(R.id.sms_btn_clear_phone)
+    ImageView ivClearSmsImportPhone;
 
     private final int REQUEST_CODE_TAB1_SRHM = 1;
     private final int REQUEST_CODE_TAB1_CALL_TYPE = 2;
@@ -174,6 +178,50 @@ public class HomeFragment extends BaseFragment {
 
             }
         });
+
+        mCallHmdrTip.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String timeout = s.toString();
+                if (TextUtils.isEmpty(timeout)) {
+                    ivMultiCLearPhone.setVisibility(View.GONE);
+                } else {
+                    ivMultiCLearPhone.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        mSmsHmdrTip.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String timeout = s.toString();
+                if (TextUtils.isEmpty(timeout)) {
+                    ivClearSmsImportPhone.setVisibility(View.GONE);
+                } else {
+                    ivClearSmsImportPhone.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     private void setBdfs() {
@@ -192,9 +240,20 @@ public class HomeFragment extends BaseFragment {
             R.id.hmdr_rl, R.id.skzs_rl, R.id.jgsz_rl, R.id.pl_switch_gd, R.id.pl_switch_gd2, R.id.pl_call_tv,
             R.id.dhfs_switch, R.id.sms_txl_iv, R.id.sms_dsfs_rl, R.id.sms_fscs_rl, R.id.plfs_switch,
             R.id.sms_hmdr_rl, R.id.sms_sksz_rl, R.id.sms_fsjg_rl, R.id.bjdx_rl, R.id.sms_ljfs, R.id.home_single_btn_clear_phone,
-            R.id.home_single_btn_clear_time, R.id.multi_iv_clear_interval, R.id.sms_iv_clear_phone, R.id.sms_iv_clear_timeout})
+            R.id.home_single_btn_clear_time, R.id.multi_iv_clear_interval, R.id.sms_iv_clear_phone, R.id.sms_iv_clear_timeout,
+            R.id.multi_btn_clear_phone, R.id.sms_btn_clear_phone})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.sms_btn_clear_phone:// 清除短信导入号码
+                ivClearSmsImportPhone.setVisibility(View.GONE);
+                mSmsHmdrTip.setText("");
+                changeSmsUi();
+                break;
+            case R.id.multi_btn_clear_phone:// 清楚批量拨打号码
+                mCallHmdrTip.setText("");
+                ivMultiCLearPhone.setVisibility(View.GONE);
+                changePlCallUi();
+                break;
             case R.id.sms_iv_clear_timeout:// 短信，清除定时发送
                 ivClearSmsTimeout.setVisibility(View.GONE);
                 mSmsDsfsTip.setText("");

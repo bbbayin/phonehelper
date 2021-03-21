@@ -1,42 +1,57 @@
 package com.mob.sms.auto;
 
+import android.Manifest;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Message;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telephony.PhoneStateListener;
+import android.telephony.SmsManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 
 import com.mob.sms.R;
 import com.mob.sms.activity.SetSecretInfoActivity;
 import com.mob.sms.base.BaseActivity;
-import com.mob.sms.databinding.ActivityAutoCallPhoneBinding;
+import com.mob.sms.databinding.ActivityAutoSingleTaskLayoutBinding;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.pns.BaiduPnsServiceImpl;
 import com.mob.sms.receiver.PhoneStateReceiver;
-import com.mob.sms.service.CallService;
+import com.mob.sms.rx.CallEvent;
+import com.mob.sms.rx.RxBus;
+import com.mob.sms.utils.CallLogBean;
 import com.mob.sms.utils.Constants;
+import com.mob.sms.utils.PhoneUtils;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
 import com.mob.sms.utils.Utils;
+import com.youth.banner.util.LogUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -50,10 +65,9 @@ public class SingleAutoTaskActivity extends BaseActivity {
 
     public static boolean phoneIdleFlag = false;
 
-    private ActivityAutoCallPhoneBinding binding;
-    private String mDialNumber;// 要拨打的电话
+    private ActivityAutoSingleTaskLayoutBinding binding;
+    private String mDestNumber;// 要拨打的电话
     private int mTotalCallTimes;// 拨打次数
-
     private int mInterval;
     // 当前页面任务类型
     public static String KEY_TASK = "key+task";
@@ -68,24 +82,74 @@ public class SingleAutoTaskActivity extends BaseActivity {
     private int mSim;// 设置的sim卡
     private boolean mIsSecretDial;// 使用使用隐私拨打
     private ProgressDialog progressDialog;
+    private TelephonyManager telephonyManager;
+    private final String TAG = "【SingleAutoTask】";
+    private boolean exchangeSendSms = false;// 交替卡发短信
+    private String mSmsContent;// 短信内容
+    private int currentSim = 0;// 交替发短信时的卡
+    private List<CallLogBean> reportedRecord = new ArrayList<>();
 
     private PhoneStateListener listener = new PhoneStateListener() {
-
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             super.onCallStateChanged(state, incomingNumber);
-            Log.i("jjjjjj", "state: " + state + "," + incomingNumber);
+            final TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+            Log.i("拨号页面", "state: " + state + "," + incomingNumber);
+            if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
+                // 判断是否自动挂断
+                Boolean autoFinish = SPUtils.getBoolean(SPConstant.SP_CALL_GD, false);
+                if (autoFinish) {
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (ActivityCompat.checkSelfPermission(SingleAutoTaskActivity.this,
+                                    Manifest.permission.ANSWER_PHONE_CALLS) != PackageManager.PERMISSION_GRANTED) {
+                                return;
+                            }
+                            telecomManager.endCall();
+                        }
+                    }, 5000);
+                }
+            } else if (state == TelephonyManager.CALL_STATE_IDLE) {
+
+
+            }
+
             telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE);
         }
-
     };
-    private TelephonyManager telephonyManager;
+
+    /**
+     * 上报隐私拨号时间，单位：分钟
+     *
+     * @param duration
+     */
+    private void reportDuration(int duration) {
+        Log.i(TAG, "上报打电话时长");
+        if (duration <= 60) duration = 1;
+        else {
+            duration = duration / 60 + 1;
+        }
+        Log.i(TAG, "通话时长："+duration+"分钟");
+        RetrofitHelper.getApi().chargeCloudDial(duration)
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+    }
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+
+        }
+    };
+    private PendingIntent sentPI;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // viewBinding
-        binding = ActivityAutoCallPhoneBinding.inflate(getLayoutInflater());
+        binding = ActivityAutoSingleTaskLayoutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setStatusBar(getResources().getColor(R.color.green));
         // init
@@ -118,6 +182,17 @@ public class SingleAutoTaskActivity extends BaseActivity {
             }
         } else {
             binding.tip.setText("单号发短信");
+            mDestNumber = SPUtils.getString(SPConstant.SP_SMS_SRHM, "");
+            mSmsContent = SPUtils.getString(SPConstant.SP_SMS_CONTENT, "");
+            String smsSim = SPUtils.getString(SPConstant.SP_SMS_SKSZ, "");
+            if (TextUtils.isEmpty(smsSim)) {
+                exchangeSendSms = true;
+            } else {
+                exchangeSendSms = false;
+                mSim = Constants.SIM_TYPE_SIM_1.equals(smsSim) ? 0 : 1;
+            }
+            Intent sentIntent = new Intent("SENT_SMS_ACTION");
+            sentPI = PendingIntent.getBroadcast(this, 0, sentIntent, 0);
         }
     }
 
@@ -172,7 +247,7 @@ public class SingleAutoTaskActivity extends BaseActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mDialNumber = telX;
+                mDestNumber = telX;
                 ToastUtil.show("隐私号获取成功");
                 startTimer(mDelay);
             }
@@ -269,15 +344,61 @@ public class SingleAutoTaskActivity extends BaseActivity {
         }
     }
 
+
+    /**
+     * 打电话
+     */
+    private void callPhone() {
+        try {
+            // 1. 获取拨打的sim卡
+            TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+            if (telecomManager != null) {
+                telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                intent.setData(Uri.parse("tel:" + mDestNumber));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                List<PhoneAccountHandle> phoneAccountHandleList = Utils.getAccountHandles(this);
+                if (phoneAccountHandleList.size() > mSim) {
+                    intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(mSim));
+                }
+                startActivityForResult(intent, 888);
+                isRunning = false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void sendMsg() {
-// TODO: 2021/3/14
+        try {
+            SubscriptionInfo sInfo = null;
+            final SubscriptionManager sManager = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+            List<SubscriptionInfo> list = sManager.getActiveSubscriptionInfoList();
+            if (list.size() == 2) {// double card
+                if (exchangeSendSms) {
+                    sInfo = list.get(currentSim);
+                    currentSim ^= 0;
+                    Log.w(TAG, "当前电话卡" + currentSim);
+                } else {
+                    sInfo = list.get(mSim);
+                }
+            } else {//single card
+                sInfo = list.get(0);
+            }
+            int subId = sInfo.getSubscriptionId();
+            SmsManager manager = SmsManager
+                    .getSmsManagerForSubscriptionId(subId);
+            manager.sendTextMessage(mDestNumber, null, mSmsContent, sentPI, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initView() {
         telephonyManager = (TelephonyManager) getSystemService(Service.TELEPHONY_SERVICE);
-        mDialNumber = SPUtils.getString(SPConstant.SP_CALL_SRHM, "");
+        mDestNumber = SPUtils.getString(SPConstant.SP_CALL_SRHM, "");
         binding.tip.setText("单号拨打电话");
-        binding.mobile.setText(mDialNumber);
+        binding.mobile.setText(mDestNumber);
         // 总共拨打次数
         mTotalCallTimes = SPUtils.getInt(SPConstant.SP_CALL_NUM, 1);
         // 定时时间
@@ -317,50 +438,48 @@ public class SingleAutoTaskActivity extends BaseActivity {
         }
         // 注册电话广播监听
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("android.intent.action.NEW_OUTGOING_CALL");
-        intentFilter.addAction("android.intent.action.PHONE_STATE");
-        intentFilter.addAction("CustomAction.PRECISE_CALL_STATE");
+        intentFilter.addAction(Intent.ACTION_NEW_OUTGOING_CALL);
+        intentFilter.setPriority(Integer.MAX_VALUE);
+        intentFilter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        intentFilter.addAction(TelecomManager.ACTION_INCOMING_CALL);
         registerReceiver(new PhoneStateReceiver(), intentFilter);
+
+        RxBus.getInstance().toObserverable(CallEvent.class)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::onReceiveCallEvent);
     }
 
-    private void initClick() {
-        binding.back.setOnClickListener(v -> back());
-        binding.stop.setOnClickListener(v -> back());
-        binding.pause.setOnClickListener(v -> {
-            // 手动暂停
-            if (isManualStop) {
-                startTimer(mInterval);
-            } else {
-                release();
-                binding.time.setText("暂停拨打");
-            }
-            isManualStop = !isManualStop;
-        });
-    }
-
-    /**
-     * 打电话
-     */
-    private void callPhone() {
-        try {
-            // 1. 获取拨打的sim卡
-            TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
-            if (telecomManager != null) {
-                telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
-                Intent intent = new Intent(Intent.ACTION_CALL);
-                intent.setData(Uri.parse("tel:" + mDialNumber));
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                List<PhoneAccountHandle> phoneAccountHandleList = Utils.getAccountHandles(this);
-                if (phoneAccountHandleList.size() > mSim) {
-                    intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(mSim));
+    public void onReceiveCallEvent(CallEvent event) {
+        if (event.status.equals("IDLE")) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // 上报记录，扣减时长
+                    synchronized (SingleAutoTaskActivity.this) {
+                        if (mIsSecretDial) {
+                            // 扣减时长
+                            List<CallLogBean> callLog = PhoneUtils.INSTANCE.getCallLog(1, SingleAutoTaskActivity.this);
+                            Log.d(TAG, callLog.toString());
+                            if (!callLog.isEmpty()) {
+                                CallLogBean logBean = callLog.get(0);
+                                if (logBean.getNumber().equals(mDestNumber) && logBean.getDuration() > 0) {
+                                    // 上报时长
+                                    if (!reportedRecord.contains(logBean)) {
+                                        reportedRecord.add(logBean);
+                                        reportDuration(logBean.getDuration());
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-                startActivityForResult(intent, 888);
-                isRunning = false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            }, 3000);
+
+            // TODO：上报记录
+
         }
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -407,11 +526,26 @@ public class SingleAutoTaskActivity extends BaseActivity {
         RetrofitHelper.getApi().saveCallRecord(1, time, mInterval + "", mTotalCallTimes,
                 mSim == 0 ? Constants.SIM_TYPE_SIM_1 : Constants.SIM_TYPE_SIM_2,
                 gd ? "1" : "0", status,
-                mCurrentCount + 1, mDialNumber, mDsbdTime, gd ? "0" : "1").subscribeOn(Schedulers.io())
+                mCurrentCount + 1, mDestNumber, mDsbdTime, gd ? "0" : "1").subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                 }, throwable -> {
                     throwable.printStackTrace();
                 });
+    }
+
+    private void initClick() {
+        binding.back.setOnClickListener(v -> back());
+        binding.stop.setOnClickListener(v -> back());
+        binding.pause.setOnClickListener(v -> {
+            // 手动暂停
+            if (isManualStop) {
+                startTimer(mInterval);
+            } else {
+                release();
+                binding.time.setText("暂停拨打");
+            }
+            isManualStop = !isManualStop;
+        });
     }
 }

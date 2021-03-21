@@ -1,12 +1,10 @@
 package com.mob.sms.activity;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,7 +16,6 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,7 +23,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,10 +30,8 @@ import com.mob.sms.R;
 import com.mob.sms.adapter.CallPhoneRecordsAdapter;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.bean.CallPhoneRecord;
-import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
-import com.mob.sms.dialog.CheckTipDialog;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.pns.BaiduPnsServiceImpl;
 import com.mob.sms.receiver.PhoneStateReceiver;
@@ -46,7 +40,6 @@ import com.mob.sms.rx.RxBus;
 import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
-import com.mob.sms.utils.ToastUtil;
 import com.mob.sms.utils.Utils;
 
 import org.json.JSONException;
@@ -62,7 +55,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class AutoCallPhoneActivity extends BaseActivity {
@@ -118,7 +110,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_auto_call_phone);
+        setContentView(R.layout.activity_auto_single_task_layout);
         ButterKnife.bind(this);
         setStatusBar(getResources().getColor(R.color.green));
         IntentFilter intentFilter = new IntentFilter();

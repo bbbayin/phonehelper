@@ -72,9 +72,17 @@ public class MainActivity extends BaseActivity {
 
     private Subscription mSub;
 
-    private String[] mPermissions = new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_CONTACTS, Manifest.permission.CALL_PHONE,
-            Manifest.permission.READ_PHONE_STATE};
+    private String[] mPermissions = new String[]{
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_CONTACTS,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.CALL_PHONE,
+            Manifest.permission.ANSWER_PHONE_CALLS,
+            Manifest.permission.READ_CALL_LOG
+
+    };
     private ArrayList<String> mPermissionList = new ArrayList<>();
 
 

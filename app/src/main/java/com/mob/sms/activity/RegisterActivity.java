@@ -1,15 +1,23 @@
 package com.mob.sms.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -24,6 +32,7 @@ import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.dialog.UserAgreementDialog;
 import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.policy.PolicyActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,6 +59,9 @@ public class RegisterActivity extends BaseActivity {
     ImageView mSelectIv;
     @BindView(R.id.register)
     ImageView mRegister;
+    @BindView(R.id.register_policy)
+    TextView tvPolicy;
+
 
     @OnClick({R.id.register_back})
     public void click(View view) {
@@ -77,6 +89,65 @@ public class RegisterActivity extends BaseActivity {
         ButterKnife.bind(this);
         setStatusBar(getResources().getColor(R.color.white));
         initView();
+        initPolicy();
+    }
+    private void initPolicy() {
+        String content = "我已阅读并同意《用户协议》和《隐私政策》";
+        SpannableString spannableString = new SpannableString(content);
+        int start1 = content.indexOf("《");
+        int end1 = content.indexOf("》");
+        int start2 = content.lastIndexOf("《");
+        int end2 = content.length();
+        int color = Color.parseColor("#33C197");
+        spannableString.setSpan(new ForegroundColorSpan(color),
+                start1,
+                end1+1,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(new ForegroundColorSpan(color),
+                start2,
+                end2,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        spannableString.setSpan(
+                new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        // 用户协议
+                        toPolicy(RegisterActivity.this, PolicyActivity.TYPE_USER);
+                    }
+
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint ds) {
+                        ds.setUnderlineText(false);
+                    }
+                },
+                start1,
+                end1,
+                Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        spannableString.setSpan(
+                new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        // 隐私政策
+                        toPolicy(RegisterActivity.this, PolicyActivity.TYPE_SECRET);
+                    }
+
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint ds) {
+                        ds.setUnderlineText(false);
+                    }
+                },
+                start2,
+                end2,
+                Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        tvPolicy.setMovementMethod(LinkMovementMethod.getInstance());
+        tvPolicy.setText(spannableString);
+    }
+
+    private void toPolicy(Context context, int type) {
+        Intent intent = new Intent(context, PolicyActivity.class);
+        intent.putExtra(PolicyActivity.KEY_POLICY_TYPE, type);
+        context.startActivity(intent);
     }
 
     private void initView(){
@@ -190,7 +261,7 @@ public class RegisterActivity extends BaseActivity {
         return true;
     }
 
-    @OnClick({R.id.send_code, R.id.agreement, R.id.login, R.id.eye_icon, R.id.eye2_icon, R.id.select_iv, R.id.register})
+    @OnClick({R.id.send_code, R.id.login, R.id.eye_icon, R.id.eye2_icon, R.id.select_iv, R.id.register})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.send_code:
@@ -201,38 +272,7 @@ public class RegisterActivity extends BaseActivity {
                 }
                 break;
             case R.id.select_iv:
-            case R.id.agreement:
-                UserAgreementDialog userAgreementDialog = new UserAgreementDialog(this);
-                userAgreementDialog.show();
-                userAgreementDialog.setOnClickListener(new UserAgreementDialog.OnClickListener() {
-                    @Override
-                    public void agree() {
-                        mSelectAgreement = true;
-                        mSelectIv.setBackgroundResource(R.mipmap.selected_icon);
-                        userAgreementDialog.dismiss();
-
-                        if(mTxMobile && mTxCode && mTxPwd && mTxPwd2 && mSelectAgreement){
-                            mCanRegister = true;
-                        } else {
-                            mCanRegister = false;
-                        }
-                        mRegister.setBackgroundResource(mCanRegister?R.mipmap.register_green:R.mipmap.register_grey);
-                    }
-
-                    @Override
-                    public void refuse() {
-                        mSelectAgreement = false;
-                        mSelectIv.setBackgroundResource(R.mipmap.unselected_icon);
-                        userAgreementDialog.dismiss();
-
-                        if(mTxMobile && mTxCode && mTxPwd && mTxPwd2 && mSelectAgreement){
-                            mCanRegister = true;
-                        } else {
-                            mCanRegister = false;
-                        }
-                        mRegister.setBackgroundResource(mCanRegister?R.mipmap.register_green:R.mipmap.register_grey);
-                    }
-                });
+                showDialog();
                 break;
             case R.id.eye_icon:
                 mCanSeePwd = !mCanSeePwd;
@@ -258,6 +298,40 @@ public class RegisterActivity extends BaseActivity {
                 }
                 break;
         }
+    }
+
+    private void showDialog() {
+        UserAgreementDialog userAgreementDialog = new UserAgreementDialog(this);
+        userAgreementDialog.show();
+        userAgreementDialog.setOnClickListener(new UserAgreementDialog.OnClickListener() {
+            @Override
+            public void agree() {
+                mSelectAgreement = true;
+                mSelectIv.setBackgroundResource(R.mipmap.selected_icon);
+                userAgreementDialog.dismiss();
+
+                if(mTxMobile && mTxCode && mTxPwd && mTxPwd2 && mSelectAgreement){
+                    mCanRegister = true;
+                } else {
+                    mCanRegister = false;
+                }
+                mRegister.setBackgroundResource(mCanRegister?R.mipmap.register_green:R.mipmap.register_grey);
+            }
+
+            @Override
+            public void refuse() {
+                mSelectAgreement = false;
+                mSelectIv.setBackgroundResource(R.mipmap.unselected_icon);
+                userAgreementDialog.dismiss();
+
+                if(mTxMobile && mTxCode && mTxPwd && mTxPwd2 && mSelectAgreement){
+                    mCanRegister = true;
+                } else {
+                    mCanRegister = false;
+                }
+                mRegister.setBackgroundResource(mCanRegister?R.mipmap.register_green:R.mipmap.register_grey);
+            }
+        });
     }
 
     private void register(){

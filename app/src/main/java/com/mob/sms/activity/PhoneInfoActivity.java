@@ -226,7 +226,7 @@ public class PhoneInfoActivity extends BaseActivity {
         }
     }
 
-    @OnClick({R.id.back, R.id.delete})
+    @OnClick({R.id.back, R.id.delete, R.id.confirm})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.back:
@@ -234,7 +234,9 @@ public class PhoneInfoActivity extends BaseActivity {
                 break;
             case R.id.delete:
                 confirm();
-
+                break;
+            case R.id.confirm:
+                confirm();
                 break;
         }
     }
