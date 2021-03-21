@@ -49,14 +49,16 @@
         android:background="@color/white">
 
         <EditText
+            android:id="@+id/contacts_import_et_search"
             android:layout_width="match_parent"
             android:layout_height="35dp"
             android:layout_centerInParent="true"
             android:layout_marginHorizontal="20dp"
             android:background="@drawable/round_36_grey2"
+            android:hint="搜索"
             android:paddingLeft="15dp"
-            android:text="搜索"
             android:textColor="#a8a8a8"
+            android:textColorHint="#BBBBBB"
             android:textSize="15sp" />
     </RelativeLayout>
 
@@ -65,6 +67,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/search_rl" />
+
+    <TextView
+        android:id="@+id/import_contacts_empty_layout"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:visibility="gone"
+        android:gravity="center"
+        android:text="暂无结果"
+        android:textColor="#999999"
+        android:layout_below="@+id/search_rl"
+        android:textSize="16sp" />
 
     <LinearLayout
         android:id="@+id/top_layout"

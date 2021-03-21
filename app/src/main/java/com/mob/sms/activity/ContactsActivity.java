@@ -5,7 +5,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -40,13 +44,15 @@ public class ContactsActivity extends BaseActivity {
     SideBar mSideBar;
     @BindView(R.id.top_tv)
     TextView mTopTv;
+    @BindView(R.id.contacts_empty_layout)
+    View emptyLayout;
 
     private ContactsAdapter mContactsAdapter;
     private ArrayList<ContactsBean> mDatas = new ArrayList<>();
     private CharacterParser mCharacterParser;
     private PinyinComparator mPinyinComparator;
-    private ArrayList<SortModel> mSortList = new ArrayList<>();
-
+    private ArrayList<SortModel> mOriginList = new ArrayList<>();
+    private ArrayList<SortModel> mSearchResults = new ArrayList<>();
     private int lastFirstVisibleItem = -1;
 
     // 号码
@@ -73,19 +79,20 @@ public class ContactsActivity extends BaseActivity {
         getContacts();
 
         filledData(mDatas);
-        Collections.sort(mSortList, mPinyinComparator);
+        Collections.sort(mOriginList, mPinyinComparator);
 
-        mContactsAdapter = new ContactsAdapter(this, mSortList);
+        mContactsAdapter = new ContactsAdapter(this, mOriginList);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mContactsAdapter);
         mContactsAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
-                for (int i = 0; i < mSortList.size(); i++) {
+                List<SortModel> active = mContactsAdapter.getData();
+                for (int i = 0; i < active.size(); i++) {
                     if (i == position) {
-                        mSortList.get(i).setChecked(!mSortList.get(i).isChecked());
+                        active.get(i).setChecked(!active.get(i).isChecked());
                     } else {
-                        mSortList.get(i).setChecked(false);
+                        active.get(i).setChecked(false);
                     }
                 }
                 mContactsAdapter.notifyDataSetChanged();
@@ -121,8 +128,55 @@ public class ContactsActivity extends BaseActivity {
 
             }
         });
+
+        EditText etSearch = findViewById(R.id.contacts_et_search);
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String keywords = s.toString();
+                if (TextUtils.isEmpty(keywords)) {
+                    mRecyclerView.setVisibility(View.VISIBLE);
+                    // 原始数据
+                    mContactsAdapter.updateData(mOriginList);
+                    emptyLayout.setVisibility(View.GONE);
+                }else {
+                    filterData(keywords);
+                    if (mSearchResults.isEmpty()) {
+                        mRecyclerView.setVisibility(View.GONE);
+                        emptyLayout.setVisibility(View.VISIBLE);
+                    }else {
+                        mRecyclerView.setVisibility(View.VISIBLE);
+                        emptyLayout.setVisibility(View.GONE);
+                        mContactsAdapter.updateData(mSearchResults);
+                    }
+                }
+
+            }
+        });
     }
 
+    /**
+     * 搜索
+     * @param keyword
+     */
+    private void filterData(String keyword) {
+        mSearchResults.clear();
+        for (int i = 0; i < mOriginList.size(); i++) {
+            if (mOriginList.get(i).getName().contains(keyword)) {
+                mSearchResults.add(mOriginList.get(i));
+            }
+        }
+    }
     private void getContacts() {
         try {
             ContentResolver cr = getContentResolver();
@@ -150,7 +204,7 @@ public class ContactsActivity extends BaseActivity {
                 sortModel.setSortLetters("#");
             }
 
-            mSortList.add(sortModel);
+            mOriginList.add(sortModel);
         }
     }
 
@@ -163,10 +217,11 @@ public class ContactsActivity extends BaseActivity {
             case R.id.confirm:
                 boolean isSelect = false;
                 SortModel sortModel = null;
-                for (int i = 0; i < mSortList.size(); i++) {
-                    if (mSortList.get(i).isChecked()) {
+                List<SortModel> activeData = mContactsAdapter.getData();
+                for (int i = 0; i < activeData.size(); i++) {
+                    if (activeData.get(i).isChecked()) {
                         isSelect = true;
-                        sortModel = mSortList.get(i);
+                        sortModel = activeData.get(i);
                     }
                 }
                 if (isSelect) {

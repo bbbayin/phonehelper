@@ -36,6 +36,17 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         mInflater = LayoutInflater.from(mContext);
     }
 
+    public List<SortModel> getData() {
+        return mDatas;
+    }
+
+    public void updateData(List<SortModel> list) {
+        if (list != null && !list.isEmpty()) {
+            this.mDatas = list;
+            notifyDataSetChanged();
+        }
+    }
+
     @Override
     public ContactsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ViewHolder(mInflater.inflate(R.layout.item_contact, parent, false));
