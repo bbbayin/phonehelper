@@ -1,16 +1,12 @@
 package com.mob.sms.activity;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.telecom.TelecomManager;
-import android.telephony.SubscriptionManager;
-import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,8 +17,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -35,11 +29,9 @@ import com.mob.sms.fragment.ContactsFragment;
 import com.mob.sms.fragment.HomeFragment;
 import com.mob.sms.fragment.MineFragment;
 import com.mob.sms.fragment.RecordFragment;
-import com.mob.sms.fragment.TxlFragment;
-import com.mob.sms.pns.BaiduPnsServiceImpl;
 import com.mob.sms.rx.ExitEvent;
-import com.mob.sms.rx.LoginEvent;
 import com.mob.sms.rx.RxBus;
+import com.mob.sms.service.UpdateService;
 import com.mob.sms.utils.ToastUtil;
 
 import net.lucode.hackware.magicindicator.MagicIndicator;
@@ -49,8 +41,6 @@ import net.lucode.hackware.magicindicator.buildins.commonnavigator.abs.CommonNav
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.abs.IPagerIndicator;
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.abs.IPagerTitleView;
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.titles.CommonPagerTitleView;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -113,6 +103,8 @@ public class MainActivity extends BaseActivity {
                     getPackageName());
             startActivity(intent);
         }
+
+        startService(new Intent(this, UpdateService.class));
     }
 
     private void finishPage(ExitEvent event) {

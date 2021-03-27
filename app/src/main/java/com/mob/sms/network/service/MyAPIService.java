@@ -1,8 +1,11 @@
 package com.mob.sms.network.service;
 
+import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.CloudPermissionBean;
+import com.mob.sms.bean.UpdateBean;
 import com.mob.sms.network.bean.AuthoLoginBean;
 import com.mob.sms.network.bean.BaseBean;
+import com.mob.sms.network.bean.BaseResponse;
 import com.mob.sms.network.bean.CallRecordBean;
 import com.mob.sms.network.bean.EnterpriseBean;
 import com.mob.sms.network.bean.FeedbackDetailBean;
@@ -11,10 +14,8 @@ import com.mob.sms.network.bean.LoginBean;
 import com.mob.sms.network.bean.OnlineContactBean;
 import com.mob.sms.network.bean.OrderBean;
 import com.mob.sms.network.bean.OrderHistoryBean;
-import com.mob.sms.network.bean.PolicyBean;
 import com.mob.sms.network.bean.QuestionBean;
 import com.mob.sms.network.bean.QuestionDetailBean;
-import com.mob.sms.network.bean.RecordBean;
 import com.mob.sms.network.bean.RuleBean;
 import com.mob.sms.network.bean.ShareBean;
 import com.mob.sms.network.bean.SmsRecordBean;
@@ -23,16 +24,13 @@ import com.mob.sms.network.bean.UserInfoBean;
 import com.mob.sms.network.bean.VersionBean;
 import com.mob.sms.network.bean.VipBean;
 
-import java.io.File;
+import java.util.List;
 import java.util.Map;
 
-import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
-import retrofit2.http.Part;
 import retrofit2.http.PartMap;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -235,5 +233,12 @@ public interface MyAPIService {
     // 扣件云拨号分钟
     @POST("prod-api/restApi/cloud/reduceMinute")
     Observable<BaseBean> chargeCloudDial(@Query("minute")int minutes);
+
+    @POST("prod-api/restApi/version/getVersion")
+    Observable<BaseResponse<UpdateBean>> checkUpdate();
+
+    //1启动页 2引导图 3广告位
+    @POST("prod-api/restApi/advertising/getImg")
+    Observable<BaseResponse<List<BannerBean>>> getImage(@Query("type")int type);
 
 }

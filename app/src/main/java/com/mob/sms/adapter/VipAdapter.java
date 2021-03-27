@@ -43,7 +43,25 @@ public class VipAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         VHolder vHolder = (VHolder) viewHolder;
-        vHolder.price.setText(mDatas.get(position).price + "");
+        final VipBean.DataBean dataBean = mDatas.get(position);
+        vHolder.price.setText(dataBean.price + "");
+        if (dataBean.isSelected) {
+            viewHolder.itemView.setAlpha(1f);
+        }else {
+            viewHolder.itemView.setAlpha(0.5f);
+        }
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (dataBean != null) {
+                    for (int i = 0; i < mDatas.size(); i++) {
+                        mDatas.get(i).isSelected = false;
+                    }
+                    dataBean.isSelected = true;
+                    notifyDataSetChanged();
+                }
+            }
+        });
     }
 
     @Override

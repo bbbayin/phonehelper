@@ -1,7 +1,10 @@
 package com.mob.sms.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -15,7 +18,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.mob.sms.R;
 import com.mob.sms.activity.AutoCallPhoneActivity;
 import com.mob.sms.activity.AutoSendSmsActivity;
@@ -29,6 +35,7 @@ import com.mob.sms.activity.SimSettingActivity;
 import com.mob.sms.activity.VipActivity;
 import com.mob.sms.auto.SingleAutoTaskActivity;
 import com.mob.sms.base.BaseFragment;
+import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
@@ -40,11 +47,15 @@ import com.mob.sms.dialog.SetCallNumDialog;
 import com.mob.sms.dialog.SetCallTimingDialog;
 import com.mob.sms.dialog.SetMultiCallIntervalDialog;
 import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.rx.BaseObserver;
+import com.mob.sms.rx.MobError;
 import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
 import com.mob.sms.utils.Utils;
+import com.youth.banner.Banner;
+import com.youth.banner.adapter.BannerAdapter;
 
 import java.util.List;
 
@@ -81,8 +92,6 @@ public class HomeFragment extends BaseFragment {
     TextView mCallBdfsTv;
     @BindView(R.id.gd_switch)
     ImageView mGdSwitch;
-    @BindView(R.id.gd_switch2)
-    ImageView mGdSwitch2;
     @BindView(R.id.home_btn_single_call_now)
     TextView mCallTv;
     //批量拨打
@@ -94,8 +103,6 @@ public class HomeFragment extends BaseFragment {
     TextView mCallJgszTip;
     @BindView(R.id.pl_switch_gd)
     ImageView mPlGdSwitch;
-    @BindView(R.id.pl_switch_gd2)
-    ImageView mPlGdSwitch2;
     @BindView(R.id.pl_call_tv)
     TextView mPlCallTv;
     //短信
@@ -131,12 +138,14 @@ public class HomeFragment extends BaseFragment {
     ImageView ivMultiClearInterval;
     @BindView(R.id.sms_iv_clear_phone)
     ImageView ivClearSmsPhone;
-    @BindView(R.id.sms_iv_clear_timeout)
-    ImageView ivClearSmsTimeout;
+//    @BindView(R.id.sms_iv_clear_timeout)
+//    ImageView ivClearSmsTimeout;
     @BindView(R.id.multi_btn_clear_phone)
     ImageView ivMultiCLearPhone;
     @BindView(R.id.sms_btn_clear_phone)
     ImageView ivClearSmsImportPhone;
+    @BindView(R.id.banner)
+    Banner banner;
 
     private final int REQUEST_CODE_TAB1_SRHM = 1;
     private final int REQUEST_CODE_TAB1_CALL_TYPE = 2;
@@ -152,32 +161,64 @@ public class HomeFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         ButterKnife.bind(this, view);
         initView();
+        initData();
         return view;
     }
 
-    private void initView() {
-        mSmsDsfsTip.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    private void initData() {
+        RetrofitHelper.getApi().getImage(3)
+                .subscribe(new BaseObserver<List<BannerBean>>() {
+                    @Override
+                    protected void onSuccess(List<BannerBean> list) {
+                        initBanner(list);
+                    }
 
-            }
+                    @Override
+                    protected void onFailed(MobError error) {
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    }
+                });
+    }
 
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String timeout = s.toString();
-                if (TextUtils.isEmpty(timeout)) {
-                    ivClearSmsTimeout.setVisibility(View.GONE);
-                } else {
-                    ivClearSmsTimeout.setVisibility(View.VISIBLE);
+    private void initBanner(List<BannerBean> list) {
+        if (list != null && !list.isEmpty()) {
+            banner.setAdapter(new BannerAdapter<BannerBean, BannerHolder>(list) {
+                @Override
+                public BannerHolder onCreateHolder(ViewGroup parent, int viewType) {
+                    LayoutInflater from = LayoutInflater.from(parent.getContext());
+                    View item = from.inflate(R.layout.banner_image_layout, parent, false);
+                    return new BannerHolder(item);
                 }
 
-            }
-        });
+                @Override
+                public void onBindView(BannerHolder holder, BannerBean data, int position, int size) {
+                    Glide.with(holder.itemView.getContext())
+                            .load(data.img)
+                            .apply(RequestOptions.fitCenterTransform()
+                                    .error(R.drawable.ic_launcher_background)
+                                    .placeholder(R.drawable.ic_prompt_loading))
+                            .into(holder.image);
+                }
+            });
+            banner.setDatas(list);
+            banner.start();
+        }
+    }
+
+    private static class BannerHolder extends RecyclerView.ViewHolder {
+
+        private final ImageView image;
+
+        public BannerHolder(@NonNull View itemView) {
+            super(itemView);
+            image = itemView.findViewById(R.id.banner_image);
+        }
+    }
+
+    private void initView() {
+        bddh_ll.setVisibility(View.VISIBLE);
+        plbd_ll.setVisibility(View.GONE);
+        dxds_ll.setVisibility(View.GONE);
 
         mCallHmdrTip.addTextChangedListener(new TextWatcher() {
             @Override
@@ -236,11 +277,11 @@ public class HomeFragment extends BaseFragment {
     }
 
     @OnClick({R.id.top1_ll, R.id.top2_ll, R.id.top3_ll, R.id.txl_iv, R.id.dsbh_rl, R.id.bdcs_rl, R.id.bdjg_rl, R.id.bdfs_rl,
-            R.id.gd_switch, R.id.gd_switch2, R.id.home_btn_single_call_now,
-            R.id.hmdr_rl, R.id.skzs_rl, R.id.jgsz_rl, R.id.pl_switch_gd, R.id.pl_switch_gd2, R.id.pl_call_tv,
+            R.id.gd_switch, R.id.home_btn_single_call_now,
+            R.id.hmdr_rl, R.id.skzs_rl, R.id.jgsz_rl, R.id.pl_switch_gd, R.id.pl_call_tv,
             R.id.dhfs_switch, R.id.sms_txl_iv, R.id.sms_dsfs_rl, R.id.sms_fscs_rl, R.id.plfs_switch,
             R.id.sms_hmdr_rl, R.id.sms_sksz_rl, R.id.sms_fsjg_rl, R.id.bjdx_rl, R.id.sms_ljfs, R.id.home_single_btn_clear_phone,
-            R.id.home_single_btn_clear_time, R.id.multi_iv_clear_interval, R.id.sms_iv_clear_phone, R.id.sms_iv_clear_timeout,
+            R.id.home_single_btn_clear_time, R.id.multi_iv_clear_interval, R.id.sms_iv_clear_phone,
             R.id.multi_btn_clear_phone, R.id.sms_btn_clear_phone})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -254,11 +295,7 @@ public class HomeFragment extends BaseFragment {
                 ivMultiCLearPhone.setVisibility(View.GONE);
                 changePlCallUi();
                 break;
-            case R.id.sms_iv_clear_timeout:// 短信，清除定时发送
-                ivClearSmsTimeout.setVisibility(View.GONE);
-                mSmsDsfsTip.setText("");
-                changeSmsUi();
-                break;
+
             case R.id.sms_iv_clear_phone:// 发短信，清除号码
                 mSmsMobileEt.setText("");
                 changeSmsUi();
@@ -357,13 +394,6 @@ public class HomeFragment extends BaseFragment {
             case R.id.gd_switch:
                 mCallGd = !mCallGd;
                 mGdSwitch.setImageResource(mCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
-                mGdSwitch2.setImageResource(mCallGd ? R.mipmap.switch_off : R.mipmap.switch_on);
-                SPUtils.put(SPConstant.SP_CALL_GD, mCallGd);
-                break;
-            case R.id.gd_switch2:
-                mCallGd = !mCallGd;
-                mGdSwitch.setImageResource(mCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
-                mGdSwitch2.setImageResource(mCallGd ? R.mipmap.switch_off : R.mipmap.switch_on);
                 SPUtils.put(SPConstant.SP_CALL_GD, mCallGd);
                 break;
             case R.id.home_btn_single_call_now:
@@ -377,7 +407,7 @@ public class HomeFragment extends BaseFragment {
                         checkPermission();
                     } else {
                         intent = new Intent(getContext(), SingleAutoTaskActivity.class);
-                        intent.putExtra("type", "dhbd");
+                        intent.putExtra(SingleAutoTaskActivity.KEY_TASK, SingleAutoTaskActivity.VALUE_TASK_DIAL);
                         startActivity(intent);
                     }
                 }
@@ -459,15 +489,14 @@ public class HomeFragment extends BaseFragment {
             case R.id.pl_switch_gd:
                 mPlCallGd = !mPlCallGd;
                 mPlGdSwitch.setImageResource(mPlCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
-                mPlGdSwitch2.setImageResource(mPlCallGd ? R.mipmap.switch_off : R.mipmap.switch_on);
                 SPUtils.put(SPConstant.SP_CALL_PL_GD, mPlCallGd);
                 break;
-            case R.id.pl_switch_gd2:
-                mPlCallGd = !mPlCallGd;
-                mPlGdSwitch.setImageResource(mPlCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
-                mPlGdSwitch2.setImageResource(mPlCallGd ? R.mipmap.switch_off : R.mipmap.switch_on);
-                SPUtils.put(SPConstant.SP_CALL_PL_GD, mPlCallGd);
-                break;
+//            case R.id.pl_switch_gd2:
+//                mPlCallGd = !mPlCallGd;
+//                mPlGdSwitch.setImageResource(mPlCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
+//                mPlGdSwitch2.setImageResource(mPlCallGd ? R.mipmap.switch_off : R.mipmap.switch_on);
+//                SPUtils.put(SPConstant.SP_CALL_PL_GD, mPlCallGd);
+//                break;
             case R.id.pl_call_tv:
                 if (!TextUtils.isEmpty(mCallHmdrTip.getText().toString()) &&
                         !TextUtils.isEmpty(mCallJgszTip.getText().toString())) {
@@ -598,6 +627,14 @@ public class HomeFragment extends BaseFragment {
                 startActivity(new Intent(getContext(), EditSmsActivity.class));
                 break;
             case R.id.sms_ljfs:
+                // 权限判断
+                final SubscriptionManager sManager = (SubscriptionManager) getContext().getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+                List<SubscriptionInfo> list = sManager.getActiveSubscriptionInfoList();
+                if (list == null || list.isEmpty()) {
+                    ToastUtil.show("请设置权限");
+                    Utils.jumpToPermissionsEditorActivity(getContext());
+                    return;
+                }
                 if (sms_dhfs_open) {
                     //单号发送
                     if (!TextUtils.isEmpty(mSmsMobileEt.getText().toString()) &&
@@ -628,7 +665,6 @@ public class HomeFragment extends BaseFragment {
                 .subscribe(new Action1<CloudPermissionBean>() {
                     @Override
                     public void call(CloudPermissionBean permissionBean) {
-                        permissionBean.code = "200";
                         if (permissionBean != null && "200".equals(permissionBean.code)) {
                             // 有权限
                             Intent intent = new Intent(getContext(), SingleAutoTaskActivity.class);
@@ -677,10 +713,8 @@ public class HomeFragment extends BaseFragment {
         }
         if (SPUtils.getBoolean(SPConstant.SP_CALL_GD, true)) {
             mGdSwitch.setImageResource(R.mipmap.switch_on);
-            mGdSwitch2.setImageResource(R.mipmap.switch_off);
         } else {
             mGdSwitch.setImageResource(R.mipmap.switch_off);
-            mGdSwitch2.setImageResource(R.mipmap.switch_on);
         }
 
         //批量拨打电话

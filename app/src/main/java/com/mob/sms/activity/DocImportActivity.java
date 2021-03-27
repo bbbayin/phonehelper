@@ -1,14 +1,19 @@
 package com.mob.sms.activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 
 import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
+import com.mob.sms.utils.ToastUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,10 +34,22 @@ public class DocImportActivity extends BaseActivity {
         initView();
     }
 
-    private void initView(){
+    private void initView() {
         String type = getIntent().getStringExtra("type");
         mTitle.setText(type + "文档导入");
         mTip.setText(type + "格式");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                start();
+            }else {
+                ToastUtil.show("文件读取权限被拒绝");
+            }
+        }
     }
 
     @OnClick({R.id.back, R.id.choose})
@@ -42,12 +59,21 @@ public class DocImportActivity extends BaseActivity {
                 finish();
                 break;
             case R.id.choose:
-                Intent intent = new Intent(DocImportActivity.this, DocSelectActivity.class);
-                intent.putExtra("type", getIntent().getStringExtra("type"));
-                intent.putExtra("type2", getIntent().getStringExtra("type2"));
-                startActivity(intent);
-                finish();
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) !=
+                        PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                }else {
+                    start();
+                }
                 break;
         }
+    }
+
+    private void start() {
+        Intent intent = new Intent(DocImportActivity.this, DocSelectActivity.class);
+        intent.putExtra("type", getIntent().getStringExtra("type"));
+        intent.putExtra("type2", getIntent().getStringExtra("type2"));
+        startActivity(intent);
+        finish();
     }
 }

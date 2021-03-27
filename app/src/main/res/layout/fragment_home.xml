@@ -23,8 +23,7 @@
                 <com.youth.banner.Banner
                     android:id="@+id/banner"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:fitsSystemWindows="true"
+                    android:layout_height="match_parent"
                     app:banner_indicator_gravity="center"
                     app:banner_indicator_height="5dp"
                     app:banner_indicator_marginBottom="10dp"
@@ -34,14 +33,14 @@
                     app:banner_indicator_selected_width="5dp"
                     app:banner_indicator_space="5dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="34dp"
-                    android:text="首页"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_centerHorizontal="true"-->
+<!--                    android:layout_marginTop="34dp"-->
+<!--                    android:text="首页"-->
+<!--                    android:textColor="@color/white"-->
+<!--                    android:textSize="18sp" />-->
 
                 <RelativeLayout
                     android:layout_width="24dp"

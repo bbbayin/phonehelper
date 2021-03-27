@@ -43,19 +43,22 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="24dp"
             android:layout_toLeftOf="@+id/yuan"
-            android:textColor="#F8E1A3"
-            android:textSize="15sp" />
+            android:includeFontPadding="false"
+            android:textColor="#1E1C16"
+            android:text="100"
+            android:textSize="17sp" />
 
         <TextView
             android:id="@+id/yuan"
             android:layout_width="wrap_content"
+            android:includeFontPadding="false"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:layout_marginRight="15dp"
             android:layout_marginBottom="24dp"
             android:text="元"
-            android:textColor="#F8E1A3"
+            android:textColor="#1E1C16"
             android:textSize="12sp" />
     </RelativeLayout>
 

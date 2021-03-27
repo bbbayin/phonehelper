@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mob.sms.DialKeyBoard;
 import com.mob.sms.R;
 import com.mob.sms.activity.AddContactActivity;
 import com.mob.sms.adapter.ContactsPersonAdapter;
@@ -58,6 +59,7 @@ public class ContactsPersonFragment extends BaseFragment {
     ImageView mSelectIv;
     @BindView(R.id.delete)
     TextView mDelete;
+
 
     private ContactsPersonAdapter mContactsPersonAdapter;
     private ArrayList<OnlineContactBean.DataBean> mDatas = new ArrayList<>();
@@ -167,7 +169,7 @@ public class ContactsPersonFragment extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.select_iv, R.id.delete})
+    @OnClick({R.id.select_iv, R.id.delete, R.id.btn_toggle_dial_keyboard})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.select_iv:
@@ -200,6 +202,9 @@ public class ContactsPersonFragment extends BaseFragment {
                     }
                     delete(ids);
                 }
+                break;
+            case R.id.btn_toggle_dial_keyboard:
+                new DialKeyBoard().show(getChildFragmentManager(), "dialkey");
                 break;
         }
     }

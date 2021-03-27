@@ -15,5 +15,6 @@ public class VipBean {
         public String isAll;
         public int minutes;
         public String status;
+        public boolean isSelected;
     }
 }

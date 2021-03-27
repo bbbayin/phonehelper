@@ -79,8 +79,10 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/me_vip_info_layout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:visibility="gone"
                             android:layout_alignParentRight="true"
                             android:orientation="vertical">
 
@@ -135,7 +137,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
-                            android:text="10分钟"
+                            android:text=""
                             android:textColor="@color/color_A6A6A6"
                             android:textSize="10sp" />
                     </RelativeLayout>

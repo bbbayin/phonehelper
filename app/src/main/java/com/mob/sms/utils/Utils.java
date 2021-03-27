@@ -9,6 +9,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telephony.SubscriptionInfo;
@@ -25,6 +27,9 @@ import androidx.core.app.ActivityCompat;
 
 import com.mob.sms.dialog.CheckTipDialog;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
@@ -32,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 
 public class Utils {
@@ -182,5 +188,38 @@ public class Utils {
             int rand = random.nextInt(15);
             return 15 + rand;
         }
+    }
+
+    /**
+     * 跳转到MIUI应用权限设置页面
+     *
+     * @param context context
+     */
+    public static void jumpToPermissionsEditorActivity(Context context) {
+        Intent mIntent = new Intent();
+        mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mIntent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
+        mIntent.setData(Uri.fromParts("package", context.getPackageName(), null));
+        context.startActivity(mIntent);
+    }
+
+    /**
+     * 判断是否是MIUI
+     */
+    private static boolean isMIUI() {
+        String device = Build.MANUFACTURER;
+        if (device.equals("Xiaomi")) {
+            try {
+                Properties prop = new Properties();
+                prop.load(new FileInputStream(new File(Environment.getRootDirectory(), "build.prop")));
+                return prop.getProperty("ro.miui.ui.version.code", null) != null
+                        || prop.getProperty("ro.miui.ui.version.name", null) != null
+                        || prop.getProperty("ro.miui.internal.storage", null) != null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return false;
     }
 }

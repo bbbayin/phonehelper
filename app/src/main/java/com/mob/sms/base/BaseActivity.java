@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.ColorUtils;
 
-import com.mob.sms.R;
+import com.mob.sms.utils.AppManager;
 
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
@@ -27,6 +27,14 @@ public class BaseActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         mContext = this;
+
+        AppManager.add(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppManager.pop();
     }
 
     //启用沉浸式

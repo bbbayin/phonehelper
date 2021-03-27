@@ -58,6 +58,8 @@ public class MineFragment extends BaseFragment {
     TextView mAllMinute;
     @BindView(R.id.progressbar)
     ProgressBar mProgressbar;
+    @BindView(R.id.me_vip_info_layout)
+    View vipLayout;
 
     private ShareBean.DataBean mShareInfo;
     private UserInfoBean.DataBean mUserInfo;
@@ -96,8 +98,7 @@ public class MineFragment extends BaseFragment {
                         mUserInfo = userInfoBean.data;
                         mUserid.setText("ID: " + mUserInfo.userId);
                         mTime.setText(mUserInfo.expTime);
-                        mUseMinute.setText(mUserInfo.useMinute + "分钟");
-                        mAllMinute.setText(mUserInfo.allMinute + "分钟");
+
                         if (!TextUtils.isEmpty(mUserInfo.avatar)) {
                             SPUtils.put(SPConstant.SP_USER_HEAD, mUserInfo.avatar);
                             Glide.with(getContext()).load(mUserInfo.avatar).into(mHead);
@@ -106,8 +107,15 @@ public class MineFragment extends BaseFragment {
                             SPUtils.put(SPConstant.SP_USER_NAME, mUserInfo.nickName);
                             mName.setText(mUserInfo.nickName);
                         }
+                        if (mUserInfo.allMinute > 0) {
+                            vipLayout.setVisibility(View.VISIBLE);
+                        }else {
+                            vipLayout.setVisibility(View.GONE);
+                        }
+                        int remain = mUserInfo.allMinute - mUserInfo.useMinute;
                         mProgressbar.setMax(mUserInfo.allMinute);
-                        mProgressbar.setProgress(mUserInfo.useMinute);
+                        mProgressbar.setProgress(remain);
+                        mUseMinute.setText(String.format("剩余%s分钟", remain));
                     }
                 }, throwable -> {
                     throwable.printStackTrace();

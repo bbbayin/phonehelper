@@ -36,6 +36,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+// 电话导入页面
 public class PhoneInfoActivity extends BaseActivity {
     @BindView(R.id.title)
     TextView mTitleTv;
@@ -77,10 +78,10 @@ public class PhoneInfoActivity extends BaseActivity {
             if (mCopyContent.contains("\n")) {
                 int length = mCopyContent.split("\n").length;
                 for (int i = 0; i < length; i++) {
-                    mDatas.add(new PhoneInfoBean(mCopyContent.split("\n")[i], "无姓名", true));
+                    mDatas.add(new PhoneInfoBean(mCopyContent.split("\n")[i], "无姓名", false));
                 }
             } else {
-                mDatas.add(new PhoneInfoBean(mCopyContent, "无姓名", true));
+                mDatas.add(new PhoneInfoBean(mCopyContent, "无姓名", false));
             }
         }
         mNumTv.setText(mDatas.size() + "个联系人");
@@ -174,10 +175,10 @@ public class PhoneInfoActivity extends BaseActivity {
         if (str.contains("\n")) {
             int length = str.split("\n").length;
             for (int i = 0; i < length; i++) {
-                mDatas.add(new PhoneInfoBean(str.split("\n")[i], "无姓名", true));
+                mDatas.add(new PhoneInfoBean(str.split("\n")[i], "无姓名", false));
             }
         } else {
-            mDatas.add(new PhoneInfoBean(str, "无姓名", true));
+            mDatas.add(new PhoneInfoBean(str, "无姓名", false));
         }
     }
 
@@ -195,10 +196,10 @@ public class PhoneInfoActivity extends BaseActivity {
             if (text.contains("\n")) {
                 int length = text.split("\n").length;
                 for (int i = 0; i < length; i++) {
-                    mDatas.add(new PhoneInfoBean(text.split("\n")[i], "无姓名", true));
+                    mDatas.add(new PhoneInfoBean(text.split("\n")[i], "无姓名", false));
                 }
             } else {
-                mDatas.add(new PhoneInfoBean(text, "无姓名", true));
+                mDatas.add(new PhoneInfoBean(text, "无姓名", false));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -218,7 +219,7 @@ public class PhoneInfoActivity extends BaseActivity {
                 String line;
                 //分行读取
                 while ((line = buffreader.readLine()) != null) {
-                    mDatas.add(new PhoneInfoBean(line, "无姓名", true));
+                    mDatas.add(new PhoneInfoBean(line, "无姓名", false));
                 }
                 instream.close();
             }
@@ -233,7 +234,7 @@ public class PhoneInfoActivity extends BaseActivity {
                 finish();
                 break;
             case R.id.delete:
-                confirm();
+                delete();
                 break;
             case R.id.confirm:
                 confirm();
@@ -241,39 +242,8 @@ public class PhoneInfoActivity extends BaseActivity {
         }
     }
 
-    private void confirm() {
+    private void delete() {
         ArrayList<PhoneInfoBean> datas = new ArrayList<>();
-        for (int i = 0; i < mDatas.size(); i++) {
-            if (mDatas.get(i).isSelected) {
-                datas.add(mDatas.get(i));
-            }
-        }
-        if (datas.size() > 0) {
-            if ("call".equals(mType2)) {
-                List<CallContactTable> callContactTables = DatabaseBusiness.getCallContacts();
-                if (callContactTables.size() > 0) {
-                    for (CallContactTable callContactTable : callContactTables) {
-                        DatabaseBusiness.delCallContact(callContactTable);
-                    }
-                }
-                for (int i = 0; i < datas.size(); i++) {
-                    DatabaseBusiness.createCallContact(new CallContactTable(datas.get(i).name, datas.get(i).phone));
-                }
-            } else if ("sms".equals(mType2)) {
-                List<SmsContactTable> smsContactTables = DatabaseBusiness.getSmsContacts();
-                if (smsContactTables.size() > 0) {
-                    for (SmsContactTable smsContactTable : smsContactTables) {
-                        DatabaseBusiness.delSmsContact(smsContactTable);
-                    }
-                }
-                for (int i = 0; i < datas.size(); i++) {
-                    DatabaseBusiness.createSmsContact(new SmsContactTable(datas.get(i).name, datas.get(i).phone));
-                }
-            }
-            finish();
-        } else {
-            ToastUtil.show("请选择联系人电话");
-        }
         for (int i = 0; i < mDatas.size(); i++) {
             if (mDatas.get(i).isSelected) {
                 datas.add(mDatas.get(i));
@@ -285,6 +255,40 @@ public class PhoneInfoActivity extends BaseActivity {
             mNumTv.setText(mDatas.size() + "个联系人");
         } else {
             ToastUtil.show("请选择要删除的联系人电话");
+        }
+    }
+
+    private void confirm() {
+//        for (int i = 0; i < mDatas.size(); i++) {
+//            if (mDatas.get(i).isSelected) {
+//                datas.add(mDatas.get(i));
+//            }
+//        }
+        if (mDatas.size() > 0) {
+            if ("call".equals(mType2)) {
+                List<CallContactTable> callContactTables = DatabaseBusiness.getCallContacts();
+                if (callContactTables.size() > 0) {
+                    for (CallContactTable callContactTable : callContactTables) {
+                        DatabaseBusiness.delCallContact(callContactTable);
+                    }
+                }
+                for (int i = 0; i < mDatas.size(); i++) {
+                    DatabaseBusiness.createCallContact(new CallContactTable(mDatas.get(i).name, mDatas.get(i).phone));
+                }
+            } else if ("sms".equals(mType2)) {
+                List<SmsContactTable> smsContactTables = DatabaseBusiness.getSmsContacts();
+                if (smsContactTables.size() > 0) {
+                    for (SmsContactTable smsContactTable : smsContactTables) {
+                        DatabaseBusiness.delSmsContact(smsContactTable);
+                    }
+                }
+                for (int i = 0; i < mDatas.size(); i++) {
+                    DatabaseBusiness.createSmsContact(new SmsContactTable(mDatas.get(i).name, mDatas.get(i).phone));
+                }
+            }
+            finish();
+        } else {
+            ToastUtil.show("请选择联系人电话");
         }
     }
 }

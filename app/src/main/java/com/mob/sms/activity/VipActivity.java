@@ -31,6 +31,7 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -49,6 +50,7 @@ public class VipActivity extends BaseActivity {
 
     private VipAdapter mVipAdapter;
     private ArrayList<VipBean.DataBean> mDatas = new ArrayList<>();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +61,7 @@ public class VipActivity extends BaseActivity {
         getData();
     }
 
-    private void initView(){
+    private void initView() {
         Glide.with(this).load(SPUtils.getString(SPConstant.SP_USER_HEAD, "")).into(mAvatar);
         mUsername.setText(SPUtils.getString(SPConstant.SP_USER_NAME, ""));
 
@@ -68,12 +70,20 @@ public class VipActivity extends BaseActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private void getData(){
+    private <T> T get(List<T> list, int pos) {
+        if (list != null && !list.isEmpty() && list.size() > pos) {
+            return list.get(pos);
+        }
+        return null;
+    }
+
+    private void getData() {
         RetrofitHelper.getApi().getVip().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(vipBean -> {
                     if (vipBean != null && vipBean.code == 200) {
                         mDatas.addAll(vipBean.data);
+                        mDatas.get(0).isSelected = true;
                         mVipAdapter.notifyDataSetChanged();
                     }
                 }, throwable -> {
@@ -96,14 +106,34 @@ public class VipActivity extends BaseActivity {
         }
     }
 
-    private void wxPay(){
+    private int getSelectedOrder() {
+        for (int i = 0; i < mDatas.size(); i++) {
+            if (mDatas.get(i).isSelected) return i;
+        }
+        return 0;
+    }
+
+    private void aliPay() {
+        int selectedOrder = getSelectedOrder();
+        RetrofitHelper.getApi().createOrder(mDatas.get(selectedOrder).memberId).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(orderBean -> {
+                    if (orderBean != null && orderBean.code == 200) {
+                        pay(orderBean.data, "1");
+                    }
+                }, throwable -> {
+                    throwable.printStackTrace();
+                });
+    }
+
+    private void wxPay() {
         final IWXAPI msgApi = WXAPIFactory.createWXAPI(this, null);
         // 将该app注册到微信
         msgApi.registerApp("wx5fe8deafb48e5513");
-        RetrofitHelper.getApi().createOrder(mDatas.get(0).memberId).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().createOrder(mDatas.get(getSelectedOrder()).memberId).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(orderBean -> {
-                    if(orderBean!=null&&orderBean.code==200){
+                    if (orderBean != null && orderBean.code == 200) {
                         pay(orderBean.data, "2");
                     }
                 }, throwable -> {
@@ -111,7 +141,7 @@ public class VipActivity extends BaseActivity {
                 });
     }
 
-    private void pay(int orderId,  String payType){
+    private void pay(int orderId, String payType) {
         RetrofitHelper.getApi().pay(orderId, payType).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
@@ -168,18 +198,6 @@ public class VipActivity extends BaseActivity {
                 });
     }
 
-    private void aliPay(){
-        RetrofitHelper.getApi().createOrder(mDatas.get(0).memberId).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(orderBean -> {
-                    if(orderBean!=null&&orderBean.code==200){
-                        pay(orderBean.data, "1");
-                    }
-                }, throwable -> {
-                    throwable.printStackTrace();
-                });
-    }
-
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -207,6 +225,8 @@ public class VipActivity extends BaseActivity {
 //                    }
                     break;
             }
-        };
+        }
+
+        ;
     };
 }

@@ -81,7 +81,13 @@ public class DocSelectActivity extends BaseActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                getData(filePath, type);
+                boolean sdCardExist = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+                if(sdCardExist) {
+                    File root = Environment.getExternalStorageDirectory();
+                    getData(root.getAbsolutePath(), type);
+                }else {
+                    System.out.println("目录不存在。。。");
+                }
                 mHandler.sendEmptyMessageDelayed(0, 500);
             }
         }).start();
@@ -105,6 +111,7 @@ public class DocSelectActivity extends BaseActivity {
         if (file.exists()) {
             if (file.isDirectory()) {
                 File[] fileArray = file.listFiles();
+                if (fileArray == null) return;
                 for (File f : fileArray) {
                     if (f.isDirectory()) {
                         getData(f.getPath(), type);

@@ -6,6 +6,9 @@ import com.mob.sms.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -19,6 +22,9 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by User on 2018/4/21.
@@ -48,7 +54,17 @@ public class RetrofitHelper {
 
     public static synchronized MyAPIService getApi() {
         if (sApi == null) {
-            sApi = createApi(MyAPIService.class, "http://dial.shengzewang.cn/");
+            final MyAPIService impl = createApi(MyAPIService.class, "http://dial.shengzewang.cn/");
+            Object proxy = Proxy.newProxyInstance(impl.getClass().getClassLoader(), impl.getClass().getInterfaces(),
+                    (proxy1, method, args) -> {
+                        Object invoke = method.invoke(impl, args);
+                        if (invoke instanceof Observable<?>) {
+                            Observable<?> observable = (Observable<?>) invoke;
+                            return observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+                        }
+                        return invoke;
+                    });
+            sApi = (MyAPIService) proxy;
         }
         return sApi;
     }
