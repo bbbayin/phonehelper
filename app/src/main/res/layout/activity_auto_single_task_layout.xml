@@ -93,7 +93,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="14dp"
-                    android:text="下一次拨号还需要15s"
                     android:textColor="#23B58A"
                     android:textSize="12sp" />
 

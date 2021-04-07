@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import com.mob.sms.BuildConfig;
 import com.mob.sms.R;
 import com.mob.sms.adapter.ViewPagerAdapter;
 import com.mob.sms.base.BaseActivity;
@@ -29,6 +30,7 @@ import com.mob.sms.fragment.ContactsFragment;
 import com.mob.sms.fragment.HomeFragment;
 import com.mob.sms.fragment.MineFragment;
 import com.mob.sms.fragment.RecordFragment;
+import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.rx.ExitEvent;
 import com.mob.sms.rx.RxBus;
 import com.mob.sms.service.UpdateService;
@@ -125,6 +127,12 @@ public class MainActivity extends BaseActivity {
         mViewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), fragmentsList));
         mViewPager.setOffscreenPageLimit(4);
         initBottomNavigationBar();
+        initData();
+        System.out.println("渠道号："+BuildConfig.FLAVOR);
+    }
+
+    private void initData() {
+        RetrofitHelper.getApi().getAllMarket().subscribe();
     }
 
     private void initBottomNavigationBar() {

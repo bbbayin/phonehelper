@@ -241,4 +241,14 @@ public interface MyAPIService {
     @POST("prod-api/restApi/advertising/getImg")
     Observable<BaseResponse<List<BannerBean>>> getImage(@Query("type")int type);
 
+    @POST("prod-api/restApi/market/getAll")
+    Observable<BaseResponse<Object>> getAllMarket();
+
+    @POST("prod-api/restApi/share/getShare")
+    Observable<BaseResponse<Object>> getShareInfo();
+
+    // 是否收费:channelName
+    @POST("prod-api/restApi/market/channelName")
+    Observable<BaseResponse<Object>> getMarketCharge(@Query("channelName")String channel);
+
 }

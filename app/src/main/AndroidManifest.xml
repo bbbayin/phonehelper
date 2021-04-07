@@ -177,6 +177,7 @@
         <activity android:name=".auto.SingleAutoTaskActivity"
             android:launchMode="singleTask"/>
         <activity android:name=".activity.SetSecretInfoActivity" />
+        <activity android:name=".activity.ImageViewerActivity" />
 
         <provider
             android:authorities="com.mob.sms.fileprovider2"

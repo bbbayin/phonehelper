@@ -9,7 +9,7 @@ android {
         applicationId "com.mob.sms"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 107
+        versionCode 109
         versionName "1.0.1"
 
     }
@@ -31,6 +31,20 @@ android {
             keyPassword "mob1216"  //别名密码
 
             //百度云Access Key fe205c344a4d4a2cae7fb8bb10dec20d    Secret Key 1af0a6a68be34c5985b456123721a4b1
+        }
+    }
+
+    flavorDimensions "default"
+
+    productFlavors {
+        huawei{
+
+        }
+        yingyongbao{
+
+        }
+        xiaomi{
+
         }
     }
 

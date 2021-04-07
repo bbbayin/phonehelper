@@ -368,7 +368,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                     simType = SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, Constants.SIM_TYPE_SIM_1);
                 } else {
                     // 批量拨打类型
-                    simType = SPUtils.getString(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_1);
+                    simType = SPUtils.getString(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_MIX);
                 }
                 for (int i = 0; i < dualSimTypes.length; i++) {
                     //0代表卡1,1代表卡2
@@ -489,9 +489,17 @@ public class AutoCallPhoneActivity extends BaseActivity {
             case R.id.pause:
                 mPauseState = !mPauseState;
                 if (mPauseState) {
-                    mHandler.removeMessages(0);
+                    mHandler.removeMessages(msg_multi_call);
+                    mHandler.removeMessages(msg_single_call);
+                    mHandler.removeMessages(msg_single_interval);
                 } else {
-                    mHandler.sendEmptyMessageDelayed(msg_single_call, 1000);
+                    if (Constants.CALL_STYLE_SINGLE.equals(mType)) {
+                        // 单号
+                        mHandler.sendEmptyMessageDelayed(msg_single_call, 1000);
+                    }else {
+                        // 双号
+                        mHandler.sendEmptyMessageDelayed(msg_multi_call, 1000);
+                    }
                 }
                 break;
             case R.id.pre:

@@ -4,6 +4,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -17,6 +21,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.mob.sms.R;
 import com.mob.sms.activity.AboutUsActivity;
 import com.mob.sms.activity.EnterpriseActivity;
@@ -27,6 +35,7 @@ import com.mob.sms.activity.SettingActivity;
 import com.mob.sms.activity.ShareQrcodeActivity;
 import com.mob.sms.activity.UserInfoActivity;
 import com.mob.sms.activity.VipActivity;
+import com.mob.sms.application.MyApplication;
 import com.mob.sms.base.BaseFragment;
 import com.mob.sms.debug.DebugActivity;
 import com.mob.sms.dialog.ShareDialog;
@@ -36,6 +45,16 @@ import com.mob.sms.network.bean.UserInfoBean;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
+import com.mob.sms.utils.Utils;
+import com.tencent.connect.auth.QQToken;
+import com.tencent.connect.share.QQShare;
+import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
+import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+import com.tencent.tauth.IUiListener;
+import com.tencent.tauth.Tencent;
+import com.tencent.tauth.UiError;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -64,6 +83,7 @@ public class MineFragment extends BaseFragment {
     private ShareBean.DataBean mShareInfo;
     private UserInfoBean.DataBean mUserInfo;
     private boolean isCreated = false;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -109,7 +129,7 @@ public class MineFragment extends BaseFragment {
                         }
                         if (mUserInfo.allMinute > 0) {
                             vipLayout.setVisibility(View.VISIBLE);
-                        }else {
+                        } else {
                             vipLayout.setVisibility(View.GONE);
                         }
                         int remain = mUserInfo.allMinute - mUserInfo.useMinute;
@@ -123,7 +143,7 @@ public class MineFragment extends BaseFragment {
     }
 
     @OnClick({R.id.vip_rl, R.id.about_rl, R.id.question_rl, R.id.share_rl, R.id.problem_rl, R.id.xiaofei_rl,
-            R.id.setting_rl, R.id.qiye_rl, R.id.user_ll,R.id.settings_btn_debug})
+            R.id.setting_rl, R.id.qiye_rl, R.id.user_ll, R.id.settings_btn_debug})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.settings_btn_debug:
@@ -139,35 +159,21 @@ public class MineFragment extends BaseFragment {
                 startActivity(new Intent(getContext(), FeedBackActivity.class));
                 break;
             case R.id.share_rl:
-                ShareDialog shareDialog = new ShareDialog(getContext());
-                shareDialog.show();
-                shareDialog.setOnClickListener(new ShareDialog.OnClickListener() {
-                    @Override
-                    public void shareWx() {
+                if (mShareInfo == null) {
+                    RetrofitHelper.getApi().getShare().subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(shareBean -> {
+                                if (shareBean != null && shareBean.code == 200) {
+                                    mShareInfo = shareBean.data;
+                                    showShareDialog();
+                                }
+                            }, throwable -> {
+                                throwable.printStackTrace();
+                            });
+                } else {
+                    showShareDialog();
+                }
 
-                    }
-
-                    @Override
-                    public void shareQQ() {
-
-                    }
-
-                    @Override
-                    public void qrcode() {
-                        if (mShareInfo != null) {
-                            Intent intent = new Intent(getContext(), ShareQrcodeActivity.class);
-                            intent.putExtra("url", mShareInfo.url);
-                            startActivity(intent);
-                        }
-                    }
-
-                    @Override
-                    public void copyUrl() {
-                        if (mShareInfo != null) {
-                            copyContentToClipboard(mShareInfo.url, getContext());
-                        }
-                    }
-                });
                 break;
             case R.id.problem_rl:
                 startActivity(new Intent(getContext(), QuestionActivity.class));
@@ -185,6 +191,92 @@ public class MineFragment extends BaseFragment {
                 startActivity(new Intent(getContext(), UserInfoActivity.class));
                 break;
         }
+    }
+
+    private void showShareDialog() {
+        final ShareDialog shareDialog = new ShareDialog(getContext());
+        shareDialog.show();
+        shareDialog.setOnClickListener(new ShareDialog.OnClickListener() {
+            @Override
+            public void shareWx() {
+                Glide.with(getContext()).load(mShareInfo.logo)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                ToastUtil.show("图片加载失败");
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                WXWebpageObject obj = new WXWebpageObject();
+                                obj.webpageUrl = mShareInfo.url;
+                                WXMediaMessage msg = new WXMediaMessage();
+                                msg.title = "隐藏拨号";
+                                msg.description = mShareInfo.content;
+                                msg.mediaObject = obj;
+                                Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565);
+                                Canvas canvas = new Canvas(bitmap);
+                                resource.draw(canvas);
+                                msg.thumbData = Utils.bmpToByteArray(bitmap, true);
+                                SendMessageToWX.Req req = new SendMessageToWX.Req();
+                                req.message = msg;
+                                req.scene = SendMessageToWX.Req.WXSceneSession;
+                                req.transaction = String.valueOf(System.currentTimeMillis());
+                                MyApplication.wxApi.sendReq(req);
+                                return false;
+                            }
+                        }).submit();
+
+
+            }
+
+            @Override
+            public void shareQQ() {
+                QQShare share = new QQShare(getContext(), new QQToken("1166dd0fd38327bb8f4da43276b8865f"));
+                final Bundle params = new Bundle();
+                params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_DEFAULT);
+                params.putString(QQShare.SHARE_TO_QQ_TITLE, mShareInfo.title);
+                params.putString(QQShare.SHARE_TO_QQ_SUMMARY, mShareInfo.content);
+                params.putString(QQShare.SHARE_TO_QQ_TARGET_URL, mShareInfo.url);
+                params.putString(QQShare.SHARE_TO_QQ_IMAGE_URL, mShareInfo.logo);
+                params.putString(QQShare.SHARE_TO_QQ_APP_NAME, "隐藏拨号");
+
+                share.shareToQQ(getActivity(), params, new IUiListener() {
+                    @Override
+                    public void onComplete(Object o) {
+
+                    }
+
+                    @Override
+                    public void onError(UiError uiError) {
+
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+            }
+
+            @Override
+            public void qrcode() {
+                if (mShareInfo != null) {
+                    Intent intent = new Intent(getContext(), ShareQrcodeActivity.class);
+                    intent.putExtra("url", mShareInfo.url);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void copyUrl() {
+                if (mShareInfo != null) {
+                    ToastUtil.show("已复制链接");
+                    copyContentToClipboard(mShareInfo.url, getContext());
+                }
+            }
+        });
     }
 
     public void copyContentToClipboard(String content, Context context) {

@@ -48,6 +48,7 @@ public class ShareDialog extends Dialog {
 
     @OnClick({R.id.wx_ll, R.id.qq_ll, R.id.qrcode_ll, R.id.copy_ll})
     public void onViewClicked(View view) {
+        dismiss();
         switch (view.getId()) {
             case R.id.wx_ll:
                 if(mOnClickListener!=null){

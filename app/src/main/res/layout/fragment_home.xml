@@ -42,25 +42,25 @@
 <!--                    android:textColor="@color/white"-->
 <!--                    android:textSize="18sp" />-->
 
-                <RelativeLayout
-                    android:layout_width="24dp"
-                    android:layout_height="21dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginTop="30dp"
-                    android:layout_marginRight="20dp">
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="24dp"-->
+<!--                    android:layout_height="21dp"-->
+<!--                    android:layout_alignParentRight="true"-->
+<!--                    android:layout_marginTop="30dp"-->
+<!--                    android:layout_marginRight="20dp">-->
 
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="19dp"
-                        android:layout_alignParentBottom="true"
-                        android:src="@mipmap/msg_icon" />
+<!--                    <ImageView-->
+<!--                        android:layout_width="22dp"-->
+<!--                        android:layout_height="19dp"-->
+<!--                        android:layout_alignParentBottom="true"-->
+<!--                        android:src="@mipmap/msg_icon" />-->
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:src="@mipmap/red_point" />
-                </RelativeLayout>
+<!--                    <ImageView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_alignParentRight="true"-->
+<!--                        android:src="@mipmap/red_point" />-->
+<!--                </RelativeLayout>-->
             </RelativeLayout>
 
             <LinearLayout

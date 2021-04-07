@@ -1,5 +1,6 @@
 package com.mob.sms.activity;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Xml;
@@ -259,36 +260,49 @@ public class PhoneInfoActivity extends BaseActivity {
     }
 
     private void confirm() {
-//        for (int i = 0; i < mDatas.size(); i++) {
-//            if (mDatas.get(i).isSelected) {
-//                datas.add(mDatas.get(i));
-//            }
-//        }
         if (mDatas.size() > 0) {
-            if ("call".equals(mType2)) {
-                List<CallContactTable> callContactTables = DatabaseBusiness.getCallContacts();
-                if (callContactTables.size() > 0) {
-                    for (CallContactTable callContactTable : callContactTables) {
-                        DatabaseBusiness.delCallContact(callContactTable);
-                    }
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("请稍后...");
+            progressDialog.show();
+            new Thread(){
+                @Override
+                public void run() {
+                    insertDb();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressDialog.dismiss();
+                            finish();
+                        }
+                    });
                 }
-                for (int i = 0; i < mDatas.size(); i++) {
-                    DatabaseBusiness.createCallContact(new CallContactTable(mDatas.get(i).name, mDatas.get(i).phone));
-                }
-            } else if ("sms".equals(mType2)) {
-                List<SmsContactTable> smsContactTables = DatabaseBusiness.getSmsContacts();
-                if (smsContactTables.size() > 0) {
-                    for (SmsContactTable smsContactTable : smsContactTables) {
-                        DatabaseBusiness.delSmsContact(smsContactTable);
-                    }
-                }
-                for (int i = 0; i < mDatas.size(); i++) {
-                    DatabaseBusiness.createSmsContact(new SmsContactTable(mDatas.get(i).name, mDatas.get(i).phone));
-                }
-            }
-            finish();
+            }.start();
         } else {
             ToastUtil.show("请选择联系人电话");
+        }
+    }
+
+    private void insertDb() {
+        if ("call".equals(mType2)) {
+            List<CallContactTable> callContactTables = DatabaseBusiness.getCallContacts();
+            if (callContactTables.size() > 0) {
+                for (CallContactTable callContactTable : callContactTables) {
+                    DatabaseBusiness.delCallContact(callContactTable);
+                }
+            }
+            for (int i = 0; i < mDatas.size(); i++) {
+                DatabaseBusiness.createCallContact(new CallContactTable(mDatas.get(i).name, mDatas.get(i).phone));
+            }
+        } else if ("sms".equals(mType2)) {
+            List<SmsContactTable> smsContactTables = DatabaseBusiness.getSmsContacts();
+            if (smsContactTables.size() > 0) {
+                for (SmsContactTable smsContactTable : smsContactTables) {
+                    DatabaseBusiness.delSmsContact(smsContactTable);
+                }
+            }
+            for (int i = 0; i < mDatas.size(); i++) {
+                DatabaseBusiness.createSmsContact(new SmsContactTable(mDatas.get(i).name, mDatas.get(i).phone));
+            }
         }
     }
 }

@@ -276,7 +276,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="20dp"
             android:scaleType="centerInside"
-            android:src="@mipmap/switch_on" />
+            android:src="@mipmap/switch_off" />
     </RelativeLayout>
 
     <View

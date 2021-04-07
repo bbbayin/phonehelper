@@ -1,5 +1,6 @@
 package com.mob.sms.activity;
 
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -83,7 +84,7 @@ public class ImportContactsActivity extends BaseActivity {
         initView();
     }
 
-    private void initView(){
+    private void initView() {
         mType = getIntent().getStringExtra("type");
 
         mCharacterParser = CharacterParser.getInstance();
@@ -156,12 +157,12 @@ public class ImportContactsActivity extends BaseActivity {
                     // 原始数据
                     mContactsAdapter.updateData(mOriginList);
                     emptyLayout.setVisibility(View.GONE);
-                }else {
+                } else {
                     filterData(keywords);
                     if (mSearchResults.isEmpty()) {
                         mRecyclerView.setVisibility(View.GONE);
                         emptyLayout.setVisibility(View.VISIBLE);
-                    }else {
+                    } else {
                         mRecyclerView.setVisibility(View.VISIBLE);
                         emptyLayout.setVisibility(View.GONE);
                         mContactsAdapter.updateData(mSearchResults);
@@ -183,6 +184,7 @@ public class ImportContactsActivity extends BaseActivity {
 
     /**
      * 搜索
+     *
      * @param keyword
      */
     private void filterData(String keyword) {
@@ -250,37 +252,56 @@ public class ImportContactsActivity extends BaseActivity {
                     }
                 }
                 if (sortModels.size() > 0) {
-                    if ("call".equals(mType)) {
-                        //批量拨打导入
-                        List<CallContactTable> callContactTables = DatabaseBusiness.getCallContacts();
-                        if (callContactTables.size() > 0) {
-                            for (CallContactTable callContactTable : callContactTables) {
-                                DatabaseBusiness.delCallContact(callContactTable);
-                            }
-                        }
-                        for (int i = 0; i < sortModels.size(); i++) {
-                            CallContactTable callContactTable = new CallContactTable(sortModels.get(i).getName(), sortModels.get(i).getMobile());
-                            DatabaseBusiness.createCallContact(callContactTable);
-                        }
-                    } else if ("sms".equals(mType)) {
-                        //批量发送短信导入
-                        List<SmsContactTable> smsContactTables = DatabaseBusiness.getSmsContacts();
-                        if (smsContactTables.size() > 0) {
-                            for (SmsContactTable smsContactTable : smsContactTables) {
-                                DatabaseBusiness.delSmsContact(smsContactTable);
-                            }
-                        }
-                        for (int i = 0; i < sortModels.size(); i++) {
-                            SmsContactTable smsContactTable = new SmsContactTable(sortModels.get(i).getName(), sortModels.get(i).getMobile());
-                            DatabaseBusiness.createSmsContact(smsContactTable);
-                        }
-                    }
-                    ToastUtil.show("导入完毕");
-                    finish();
+                    multImportContacts(sortModels);
                 } else {
                     ToastUtil.show("请选择联系人");
                 }
                 break;
         }
+    }
+
+    private void multImportContacts(ArrayList<SortModel> sortModels) {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("请稍后...");
+        progressDialog.show();
+        new Thread() {
+            @Override
+            public void run() {
+                if ("call".equals(mType)) {
+                    //批量拨打导入
+                    List<CallContactTable> callContactTables = DatabaseBusiness.getCallContacts();
+                    if (callContactTables.size() > 0) {
+                        for (CallContactTable callContactTable : callContactTables) {
+                            DatabaseBusiness.delCallContact(callContactTable);
+                        }
+                    }
+                    for (int i = 0; i < sortModels.size(); i++) {
+                        CallContactTable callContactTable = new CallContactTable(sortModels.get(i).getName(), sortModels.get(i).getMobile());
+                        DatabaseBusiness.createCallContact(callContactTable);
+                    }
+                } else if ("sms".equals(mType)) {
+                    //批量发送短信导入
+                    List<SmsContactTable> smsContactTables = DatabaseBusiness.getSmsContacts();
+                    if (smsContactTables.size() > 0) {
+                        for (SmsContactTable smsContactTable : smsContactTables) {
+                            DatabaseBusiness.delSmsContact(smsContactTable);
+                        }
+                    }
+                    for (int i = 0; i < sortModels.size(); i++) {
+                        SmsContactTable smsContactTable = new SmsContactTable(sortModels.get(i).getName(), sortModels.get(i).getMobile());
+                        DatabaseBusiness.createSmsContact(smsContactTable);
+                    }
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        ToastUtil.show("导入成功！");
+                    }
+                });
+                finish();
+            }
+        }.start();
+
     }
 }

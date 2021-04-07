@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 
 import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
+import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 
@@ -48,9 +49,9 @@ public class SimSettingActivity extends BaseActivity {
     private String mType;
     private String mSimType;
 
-    private final String SIM1 = "sim1";
-    private final String SIM2 = "sim2";
-    private final String SIM_DOUBLE = "sim_double";
+//    private final String SIM1 = "sim1";
+//    private final String SIM2 = "sim2";
+//    private final String SIM_DOUBLE = "sim_double";
 
     private int sim1Count = 1, sim2Count = 1;
 
@@ -66,7 +67,7 @@ public class SimSettingActivity extends BaseActivity {
     private void initView() {
         mType = getIntent().getStringExtra("type");
         if ("call".equals(mType)) {
-            mSimType = SPUtils.getString(SPConstant.SP_CALL_SKSZ, SIM1);
+            mSimType = SPUtils.getString(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_1);
             mSim1Tv.setText("使用卡1拨打");
             mSim2Tv.setText("使用卡2拨打");
             mSimDoubleTv.setText("双卡轮流拨打");
@@ -76,7 +77,7 @@ public class SimSettingActivity extends BaseActivity {
             mSim2Tv.setText("使用卡2发送");
             mSimDoubleTv.setText("双卡轮流发送");
         }
-        if (SIM1.equals(mSimType)) {
+        if (Constants.SIM_TYPE_SIM_1.equals(mSimType)) {
             mSim1Iv.setImageResource(R.mipmap.switch_on);
             mSim2Iv.setImageResource(R.mipmap.switch_off);
             mSimDoubleIv.setImageResource(R.mipmap.switch_off);
@@ -84,7 +85,7 @@ public class SimSettingActivity extends BaseActivity {
             mSimDoubleRl2.setVisibility(View.GONE);
             mDivider1.setVisibility(View.GONE);
             mDivider2.setVisibility(View.GONE);
-        } else if (SIM2.equals(mSimType)) {
+        } else if (Constants.SIM_TYPE_SIM_2.equals(mSimType)) {
             mSim1Iv.setImageResource(R.mipmap.switch_off);
             mSim2Iv.setImageResource(R.mipmap.switch_on);
             mSimDoubleIv.setImageResource(R.mipmap.switch_off);
@@ -92,7 +93,7 @@ public class SimSettingActivity extends BaseActivity {
             mSimDoubleRl2.setVisibility(View.GONE);
             mDivider1.setVisibility(View.GONE);
             mDivider2.setVisibility(View.GONE);
-        } else if (SIM_DOUBLE.equals(mSimType)) {
+        } else if (Constants.SIM_TYPE_SIM_MIX.equals(mSimType)) {
             mSim1Iv.setImageResource(R.mipmap.switch_off);
             mSim2Iv.setImageResource(R.mipmap.switch_off);
             mSimDoubleIv.setImageResource(R.mipmap.switch_on);
@@ -150,9 +151,9 @@ public class SimSettingActivity extends BaseActivity {
                 mDivider1.setVisibility(View.GONE);
                 mDivider2.setVisibility(View.GONE);
                 if ("call".equals(mType)) {
-                    SPUtils.put(SPConstant.SP_CALL_SKSZ, SIM1);
+                    SPUtils.put(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_1);
                 } else if ("sms".equals(mType)) {
-                    SPUtils.put(SPConstant.SP_SMS_SKSZ, SIM1);
+                    SPUtils.put(SPConstant.SP_SMS_SKSZ, Constants.SIM_TYPE_SIM_1);
                 }
                 break;
             case R.id.sim2_iv:
@@ -164,9 +165,9 @@ public class SimSettingActivity extends BaseActivity {
                 mDivider1.setVisibility(View.GONE);
                 mDivider2.setVisibility(View.GONE);
                 if ("call".equals(mType)) {
-                    SPUtils.put(SPConstant.SP_CALL_SKSZ, SIM2);
+                    SPUtils.put(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_2);
                 } else if ("sms".equals(mType)) {
-                    SPUtils.put(SPConstant.SP_SMS_SKSZ, SIM2);
+                    SPUtils.put(SPConstant.SP_SMS_SKSZ, Constants.SIM_TYPE_SIM_2);
                 }
                 break;
             case R.id.sim_double_iv:
@@ -178,9 +179,9 @@ public class SimSettingActivity extends BaseActivity {
                 mDivider1.setVisibility(View.VISIBLE);
                 mDivider2.setVisibility(View.VISIBLE);
                 if ("call".equals(mType)) {
-                    SPUtils.put(SPConstant.SP_CALL_SKSZ, SIM_DOUBLE);
+                    SPUtils.put(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_MIX);
                 } else if ("sms".equals(mType)) {
-                    SPUtils.put(SPConstant.SP_SMS_SKSZ, SIM_DOUBLE);
+                    SPUtils.put(SPConstant.SP_SMS_SKSZ, Constants.SIM_TYPE_SIM_MIX);
                 }
                 break;
         }

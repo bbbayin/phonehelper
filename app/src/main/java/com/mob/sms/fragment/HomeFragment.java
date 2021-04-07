@@ -39,6 +39,7 @@ import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
+import com.mob.sms.db.DbHelper;
 import com.mob.sms.db.SmsContactTable;
 import com.mob.sms.dialog.DocImportDialog;
 import com.mob.sms.dialog.ImportDialog;
@@ -263,6 +264,9 @@ public class HomeFragment extends BaseFragment {
                 }
             }
         });
+
+        mCallGd = (boolean) SPUtils.get(SPConstant.SP_CALL_GD, true);
+        mGdSwitch.setImageResource(mCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
     }
 
     private void setBdfs() {
@@ -293,6 +297,12 @@ public class HomeFragment extends BaseFragment {
             case R.id.multi_btn_clear_phone:// 清楚批量拨打号码
                 mCallHmdrTip.setText("");
                 ivMultiCLearPhone.setVisibility(View.GONE);
+                List<CallContactTable> callContactTables = DatabaseBusiness.getCallContacts();
+                if (callContactTables.size() > 0) {
+                    for (CallContactTable callContactTable : callContactTables) {
+                        DatabaseBusiness.delCallContact(callContactTable);
+                    }
+                }
                 changePlCallUi();
                 break;
 

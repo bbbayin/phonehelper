@@ -1,6 +1,7 @@
 package com.mob.sms.adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,17 @@ public class VipAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         VHolder vHolder = (VHolder) viewHolder;
         final VipBean.DataBean dataBean = mDatas.get(position);
         vHolder.price.setText(dataBean.price + "");
+        if (TextUtils.isEmpty(dataBean.memberName)) {
+            vHolder.tvTitle.setText("会员套餐");
+        }else {
+            vHolder.tvTitle.setText(dataBean.memberName);
+        }
+
+        if (!TextUtils.isEmpty(dataBean.remark)) {
+            vHolder.tvDesc.setText(dataBean.remark);
+        }else {
+            vHolder.tvDesc.setText("套餐说明（空）");
+        }
         if (dataBean.isSelected) {
             viewHolder.itemView.setAlpha(1f);
         }else {
@@ -53,13 +65,11 @@ public class VipAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (dataBean != null) {
-                    for (int i = 0; i < mDatas.size(); i++) {
-                        mDatas.get(i).isSelected = false;
-                    }
-                    dataBean.isSelected = true;
-                    notifyDataSetChanged();
+                for (int i = 0; i < mDatas.size(); i++) {
+                    mDatas.get(i).isSelected = false;
                 }
+                dataBean.isSelected = true;
+                notifyDataSetChanged();
             }
         });
     }
@@ -74,6 +84,10 @@ public class VipAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     class VHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.price)
         TextView price;
+        @BindView(R.id.title)
+        TextView tvTitle;
+        @BindView(R.id.vip_desc)
+        TextView tvDesc;
 
         public VHolder(View view) {
             super(view);

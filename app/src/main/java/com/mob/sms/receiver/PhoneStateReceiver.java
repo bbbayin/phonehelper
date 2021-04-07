@@ -20,6 +20,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         Log.d(TAG, "电话状态：" + state);
         if ("IDLE".equals(state)) {
             RxBus.getInstance().post(new CallEvent(state));
+            SingleAutoTaskActivity.phoneIdleFlag = true;
         }
         if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
             // 去电，可以用定时挂断

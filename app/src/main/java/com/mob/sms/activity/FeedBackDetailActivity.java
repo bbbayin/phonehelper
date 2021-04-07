@@ -57,10 +57,13 @@ public class FeedBackDetailActivity extends BaseActivity {
     @BindView(R.id.add_iv)
     ImageView mAddIv;
     private String mImage;
+    private FeedbackDetailBean mFeedbackBean;
+    private int mFeedbackId;
 
     private FeedbackDetailAdapter mFeedbackDetailAdapter;
     private ArrayList<FeedbackDetailBean.DataBean.RecordsBean> mDatas = new ArrayList<>();
     private int mId;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +74,7 @@ public class FeedBackDetailActivity extends BaseActivity {
         getData();
     }
 
-    private void initView(){
+    private void initView() {
         mId = getIntent().getIntExtra("id", 0);
 
         mFeedbackDetailAdapter = new FeedbackDetailAdapter(this, mDatas);
@@ -79,25 +82,27 @@ public class FeedBackDetailActivity extends BaseActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private void getData(){
+    private void getData() {
         RetrofitHelper.getApi().getDetailFeedback(mId).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(feedbackDetailBean -> {
                     if (feedbackDetailBean != null && feedbackDetailBean.code == 200) {
+                        mFeedbackBean = feedbackDetailBean;
+                        mFeedbackId = feedbackDetailBean.data.id;
                         mTime.setText("反馈时间: " + feedbackDetailBean.data.createTime);
                         if (feedbackDetailBean.data.records.size() > 0) {
                             String time = "";
-                            for (FeedbackDetailBean.DataBean.RecordsBean bean:feedbackDetailBean.data.records){
-                                if(!TextUtils.isEmpty(bean.serverId)){
+                            for (FeedbackDetailBean.DataBean.RecordsBean bean : feedbackDetailBean.data.records) {
+                                if (!TextUtils.isEmpty(bean.serverId)) {
                                     time = bean.replyTime;
                                 }
                             }
                             mTime2.setText("客服最后回复时间: " + time);
                         }
                         mContent.setText("反馈问题: " + feedbackDetailBean.data.content);
-                        if(TextUtils.isEmpty(feedbackDetailBean.data.image)){
+                        if (TextUtils.isEmpty(feedbackDetailBean.data.image)) {
                             mImageIv.setVisibility(View.GONE);
-                        }else {
+                        } else {
                             mImageIv.setVisibility(View.VISIBLE);
                             Glide.with(mContext).load(feedbackDetailBean.data.image).into(mImageIv);
                         }
@@ -109,9 +114,15 @@ public class FeedBackDetailActivity extends BaseActivity {
                 });
     }
 
-    @OnClick({R.id.back,R.id.add_iv,R.id.reply})
+    @OnClick({R.id.back, R.id.add_iv, R.id.reply, R.id.image})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.image:
+                // 查看大图
+                if (mFeedbackBean != null && mFeedbackBean.data != null) {
+                    ImageViewerActivity.launch(this, mFeedbackBean.data.image);
+                }
+                break;
             case R.id.back:
                 finish();
                 break;
@@ -125,16 +136,14 @@ public class FeedBackDetailActivity extends BaseActivity {
                     ToastUtil.show("请输入您的问题");
                     return;
                 }
-                if(mDatas.size()==0){
-                    return;
-                }
+
                 addFeedback();
                 break;
         }
     }
 
     private void addFeedback() {
-        RetrofitHelper.getApi().replyFeedback(mContentEt.getText().toString(), mDatas.get(mDatas.size()-1).feedbackId, mImage).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().replyFeedback(mContentEt.getText().toString(), mFeedbackId, mImage).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {
@@ -152,35 +161,35 @@ public class FeedBackDetailActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(data==null){
+        if (data == null) {
             return;
         }
         Uri uri = data.getData();
         String path = "";
-        if(DocumentsContract.isDocumentUri(this,uri)){
+        if (DocumentsContract.isDocumentUri(this, uri)) {
             //如果是document类型的Uri，则通过document id处理
             String docId = DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())){
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
                 String id = docId.split(":")[1];  //解析出数字格式的id
-                String selection = MediaStore.Images.Media._ID+"="+id;
-                path = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,selection);
-            }else if("com.android.providers.downloads.documents".equals(uri.getAuthority())){
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public downloads"),Long.valueOf(docId));
-                path = getImagePath(contentUri,null);
+                String selection = MediaStore.Images.Media._ID + "=" + id;
+                path = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
+            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public downloads"), Long.valueOf(docId));
+                path = getImagePath(contentUri, null);
             }
-        }else if("content".equalsIgnoreCase(uri.getScheme())){
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             //如果是file类型的Uri，直接获取图片路径即可
-            path = getImagePath(uri,null);
-        }else if("file".equalsIgnoreCase(uri.getScheme())){
+            path = getImagePath(uri, null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             //如果是file类型的Uri，直接获取图片路径即可
             path = uri.getPath();
         }
         uploadPic(new File(path));
     }
 
-    private void uploadPic(File file){
+    private void uploadPic(File file) {
         Map<String, RequestBody> map = new HashMap<>();
-        RequestBody  body=RequestBody.create(MediaType.parse("multipart/form-data;charset=UTF-8"),file);
+        RequestBody body = RequestBody.create(MediaType.parse("multipart/form-data;charset=UTF-8"), file);
         map.put("file\"; filename=\"" + file.getName(), body);
         RetrofitHelper.getApi().upload(map).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -197,12 +206,12 @@ public class FeedBackDetailActivity extends BaseActivity {
     }
 
     //将选择的图片Uri转换为路径
-    private String getImagePath(Uri uri,String selection){
+    private String getImagePath(Uri uri, String selection) {
         String path = null;
         //通过Uri和selection来获取真实的图片路径
-        Cursor cursor = getContentResolver().query(uri,null,selection,null,null);
-        if(cursor!= null){
-            if(cursor.moveToFirst()){
+        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
                 path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             }
             cursor.close();
