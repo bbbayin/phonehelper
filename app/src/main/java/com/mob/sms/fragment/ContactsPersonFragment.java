@@ -1,5 +1,6 @@
 package com.mob.sms.fragment;
 
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,23 +10,22 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.j256.ormlite.stmt.query.In;
 import com.mob.sms.DialKeyBoard;
 import com.mob.sms.R;
-import com.mob.sms.activity.AddContactActivity;
+import com.mob.sms.activity.VipActivity;
 import com.mob.sms.adapter.ContactsPersonAdapter;
 import com.mob.sms.base.BaseFragment;
 import com.mob.sms.bean.ContactsBean;
@@ -35,10 +35,8 @@ import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.OnlineContactBean;
 import com.mob.sms.rx.ChooseEvent;
 import com.mob.sms.rx.ContactEvent;
-import com.mob.sms.rx.LoginEvent;
 import com.mob.sms.rx.RxBus;
-import com.mob.sms.utils.SPConstant;
-import com.mob.sms.utils.SPUtils;
+import com.mob.sms.utils.FreeCheckUtils;
 import com.mob.sms.utils.ToastUtil;
 
 import java.util.ArrayList;
@@ -46,8 +44,10 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class ContactsPersonFragment extends BaseFragment {
@@ -75,12 +75,13 @@ public class ContactsPersonFragment extends BaseFragment {
     private Subscription mSub1;
     private boolean mAllSelect;
     private int mSelectNum;
+    private boolean isCreated = false;
 
-    private String[] dualSimTypes = { "subscription", "Subscription",
+    private String[] dualSimTypes = {"subscription", "Subscription",
             "com.android.phone.extra.slot",
             "phone", "com.android.phone.DialingMode",
             "simId", "simnum", "phone_type",
-            "simSlot" };
+            "simSlot"};
 
     @Nullable
     @Override
@@ -92,7 +93,7 @@ public class ContactsPersonFragment extends BaseFragment {
         return view;
     }
 
-    private void initView(){
+    private void initView() {
         mContactsPersonAdapter = new ContactsPersonAdapter(getContext(), mDatas);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mContactsPersonAdapter);
@@ -113,27 +114,50 @@ public class ContactsPersonFragment extends BaseFragment {
 
             @Override
             public void call(int position) {
-                callPhone(mDatas.get(position).tel);
-                CallRecordsTable callRecordsTable = new CallRecordsTable(mDatas.get(position).name,
-                        mDatas.get(position).tel, System.currentTimeMillis());
-                DatabaseBusiness.createCallRecord(callRecordsTable);
+                FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+                    @Override
+                    public void onResult(boolean free) {
+                        if (free) {
+                            callPhone(mDatas.get(position).tel);
+//                            CallRecordsTable callRecordsTable = new CallRecordsTable(mDatas.get(position).name,
+//                                    mDatas.get(position).tel, System.currentTimeMillis());
+//                            DatabaseBusiness.createCallRecord(callRecordsTable);
+                        }else {
+                            startActivity(new Intent(getContext(), VipActivity.class));
+                        }
+                    }
+                });
             }
 
             @Override
             public void sms(int position) {
-
+                FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+                    @Override
+                    public void onResult(boolean free) {
+                        if (free) {
+                            Uri uri = Uri.parse("smsto:" + mDatas.get(position).tel); // 设置操作的路径
+                            Intent it = new Intent();
+                            it.setAction(Intent.ACTION_SENDTO) ; // 设置要操作的Action
+                            it.setType("vnd.android-dir/mms-sms") ; // 短信的MIME类型
+                            it.setData(uri) ;// 要设置的数据
+                            startActivity(it) ; // 执行跳转
+                        }else {
+                            startActivity(new Intent(getContext(), VipActivity.class));
+                        }
+                    }
+                });
             }
         });
-        mSub =  RxBus.getInstance().toObserverable(ContactEvent.class)
+        mSub = RxBus.getInstance().toObserverable(ContactEvent.class)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::refresh);
-        mSub1 =  RxBus.getInstance().toObserverable(ChooseEvent.class)
+        mSub1 = RxBus.getInstance().toObserverable(ChooseEvent.class)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::choose);
     }
 
     private void callPhone(String mobile) {
-        try{
+        try {
             TelecomManager telecomManager = (TelecomManager) getContext().getSystemService(Context.TELECOM_SERVICE);
             if (telecomManager != null) {
                 Intent intent = new Intent(Intent.ACTION_CALL);
@@ -145,7 +169,7 @@ public class ContactsPersonFragment extends BaseFragment {
                 }
                 startActivity(intent);
             }
-        }catch (SecurityException e){
+        } catch (SecurityException e) {
             e.printStackTrace();
         }
     }
@@ -209,7 +233,7 @@ public class ContactsPersonFragment extends BaseFragment {
         }
     }
 
-    private void delete(String ids){
+    private void delete(String ids) {
         RetrofitHelper.getApi().deleteContacts(ids).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
@@ -221,29 +245,47 @@ public class ContactsPersonFragment extends BaseFragment {
                 });
     }
 
-    private void getContacts() {
-//        try {
-//            ContentResolver cr = getContext().getContentResolver();
-//            Cursor cursor = cr.query(phoneUri, new String[]{NUM, NAME}, null, null, null);
-//            while (cursor.moveToNext()) {
-//                mDatas.add(new ContactsBean(cursor.getString(cursor.getColumnIndex(NUM)), cursor.getString(cursor.getColumnIndex(NAME))));
-//            }
-//            mContactsPersonAdapter.notifyDataSetChanged();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
-        RetrofitHelper.getApi().getContacts().subscribeOn(Schedulers.io())
+    private void getContacts() {
+//        final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+//        progressDialog.setTitle("加载中...");
+//        progressDialog.show();
+        Observable.just("")
+                .doOnNext(new Action1<Object>() {
+                    @Override
+                    public void call(Object o) {
+                        ContentResolver cr = getContext().getContentResolver();
+                        Cursor cursor = cr.query(phoneUri, new String[]{NUM, NAME}, null, null, null);
+                        while (cursor.moveToNext()) {
+                            OnlineContactBean.DataBean dataBean = new OnlineContactBean.DataBean();
+                            dataBean.name = cursor.getString(cursor.getColumnIndex(NAME));
+                            dataBean.tel = cursor.getString(cursor.getColumnIndex(NUM));
+                            mDatas.add(dataBean);
+                        }
+                    }
+                }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onlineContactBean -> {
-                    if (onlineContactBean != null && onlineContactBean.code == 200) {
-                        mDatas.clear();
-                        mDatas.addAll(onlineContactBean.data);
+                .subscribe(new Action1<Object>() {
+                    @Override
+                    public void call(Object o) {
+//                        if (progressDialog != null && progressDialog.isShowing()) {
+//                            progressDialog.dismiss();
+//                        }
                         mContactsPersonAdapter.notifyDataSetChanged();
                     }
-                }, throwable -> {
-                    throwable.printStackTrace();
                 });
+
+//        RetrofitHelper.getApi().getContacts().subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(onlineContactBean -> {
+//                    if (onlineContactBean != null && onlineContactBean.code == 200) {
+//                        mDatas.clear();
+//                        mDatas.addAll(onlineContactBean.data);
+//                        mContactsPersonAdapter.notifyDataSetChanged();
+//                    }
+//                }, throwable -> {
+//                    throwable.printStackTrace();
+//                });
     }
 
     @Override

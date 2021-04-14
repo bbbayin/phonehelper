@@ -125,7 +125,7 @@ public class MainActivity extends BaseActivity {
         fragmentsList.add(new ContactsFragment());
         fragmentsList.add(new MineFragment());
         mViewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), fragmentsList));
-        mViewPager.setOffscreenPageLimit(4);
+        mViewPager.setOffscreenPageLimit(1);
         initBottomNavigationBar();
         initData();
         System.out.println("渠道号："+BuildConfig.FLAVOR);

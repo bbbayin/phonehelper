@@ -14,6 +14,17 @@ public class SPUtils {
      * 保存在手机里面的文件名
      */
     public static final String PREFS_NAME = "mobandsms";
+    public static final String GLOBAL_FILE = "global_file";
+
+    public static void putGlobal(String key, String value) {
+        SharedPreferences preferences = MyApplication.getContext().getSharedPreferences(GLOBAL_FILE, Context.MODE_PRIVATE);
+        preferences.edit().putString(key, value).apply();
+    }
+
+    public static String getGlobal(String key) {
+        SharedPreferences preferences = MyApplication.getContext().getSharedPreferences(GLOBAL_FILE, Context.MODE_PRIVATE);
+        return preferences.getString(key, "");
+    }
 
     /**
      * 保存数据的方法，我们需要拿到保存数据的具体类型，然后根据类型调用不同的保存方法

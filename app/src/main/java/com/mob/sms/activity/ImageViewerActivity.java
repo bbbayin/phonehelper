@@ -1,10 +1,9 @@
 package com.mob.sms.activity;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
@@ -14,7 +13,7 @@ import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
 
 public class ImageViewerActivity extends BaseActivity {
-    public static void launch(Activity activity, String url) {
+    public static void launch(Context activity, String url) {
         Intent intent = new Intent(activity, ImageViewerActivity.class);
         intent.putExtra("url", url);
         activity.startActivity(intent);

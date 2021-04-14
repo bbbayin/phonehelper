@@ -15,12 +15,20 @@ import com.mob.sms.adapter.CallRecordsAdapter;
 import com.mob.sms.base.BaseFragment;
 import com.mob.sms.db.CallRecordsTable;
 import com.mob.sms.db.DatabaseBusiness;
+import com.mob.sms.utils.CallLogBean;
+import com.mob.sms.utils.PhoneUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 public class CallRecordsFragment extends BaseFragment {
     @BindView(R.id.recyclerview)
@@ -35,18 +43,61 @@ public class CallRecordsFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_call_records, container, false);
         ButterKnife.bind(this, view);
         initView();
+        initData();
         return view;
     }
 
-    private void initView(){
+    private void initData() {
+        Observable.create(new Observable.OnSubscribe<List<CallLogBean>>() {
+                    @Override
+                    public void call(Subscriber<? super List<CallLogBean>> subscriber) {
+                        try {
+                            subscriber.onNext(PhoneUtils.INSTANCE.getCallLog(500, getContext()));
+                        }catch (Exception e){
+                            System.out.println("报错啦～～～");
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .map(new Func1<List<CallLogBean>, List<CallRecordsTable>>() {
+                    @Override
+                    public List<CallRecordsTable> call(List<CallLogBean> callLogBeans) {
+                        if (callLogBeans != null && !callLogBeans.isEmpty()) {
+                            for (int i = 0; i < callLogBeans.size(); i++) {
+                                CallRecordsTable bean = new CallRecordsTable();
+                                CallLogBean mobile = callLogBeans.get(i);
+                                bean.mobile = mobile.getNumber();
+                                bean.time = mobile.getDate();
+                                bean.name = mobile.getName();
+                                mDatas.add(bean);
+                            }
+                            return mDatas;
+                        }
+                        return null;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<List<CallRecordsTable>>() {
+                    @Override
+                    public void call(List<CallRecordsTable> list) {
+                        if (list != null && !list.isEmpty()) {
+                            mCallRecordsAdapter.notifyDataSetChanged();
+                        }
+                    }
+                });
+
+    }
+
+    private void initView() {
         List<CallRecordsTable> list = DatabaseBusiness.getCallRecords();
         if (list != null && list.size() > 0) {
             mDatas.clear();
             mDatas.addAll(list);
         }
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mCallRecordsAdapter = new CallRecordsAdapter(getContext(), mDatas);
         mRecyclerView.setAdapter(mCallRecordsAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     @Override

@@ -121,10 +121,20 @@ public class UpdateService extends IntentService {
             public void onReceive(Context context, Intent intent) {
                 long ID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
                 if (ID == id) {
-                    ToastUtil.show("下载完成");
-                    Uri fileUri = downloadManager.getUriForDownloadedFile(id);
-                    System.out.println("下载地址："+fileUri);
-                    installAPK(fileUri);
+                    // 检查权限
+                    //兼容8.0
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        // 判断是否有权限
+                        boolean haveInstallPermission = getPackageManager().canRequestPackageInstalls();
+                        if(!haveInstallPermission){
+                            Intent setting = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+                            setting.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(setting);
+                        }else {
+                            Uri fileUri = downloadManager.getUriForDownloadedFile(id);
+                            installAPK(fileUri);
+                        }
+                    }
                 }
             }
         };

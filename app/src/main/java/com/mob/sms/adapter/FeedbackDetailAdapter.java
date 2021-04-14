@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.mob.sms.R;
+import com.mob.sms.activity.ImageViewerActivity;
 import com.mob.sms.network.bean.FeedbackDetailBean;
 import com.mob.sms.network.bean.OrderHistoryBean;
 
@@ -37,17 +38,24 @@ public class FeedbackDetailAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         VHolder vHolder = (VHolder) viewHolder;
-        if (TextUtils.isEmpty(mDatas.get(position).userId)) {
-            vHolder.content.setText("客服回复: " + mDatas.get(position).content);
+        FeedbackDetailBean.DataBean.RecordsBean recordsBean = mDatas.get(position);
+        if (TextUtils.isEmpty(recordsBean.userId)) {
+            vHolder.content.setText("客服回复: " + recordsBean.content);
         } else {
-            vHolder.content.setText("用户回复: " + mDatas.get(position).content);
+            vHolder.content.setText("用户回复: " + recordsBean.content);
         }
-        if(TextUtils.isEmpty(mDatas.get(position).img)){
+        if(TextUtils.isEmpty(recordsBean.img)){
             vHolder.image.setVisibility(View.GONE);
         }else {
             vHolder.image.setVisibility(View.VISIBLE);
-            Glide.with(mContext).load(mDatas.get(position).img).into(vHolder.image);
+            Glide.with(mContext).load(recordsBean.img).into(vHolder.image);
         }
+        vHolder.image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImageViewerActivity.launch(mContext, recordsBean.img);
+            }
+        });
     }
 
     @Override

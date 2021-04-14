@@ -71,7 +71,7 @@ public class WxInfoActivity extends BaseActivity {
                     if (loginBean != null && loginBean.code == 200) {
                         Toast.makeText(WxInfoActivity.this, "登录成功", Toast.LENGTH_LONG).show();
                         SPUtils.put(SPConstant.SP_USER_TOKEN, loginBean.token);
-                        SPUtils.put(SPConstant.SP_USER_LOGIN_TYPE, "wx");
+                        SPUtils.putGlobal(SPConstant.SP_USER_LOGIN_TYPE, "wx");
                         SPUtils.put(SPConstant.SP_USER_NAME, name);
                         SPUtils.put(SPConstant.SP_USER_HEAD, iconurl);
                         RxBus.getInstance().post(new LoginEvent());

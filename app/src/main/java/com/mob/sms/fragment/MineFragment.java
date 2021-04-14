@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -159,21 +160,16 @@ public class MineFragment extends BaseFragment {
                 startActivity(new Intent(getContext(), FeedBackActivity.class));
                 break;
             case R.id.share_rl:
-                if (mShareInfo == null) {
-                    RetrofitHelper.getApi().getShare().subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(shareBean -> {
-                                if (shareBean != null && shareBean.code == 200) {
-                                    mShareInfo = shareBean.data;
-                                    showShareDialog();
-                                }
-                            }, throwable -> {
-                                throwable.printStackTrace();
-                            });
-                } else {
-                    showShareDialog();
-                }
-
+                RetrofitHelper.getApi().getShare().subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(shareBean -> {
+                            if (shareBean != null && shareBean.code == 200) {
+                                mShareInfo = shareBean.data;
+                                showShareDialog();
+                            }
+                        }, throwable -> {
+                            ToastUtil.show("出错了，请重试");
+                        });
                 break;
             case R.id.problem_rl:
                 startActivity(new Intent(getContext(), QuestionActivity.class));
@@ -212,11 +208,13 @@ public class MineFragment extends BaseFragment {
                                 WXWebpageObject obj = new WXWebpageObject();
                                 obj.webpageUrl = mShareInfo.url;
                                 WXMediaMessage msg = new WXMediaMessage();
-                                msg.title = "隐藏拨号";
+                                msg.title = mShareInfo.title;
                                 msg.description = mShareInfo.content;
                                 msg.mediaObject = obj;
                                 Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565);
                                 Canvas canvas = new Canvas(bitmap);
+//                                canvas.drawColor(Color.BLUE);
+                                resource.setBounds(0,0,200,200);
                                 resource.draw(canvas);
                                 msg.thumbData = Utils.bmpToByteArray(bitmap, true);
                                 SendMessageToWX.Req req = new SendMessageToWX.Req();

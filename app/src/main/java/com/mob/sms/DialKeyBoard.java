@@ -21,9 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.mob.sms.activity.SetSecretInfoActivity;
 import com.mob.sms.activity.VipActivity;
+import com.mob.sms.auto.SingleAutoTaskActivity;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.pns.BaiduPnsServiceImpl;
+import com.mob.sms.utils.FreeCheckUtils;
 import com.mob.sms.utils.MyItemDecoration;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
@@ -95,17 +97,27 @@ public class DialKeyBoard extends BottomSheetDialogFragment implements View.OnCl
             ToastUtil.show("手机号正确");
             return;
         }
-        switch (v.getId()) {
-            case R.id.dial_sim_1:
-                callPhone(number,0);
-                break;
-            case R.id.dial_sim_2:
-                callPhone(number,1);
-                break;
-            case R.id.dial_sim_secret:
-                callPhoneSecret();
-                break;
-        }
+        FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+            @Override
+            public void onResult(boolean free) {
+                if (free) {
+                    switch (v.getId()) {
+                        case R.id.dial_sim_1:
+                            callPhone(number, 0);
+                            break;
+                        case R.id.dial_sim_2:
+                            callPhone(number, 1);
+                            break;
+                        case R.id.dial_sim_secret:
+                            callPhoneSecret();
+                            break;
+                    }
+                } else {
+                    startActivity(new Intent(getContext(), VipActivity.class));
+                }
+            }
+        });
+
     }
 
     private void callPhoneSecret() {
@@ -115,7 +127,7 @@ public class DialKeyBoard extends BottomSheetDialogFragment implements View.OnCl
             Intent intent = new Intent(getContext(), SetSecretInfoActivity.class);
             startActivityForResult(intent, 1234);
         } else {
-            checkPermission();
+            bindSecretNumber();
         }
     }
 
@@ -128,7 +140,7 @@ public class DialKeyBoard extends BottomSheetDialogFragment implements View.OnCl
                     public void call(CloudPermissionBean permissionBean) {
                         if (permissionBean != null && "200".equals(permissionBean.code)) {
                             // 有权限
-                            bindSecretNumber();
+
                         } else if ("500".equals(permissionBean.code)) {
                             ToastUtil.show(permissionBean.msg);
                         } else {
@@ -186,6 +198,7 @@ public class DialKeyBoard extends BottomSheetDialogFragment implements View.OnCl
     }
 
     private String secretNumber;
+
     private void bindTelxSuccess(String telX) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -245,17 +258,16 @@ public class DialKeyBoard extends BottomSheetDialogFragment implements View.OnCl
      */
     private void callPhone(String number, int sim) {
         try {
-            String s = tvInput.getText().toString();
-            if (TextUtils.isEmpty(s)) {
+            if (TextUtils.isEmpty(number)) {
                 ToastUtil.show("请输入号码");
-            } else if (s.length() != 11) {
+            } else if (number.length() != 11) {
                 ToastUtil.show("手机号正确");
             } else {
                 // 1. 获取拨打的sim卡
                 TelecomManager telecomManager = (TelecomManager) getContext().getSystemService(Context.TELECOM_SERVICE);
                 if (telecomManager != null) {
                     Intent intent = new Intent(Intent.ACTION_CALL);
-                    intent.setData(Uri.parse("tel:" + s));
+                    intent.setData(Uri.parse("tel:" + number));
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     List<PhoneAccountHandle> phoneAccountHandleList = Utils.getAccountHandles(getContext());
                     if (phoneAccountHandleList.size() > sim) {

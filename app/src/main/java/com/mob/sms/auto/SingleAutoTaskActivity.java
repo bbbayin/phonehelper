@@ -97,7 +97,7 @@ public class SingleAutoTaskActivity extends BaseActivity {
             Log.i("拨号页面", "state: " + state + "," + incomingNumber);
             if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
                 // 判断是否自动挂断
-                Boolean autoFinish = SPUtils.getBoolean(SPConstant.SP_CALL_GD, true);
+                Boolean autoFinish = SPUtils.getBoolean(SPConstant.SP_CALL_GD, false);
                 if (autoFinish) {
                     handler.postDelayed(new Runnable() {
                         @Override
@@ -108,7 +108,7 @@ public class SingleAutoTaskActivity extends BaseActivity {
                             }
                             telecomManager.endCall();
                         }
-                    }, 5000);
+                    }, 30*1000);
                 }
             } else if (state == TelephonyManager.CALL_STATE_IDLE) {
 
@@ -520,7 +520,7 @@ public class SingleAutoTaskActivity extends BaseActivity {
         }
         String time = new SimpleDateFormat("yyyy-MM-dd HH:MM:ss").format(new Date(System.currentTimeMillis()));
         String mDsbdTime = SPUtils.getString(SPConstant.SP_CALL_TIMING, "");
-        Boolean gd = SPUtils.getBoolean(SPConstant.SP_CALL_GD, true);
+        Boolean gd = SPUtils.getBoolean(SPConstant.SP_CALL_GD, false);
         RetrofitHelper.getApi().saveCallRecord(1, time, mInterval + "", mTotalCallTimes,
                 mSim == 0 ? Constants.SIM_TYPE_SIM_1 : Constants.SIM_TYPE_SIM_2,
                 gd ? "1" : "0", status,

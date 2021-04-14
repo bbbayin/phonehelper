@@ -48,8 +48,7 @@ public class CallRecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         RecordHolder recordHolder = (RecordHolder) viewHolder;
         recordHolder.name.setText(mDatas.get(position).name);
         recordHolder.mobile.setText(mDatas.get(position).mobile);
-        String time = new SimpleDateFormat("yyyy-MM-dd hh:mm").format(new Date(mDatas.get(position).time));
-        recordHolder.time.setText(time);
+        recordHolder.time.setText(mDatas.get(position).time);
     }
 
     @Override

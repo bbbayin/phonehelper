@@ -265,7 +265,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="9dp"
             android:layout_toRightOf="@+id/gd_iv"
-            android:text="响铃5秒后自动挂断"
+            android:text="拨打30秒后自动挂断"
             android:textColor="@color/color_454545"
             android:textSize="17sp" />
 

@@ -12,13 +12,13 @@ public class CallRecordsTable {
     @DatabaseField
     public String mobile;
     @DatabaseField
-    public long time;
+    public String time;
 
     public CallRecordsTable() {
 
     }
 
-    public CallRecordsTable(String name, String mobile, long time) {
+    public CallRecordsTable(String name, String mobile, String time) {
         this.name = name;
         this.mobile = mobile;
         this.time = time;

@@ -3,7 +3,7 @@ package com.mob.sms.utils
 /**
  * 时长，电话
  */
-data class CallLogBean(val duration: Int, val number: String, val type: Int, val date: String) {
+data class CallLogBean(val duration: Int, val number: String, val type: Int, val date: String, val name:String) {
     override fun equals(other: Any?): Boolean {
         if (other is CallLogBean) {
             return other.duration == duration && other.number == number && other.type == type && other.date == date

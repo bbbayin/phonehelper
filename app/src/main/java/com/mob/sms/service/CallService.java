@@ -21,7 +21,7 @@ public class CallService extends InCallService {
             switch (state) {
                 case Call.STATE_ACTIVE: {
                     //接通后自动挂断
-                    if (SPUtils.getBoolean(SPConstant.SP_CALL_GD, true)) {
+                    if (SPUtils.getBoolean(SPConstant.SP_CALL_GD, false)) {
                         call.disconnect();
                         RxBus.getInstance().post(new CallEvent());
                     }

@@ -204,10 +204,10 @@ public class LoginActivity extends BaseActivity {
             public void afterTextChanged(Editable editable) {
             }
         });
-        if ("qq".equals(SPUtils.getString(SPConstant.SP_USER_LOGIN_TYPE, ""))) {
+        if ("qq".equals(SPUtils.getGlobal(SPConstant.SP_USER_LOGIN_TYPE))) {
             mQqTip.setVisibility(View.VISIBLE);
             mWxTip.setVisibility(View.INVISIBLE);
-        } else if ("wx".equals(SPUtils.getString(SPConstant.SP_USER_LOGIN_TYPE, ""))) {
+        } else if ("wx".equals(SPUtils.getGlobal(SPConstant.SP_USER_LOGIN_TYPE))) {
             mQqTip.setVisibility(View.INVISIBLE);
             mWxTip.setVisibility(View.VISIBLE);
         } else {
@@ -338,7 +338,7 @@ public class LoginActivity extends BaseActivity {
                         Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_LONG).show();
                         Log.i("jqt", "loginBean.data: " + loginBean.token);
                         SPUtils.put(SPConstant.SP_USER_TOKEN, loginBean.token);
-                        SPUtils.put(SPConstant.SP_USER_LOGIN_TYPE, "qq");
+                        SPUtils.putGlobal(SPConstant.SP_USER_LOGIN_TYPE, "qq");
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
                     } else {
@@ -357,7 +357,7 @@ public class LoginActivity extends BaseActivity {
                     if (loginBean != null && loginBean.code == 200) {
                         Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_LONG).show();
                         SPUtils.put(SPConstant.SP_USER_TOKEN, loginBean.data);
-                        SPUtils.put(SPConstant.SP_USER_LOGIN_TYPE, "mobile");
+                        SPUtils.putGlobal(SPConstant.SP_USER_LOGIN_TYPE, "mobile");
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
                     } else {

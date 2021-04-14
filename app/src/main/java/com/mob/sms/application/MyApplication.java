@@ -29,7 +29,7 @@ public class MyApplication extends Application {
 
         wxApi = WXAPIFactory.createWXAPI(this, null);
         // 将该app注册到微信
-        wxApi.registerApp("wx5fe8deafb48e5513");
+        wxApi.registerApp("wx22e1a70e838f3267");
     }
 
     public static Context getContext(){

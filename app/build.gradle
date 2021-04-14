@@ -9,8 +9,8 @@ android {
         applicationId "com.mob.sms"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 109
-        versionName "1.0.1"
+        versionCode 113
+        versionName "1.1.3"
 
     }
 

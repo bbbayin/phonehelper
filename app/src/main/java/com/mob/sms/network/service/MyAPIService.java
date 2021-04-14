@@ -1,6 +1,7 @@
 package com.mob.sms.network.service;
 
 import com.mob.sms.bean.BannerBean;
+import com.mob.sms.bean.ChannelChargeBean;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.bean.UpdateBean;
 import com.mob.sms.network.bean.AuthoLoginBean;
@@ -249,6 +250,6 @@ public interface MyAPIService {
 
     // 是否收费:channelName
     @POST("prod-api/restApi/market/channelName")
-    Observable<BaseResponse<Object>> getMarketCharge(@Query("channelName")String channel);
+    Observable<BaseResponse<ChannelChargeBean>> getMarketCharge(@Query("channelName")String channel);
 
 }

@@ -35,7 +35,7 @@ object PhoneUtils {
                 val duration = cursor.getInt(cursor.getColumnIndex(CallLog.Calls.DURATION));//获取通话时长，值为多少秒
                 val type = cursor.getInt(cursor.getColumnIndex(CallLog.Calls.TYPE)); //获取通话类型：1.呼入2.呼出3.未接
                 Log.i(TAG, "姓名：$name, 号码：$number, 日期：$date, 时长：$duration 秒, 类型: $type")
-                result.add(CallLogBean(duration, number, type, date))
+                result.add(CallLogBean(duration, number, type, date, name?:""))
                 i--
             }
             cursor.close()

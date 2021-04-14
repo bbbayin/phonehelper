@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.mob.sms.BuildConfig;
 import com.mob.sms.R;
 import com.mob.sms.activity.AutoCallPhoneActivity;
 import com.mob.sms.activity.AutoSendSmsActivity;
@@ -36,6 +37,7 @@ import com.mob.sms.activity.VipActivity;
 import com.mob.sms.auto.SingleAutoTaskActivity;
 import com.mob.sms.base.BaseFragment;
 import com.mob.sms.bean.BannerBean;
+import com.mob.sms.bean.ChannelChargeBean;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
@@ -48,9 +50,11 @@ import com.mob.sms.dialog.SetCallNumDialog;
 import com.mob.sms.dialog.SetCallTimingDialog;
 import com.mob.sms.dialog.SetMultiCallIntervalDialog;
 import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.network.bean.BaseResponse;
 import com.mob.sms.rx.BaseObserver;
 import com.mob.sms.rx.MobError;
 import com.mob.sms.utils.Constants;
+import com.mob.sms.utils.FreeCheckUtils;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
@@ -139,7 +143,7 @@ public class HomeFragment extends BaseFragment {
     ImageView ivMultiClearInterval;
     @BindView(R.id.sms_iv_clear_phone)
     ImageView ivClearSmsPhone;
-//    @BindView(R.id.sms_iv_clear_timeout)
+    //    @BindView(R.id.sms_iv_clear_timeout)
 //    ImageView ivClearSmsTimeout;
     @BindView(R.id.multi_btn_clear_phone)
     ImageView ivMultiCLearPhone;
@@ -153,8 +157,8 @@ public class HomeFragment extends BaseFragment {
     private boolean sms_dhfs_open = true;
 
     private int mVisibleTab = 0;//当前切换的tab
-    private boolean mCallGd = true;//默认接通后自动挂断
-    private boolean mPlCallGd = true;//默认接通后自动挂断
+    private boolean mCallGd = false;//默认接通后自动挂断
+    private boolean mPlCallGd = false;//默认接通后自动挂断
 
     @Nullable
     @Override
@@ -265,8 +269,11 @@ public class HomeFragment extends BaseFragment {
             }
         });
 
-        mCallGd = (boolean) SPUtils.get(SPConstant.SP_CALL_GD, true);
+        mCallGd = (boolean) SPUtils.get(SPConstant.SP_CALL_GD, false);
         mGdSwitch.setImageResource(mCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
+
+        mPlCallGd = (boolean) SPUtils.get(SPConstant.SP_CALL_PL_GD, false);
+        mPlGdSwitch.setImageResource(mPlCallGd ? R.mipmap.switch_on : R.mipmap.switch_off);
     }
 
     private void setBdfs() {
@@ -411,15 +418,19 @@ public class HomeFragment extends BaseFragment {
                         !TextUtils.isEmpty(mCallBdcsTv.getText().toString()) &&
                         !TextUtils.isEmpty(mCallBdjgTv.getText().toString()) &&
                         !TextUtils.isEmpty(mCallBdfsTv.getText().toString())) {
-                    // 判断是否隐私拨号
-                    String s = mCallBdfsTv.getText().toString();
-                    if (s.contains("隐私")) {
-                        checkPermission();
-                    } else {
-                        intent = new Intent(getContext(), SingleAutoTaskActivity.class);
-                        intent.putExtra(SingleAutoTaskActivity.KEY_TASK, SingleAutoTaskActivity.VALUE_TASK_DIAL);
-                        startActivity(intent);
-                    }
+
+                    FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+                        @Override
+                        public void onResult(boolean free) {
+                            if (free){
+                                Intent intent = new Intent(getContext(), SingleAutoTaskActivity.class);
+                                intent.putExtra(SingleAutoTaskActivity.KEY_TASK, SingleAutoTaskActivity.VALUE_TASK_DIAL);
+                                startActivity(intent);
+                            }else {
+                                startActivity(new Intent(getContext(), VipActivity.class));
+                            }
+                        }
+                    });
                 }
                 break;
             case R.id.hmdr_rl:
@@ -510,9 +521,18 @@ public class HomeFragment extends BaseFragment {
             case R.id.pl_call_tv:
                 if (!TextUtils.isEmpty(mCallHmdrTip.getText().toString()) &&
                         !TextUtils.isEmpty(mCallJgszTip.getText().toString())) {
-                    intent = new Intent(getContext(), AutoCallPhoneActivity.class);
-                    intent.putExtra("type", "plbd");
-                    startActivity(intent);
+                    FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+                        @Override
+                        public void onResult(boolean free) {
+                            if (free){
+                                Intent intent = new Intent(getContext(), AutoCallPhoneActivity.class);
+                                intent.putExtra("type", "plbd");
+                                startActivity(intent);
+                            }else {
+                                startActivity(new Intent(getContext(), VipActivity.class));
+                            }
+                        }
+                    });
                 }
                 break;
             //短信定时
@@ -645,30 +665,68 @@ public class HomeFragment extends BaseFragment {
                     Utils.jumpToPermissionsEditorActivity(getContext());
                     return;
                 }
-                if (sms_dhfs_open) {
-                    //单号发送
-                    if (!TextUtils.isEmpty(mSmsMobileEt.getText().toString()) &&
-                            !TextUtils.isEmpty(mSmsFscsTip.getText().toString()) &&
-                            !TextUtils.isEmpty(mBjdxTip.getText().toString())) {
-                        intent = new Intent(getContext(), AutoSendSmsActivity.class);
-                        intent.putExtra("type", "dhfs");
-                        startActivity(intent);
+                FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+                    @Override
+                    public void onResult(boolean free) {
+                        if (free){
+                            toSmsSendActivity();
+                        }else {
+                            startActivity(new Intent(getContext(), VipActivity.class));
+                        }
                     }
-                } else {
-                    //批量发送
-                    if (!TextUtils.isEmpty(mSmsHmdrTip.getText().toString()) &&
-                            !TextUtils.isEmpty(mSmsFsjgTip.getText().toString()) &&
-                            !TextUtils.isEmpty(mBjdxTip.getText().toString())) {
-                        intent = new Intent(getContext(), AutoSendSmsActivity.class);
-                        intent.putExtra("type", "plfs");
-                        startActivity(intent);
-                    }
-                }
+                });
+
                 break;
         }
     }
 
+    private void toSmsSendActivity() {
+        Intent intent;
+        if (sms_dhfs_open) {
+            //单号发送
+            if (!TextUtils.isEmpty(mSmsMobileEt.getText().toString()) &&
+                    !TextUtils.isEmpty(mSmsFscsTip.getText().toString()) &&
+                    !TextUtils.isEmpty(mBjdxTip.getText().toString())) {
+                intent = new Intent(getContext(), AutoSendSmsActivity.class);
+                intent.putExtra("type", "dhfs");
+                startActivity(intent);
+            }
+        } else {
+            //批量发送
+            if (!TextUtils.isEmpty(mSmsHmdrTip.getText().toString()) &&
+                    !TextUtils.isEmpty(mSmsFsjgTip.getText().toString()) &&
+                    !TextUtils.isEmpty(mBjdxTip.getText().toString())) {
+                intent = new Intent(getContext(), AutoSendSmsActivity.class);
+                intent.putExtra("type", "plfs");
+                startActivity(intent);
+            }
+        }
+    }
+
     private void checkPermission() {
+        // 先判断渠道
+        RetrofitHelper.getApi().getMarketCharge(BuildConfig.FLAVOR)
+                .subscribe(new Action1<BaseResponse<ChannelChargeBean>>() {
+                    @Override
+                    public void call(BaseResponse<ChannelChargeBean> response) {
+                        if (response != null && response.data != null) {
+                            switch (response.data.status) {
+                                case "0":
+                                    Intent intent = new Intent(getContext(), SingleAutoTaskActivity.class);
+                                    intent.putExtra("type", "dhbd");
+                                    startActivity(intent);
+                                    break;
+                                default:
+                                    checkUserVip();
+                                    break;
+                            }
+                        }
+
+                    }
+                });
+    }
+
+    private void checkUserVip() {
         RetrofitHelper.getApi().cloudDial()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -721,7 +779,7 @@ public class HomeFragment extends BaseFragment {
         if (callInterval != 0) {
             mCallBdjgTv.setText(callInterval + "s");
         }
-        if (SPUtils.getBoolean(SPConstant.SP_CALL_GD, true)) {
+        if (SPUtils.getBoolean(SPConstant.SP_CALL_GD, false)) {
             mGdSwitch.setImageResource(R.mipmap.switch_on);
         } else {
             mGdSwitch.setImageResource(R.mipmap.switch_off);

@@ -15,17 +15,29 @@ import com.mob.sms.bean.DocBean;
 import com.mob.sms.network.bean.QuestionBean;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class DocAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
-    private ArrayList<DocBean> mDatas;
+    private List<DocBean> mDatas;
 
-    public DocAdapter(Context context, ArrayList<DocBean> datas) {
+    public DocAdapter(Context context, List<DocBean> datas) {
         this.mContext = context;
         this.mDatas = datas;
+    }
+
+    public  List<DocBean> getData() {
+        return mDatas;
+    }
+
+    public void updateList(List<DocBean> list) {
+        if (list!=null && !list.isEmpty()) {
+            this.mDatas = list;
+            notifyDataSetChanged();
+        }
     }
 
     private OnItemClickListener mOnItemClickListener;
