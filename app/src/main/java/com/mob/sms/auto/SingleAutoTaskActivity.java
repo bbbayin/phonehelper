@@ -1,6 +1,7 @@
 package com.mob.sms.auto;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.Service;
@@ -55,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -116,6 +118,8 @@ public class SingleAutoTaskActivity extends BaseActivity {
             }
         }
     };
+    private Subscription mSub;
+    private long remainTime;
 
     /**
      * 上报隐私拨号时间，单位：分钟
@@ -134,7 +138,8 @@ public class SingleAutoTaskActivity extends BaseActivity {
                 .subscribe();
     }
 
-    private Handler handler = new Handler() {
+    @SuppressLint("HandlerLeak")
+    private final Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
@@ -154,7 +159,14 @@ public class SingleAutoTaskActivity extends BaseActivity {
         initView();
         initClick();
         initData();
+        mSub = RxBus.getInstance().toObserverable(CallEvent.class)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::nextCall);
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+    private void nextCall(CallEvent event) {
+        startTimer(mInterval);
     }
 
     private void initData() {
@@ -294,16 +306,6 @@ public class SingleAutoTaskActivity extends BaseActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        System.out.println("onResume----" + System.currentTimeMillis());
-        if (mCurrentCount > 1 && phoneIdleFlag) {
-            startTimer(mInterval);
-            phoneIdleFlag = false;
-        }
-    }
-
     private synchronized void startTimer(long duration) {
         if (isRunning && isManualStop) return;
         if (mCurrentCount > mTotalCallTimes) {
@@ -317,7 +319,8 @@ public class SingleAutoTaskActivity extends BaseActivity {
         timer = new CountDownTimer(duration * 1000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                binding.time.setText(String.format("下一次拨打还需要%ss", millisUntilFinished / 1000 + 1));
+                remainTime = millisUntilFinished / 1000 + 1;
+                binding.time.setText(String.format("下一次拨打还需要%ss", remainTime));
             }
 
             @Override
@@ -349,6 +352,7 @@ public class SingleAutoTaskActivity extends BaseActivity {
     private void callPhone() {
         try {
             // 1. 获取拨打的sim卡
+            if (isFinishing() || isDestroyed() || isPageFinished) return;
             TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
             if (telecomManager != null) {
                 telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -499,7 +503,9 @@ public class SingleAutoTaskActivity extends BaseActivity {
         isRunning = false;
     }
 
+    private boolean isPageFinished = false;
     private void back() {
+        isPageFinished = true;
         finish();
         saveRecord();
     }
@@ -538,7 +544,7 @@ public class SingleAutoTaskActivity extends BaseActivity {
         binding.pause.setOnClickListener(v -> {
             // 手动暂停
             if (isManualStop) {
-                startTimer(mInterval);
+                startTimer(remainTime);
             } else {
                 release();
                 binding.time.setText("暂停拨打");

@@ -49,7 +49,7 @@ public class ContactsFragment extends BaseFragment {
 
     private void initView(){
         mFragments.clear();
-        mFragments.add(new ContactsPersonFragment());
+        mFragments.add(new TxlFragment());
         mFragments.add(new CallRecordsFragment());
         mViewPager.setAdapter(new ViewPagerAdapter(getChildFragmentManager(), mFragments));
         mSlidingTabLayout.setViewPager(mViewPager, mTitles);

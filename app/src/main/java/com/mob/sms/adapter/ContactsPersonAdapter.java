@@ -89,7 +89,7 @@ public class ContactsPersonAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         return holder;
     }
 
-    class ContactHolder extends RecyclerView.ViewHolder {
+    static class ContactHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.select_iv)
         ImageView select_iv;
         @BindView(R.id.name)

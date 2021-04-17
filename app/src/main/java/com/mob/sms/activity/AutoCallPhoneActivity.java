@@ -1,10 +1,12 @@
 package com.mob.sms.activity;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +25,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,7 +51,9 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -124,7 +129,6 @@ public class AutoCallPhoneActivity extends BaseActivity {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::nextCall);
 
-        initData();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -226,12 +230,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
         });
     }
 
-    private void initData() {
-
-    }
-
     private void nextCall(CallEvent event) {
-        Log.i("jqt", "nextCall");
         if (isRandomInterval) {
             mInterval = Utils.generateRandomInterval();
         }
@@ -249,7 +248,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
             }
         } else if (Constants.CALL_STYLE_MULTI.equals(mType)) {// 批量
             if (mSendIndex + 1 < mTotalCallTimes) {
-
+                mMobile.setText(mDatas.get(mSendIndex+1).mobile);
                 mTime.setText("拨打下一个号码还需要" + mInterval + "s");
                 mTm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
                 mHandler.removeCallbacksAndMessages(null);
@@ -278,7 +277,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                 if (TextUtils.isEmpty(mDsbdTime)) {
                     mCountDownTime = mInterval;
                     mNum.setText("(" + 1 + "/" + mTotalCallTimes + "次)");
-                    Utils.callPhone(this, 0);
+                    callPhone(dialNumber);
                     mTime.setText("下一次拨打还需要" + mCountDownTime + "s");
                     mHandler.sendEmptyMessageDelayed(msg_single_call, 1000);
                 } else if (mDsbdTime.contains("秒")) {
@@ -338,7 +337,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                 isRandomInterval = true;
                 // 随机
                 mInterval = Utils.generateRandomInterval();
-            }else {
+            } else {
                 mInterval = Integer.parseInt(interval);
             }
             mCountDownTime = mInterval;
@@ -397,11 +396,14 @@ public class AutoCallPhoneActivity extends BaseActivity {
                     }
                 }
                 startActivity(intent);
+                // 停止计时
+                mHandler.removeMessages(0);
+                mHandler.removeMessages(1);
+                mHandler.removeMessages(2);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        mHandler.sendEmptyMessageDelayed(msg_single_interval, 3000);
     }
 
     // 批量拨打
@@ -428,7 +430,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                             mNum.setText("(" + (mSendIndex + 1) + "/" + mTotalCallTimes + "次)");
                             mTime.setText("下一次拨打还需要" + mInterval + "s");
                             mTm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
-                            Utils.callPhone(AutoCallPhoneActivity.this, 0);
+                            callPhone(dialNumber);
                         }
                     } else {
                         mTime.setText("下一次拨打还需要" + 0 + "s");
@@ -496,7 +498,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                     if (Constants.CALL_STYLE_SINGLE.equals(mType)) {
                         // 单号
                         mHandler.sendEmptyMessageDelayed(msg_single_call, 1000);
-                    }else {
+                    } else {
                         // 双号
                         mHandler.sendEmptyMessageDelayed(msg_multi_call, 1000);
                     }
@@ -529,21 +531,40 @@ public class AutoCallPhoneActivity extends BaseActivity {
         }
     }
 
+    private Set<String> autoFinishSet = new HashSet<>();
 
-    private PhoneStateListener listener = new PhoneStateListener() {
+    private final PhoneStateListener listener = new PhoneStateListener() {
 
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             //注意，方法必须写在super方法后面，否则incomingNumber无法获取到值。
             super.onCallStateChanged(state, incomingNumber);
+            final TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
             if (Constants.CALL_STYLE_MULTI.equals(mType)) {
-                mRecords.get(mSendIndex).isSend = true;
-                mCallPhoneRecordsAdapter.notifyDataSetChanged();
+                if (state == TelephonyManager.CALL_STATE_IDLE) {
+                    mRecords.get(mSendIndex).isSend = true;
+                    mCallPhoneRecordsAdapter.notifyDataSetChanged();
+                }
             }
-            Log.i("jqt", "state: " + state + "," + incomingNumber);
-            mTm.listen(listener, PhoneStateListener.LISTEN_NONE);
+            if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
+                // 判断是否自动挂断
+                Boolean autoFinish = SPUtils.getBoolean(SPConstant.SP_CALL_PL_GD, false);
+                String mobile = mDatas.get(mSendIndex).mobile;
+                if (autoFinish && !autoFinishSet.contains(mobile)) {
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (ActivityCompat.checkSelfPermission(AutoCallPhoneActivity.this,
+                                    Manifest.permission.ANSWER_PHONE_CALLS) != PackageManager.PERMISSION_GRANTED) {
+                                return;
+                            }
+                            telecomManager.endCall();
+                        }
+                    }, 30 * 1000);
+                    autoFinishSet.add(mobile);
+                }
+            }
         }
-
     };
 
     @Override

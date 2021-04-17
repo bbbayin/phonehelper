@@ -18,8 +18,13 @@
         android:src="@mipmap/keyboard_icon"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
-
         />
+
+    <com.mob.sms.contacts.SideBar
+        android:id="@+id/fragment_contacts_sidebar"
+        android:layout_gravity="end|center_vertical"
+        android:layout_width="25dp"
+        android:layout_height="375dp" />
 
     <RelativeLayout
         android:id="@+id/bottom_rl"

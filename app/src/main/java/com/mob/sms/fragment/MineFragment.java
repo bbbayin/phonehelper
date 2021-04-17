@@ -1,5 +1,6 @@
 package com.mob.sms.fragment;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -49,6 +50,7 @@ import com.mob.sms.utils.ToastUtil;
 import com.mob.sms.utils.Utils;
 import com.tencent.connect.auth.QQToken;
 import com.tencent.connect.share.QQShare;
+import com.tencent.connect.share.QzoneShare;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
@@ -56,6 +58,8 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.Tencent;
 import com.tencent.tauth.UiError;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,6 +88,13 @@ public class MineFragment extends BaseFragment {
     private ShareBean.DataBean mShareInfo;
     private UserInfoBean.DataBean mUserInfo;
     private boolean isCreated = false;
+    private Activity mActivity;
+
+    @Override
+    public void onAttach(@NonNull Activity activity) {
+        super.onAttach(activity);
+        mActivity = activity;
+    }
 
     @Nullable
     @Override
@@ -219,7 +230,7 @@ public class MineFragment extends BaseFragment {
                                 msg.thumbData = Utils.bmpToByteArray(bitmap, true);
                                 SendMessageToWX.Req req = new SendMessageToWX.Req();
                                 req.message = msg;
-                                req.scene = SendMessageToWX.Req.WXSceneSession;
+                                req.scene = SendMessageToWX.Req.WXSceneTimeline;
                                 req.transaction = String.valueOf(System.currentTimeMillis());
                                 MyApplication.wxApi.sendReq(req);
                                 return false;
@@ -231,16 +242,20 @@ public class MineFragment extends BaseFragment {
 
             @Override
             public void shareQQ() {
-                QQShare share = new QQShare(getContext(), new QQToken("1166dd0fd38327bb8f4da43276b8865f"));
+                //APP ID：101924228
+                //APP Key：1166dd0fd38327bb8f4da43276b8865f
+                //审核通过
+                Tencent instance = Tencent.createInstance("101924228", mActivity);
+                QzoneShare mTencent = new QzoneShare(mActivity, new QQToken("1166dd0fd38327bb8f4da43276b8865f"));
                 final Bundle params = new Bundle();
-                params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_DEFAULT);
-                params.putString(QQShare.SHARE_TO_QQ_TITLE, mShareInfo.title);
-                params.putString(QQShare.SHARE_TO_QQ_SUMMARY, mShareInfo.content);
-                params.putString(QQShare.SHARE_TO_QQ_TARGET_URL, mShareInfo.url);
-                params.putString(QQShare.SHARE_TO_QQ_IMAGE_URL, mShareInfo.logo);
-                params.putString(QQShare.SHARE_TO_QQ_APP_NAME, "隐藏拨号");
-
-                share.shareToQQ(getActivity(), params, new IUiListener() {
+                params.putInt(QzoneShare.SHARE_TO_QZONE_KEY_TYPE, QzoneShare.SHARE_TO_QZONE_TYPE_IMAGE_TEXT);
+                params.putString(QzoneShare.SHARE_TO_QQ_TITLE, mShareInfo.title);//必填
+                params.putString(QzoneShare.SHARE_TO_QQ_SUMMARY, mShareInfo.content);//选填
+                params.putString(QzoneShare.SHARE_TO_QQ_TARGET_URL, mShareInfo.url);//必填
+                ArrayList<String> images = new ArrayList<>();
+                images.add(mShareInfo.logo);
+                params.putStringArrayList(QzoneShare.SHARE_TO_QQ_IMAGE_URL, images);
+                instance.shareToQzone(mActivity, params, new IUiListener() {
                     @Override
                     public void onComplete(Object o) {
 
@@ -253,6 +268,11 @@ public class MineFragment extends BaseFragment {
 
                     @Override
                     public void onCancel() {
+
+                    }
+
+                    @Override
+                    public void onWarning(int i) {
 
                     }
                 });

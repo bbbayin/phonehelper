@@ -29,6 +29,7 @@ import com.mob.sms.activity.VipActivity;
 import com.mob.sms.adapter.ContactsPersonAdapter;
 import com.mob.sms.base.BaseFragment;
 import com.mob.sms.bean.ContactsBean;
+import com.mob.sms.contacts.SideBar;
 import com.mob.sms.db.CallRecordsTable;
 import com.mob.sms.db.DatabaseBusiness;
 import com.mob.sms.network.RetrofitHelper;
@@ -59,6 +60,8 @@ public class ContactsPersonFragment extends BaseFragment {
     ImageView mSelectIv;
     @BindView(R.id.delete)
     TextView mDelete;
+    @BindView(R.id.fragment_contacts_sidebar)
+    SideBar mSideBar;
 
 
     private ContactsPersonAdapter mContactsPersonAdapter;

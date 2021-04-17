@@ -1,5 +1,6 @@
 package com.mob.sms.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -159,7 +160,8 @@ public class DocSelectActivity extends BaseActivity {
         }
     }
 
-    private Handler mHandler = new Handler() {
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
@@ -187,7 +189,11 @@ public class DocSelectActivity extends BaseActivity {
                         if (f.isDirectory()) {
                             executorService.execute(new FileFilterThread(f));
                         } else {
-                            addFileToList(fileType, f);
+                            try {
+                                addFileToList(fileType, f);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -195,33 +201,17 @@ public class DocSelectActivity extends BaseActivity {
         }
     }
 
-    /****
-     * 递归算法获取本地文件
-     * @param file
-     */
-    private void getData(File file, String type) {
-        if (file.exists()) {
-            if (file.isDirectory()) {
-                File[] fileArray = file.listFiles();
-                if (fileArray == null) return;
-                for (File f : fileArray) {
-                    if (f.isDirectory()) {
-                        getData(f, type);
-                    } else {
-                        addFileToList(type, f);
-                    }
-                }
-            }
-        }
+    private String getFileTime(File file) {
+        Date date = new Date(file.lastModified());
+        return date.toLocaleString();
     }
 
-    private void addFileToList(String type, File f) {
-        String time = format.format(new Date(f.lastModified()));
+    private void addFileToList(String type, File f) throws Exception {
         if ("word".equals(type)) {
             if (f.getName().endsWith(".docx") || f.getName().endsWith(".doc")) {
                 try {
-                    DocBean bean = new DocBean(f.getName(), f.getAbsolutePath(),
-                            time, time, f.length(), false, type);
+                    String time = getFileTime(f);
+                    DocBean bean = new DocBean(f.getName(), f.getAbsolutePath(), time, time, f.length(), false, type);
                     mOriginDataList.add(bean);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -230,8 +220,8 @@ public class DocSelectActivity extends BaseActivity {
         } else if ("excel".equals(type)) {
             if (f.getName().endsWith(".xls") || f.getName().endsWith(".xlsx")) {
                 try {
-                    DocBean bean = new DocBean(f.getName(), f.getAbsolutePath(),
-                            time, time, f.length(), false, type);
+                    String time = getFileTime(f);
+                    DocBean bean = new DocBean(f.getName(), f.getAbsolutePath(), time, time, f.length(), false, type);
                     mOriginDataList.add(bean);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -240,8 +230,8 @@ public class DocSelectActivity extends BaseActivity {
         } else if ("txt".equals(type)) {
             if (f.getName().endsWith(".txt")) {
                 try {
-                    DocBean bean = new DocBean(f.getName(), f.getAbsolutePath(),
-                            time, time, f.length(), false, type);
+                    String time = getFileTime(f);
+                    DocBean bean = new DocBean(f.getName(), f.getAbsolutePath(), time, time, f.length(), false, type);
                     mOriginDataList.add(bean);
                 } catch (Exception e) {
                     e.printStackTrace();
