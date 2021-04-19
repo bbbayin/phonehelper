@@ -99,18 +99,25 @@ dependencies {
 
     // butterknife∏
     implementation 'com.jakewharton:butterknife:10.0.0'
+    implementation files('libs/rt.jar')
 //    implementation files('libs/aa-poi-3.10-min-0.1.5.jar')
 //    implementation files('libs/aa-poi-ooxml-schemas-3.10-reduced-more-0.1.5.jar')
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
-    def poiversion = '4.0.1'
-    implementation group: 'org.apache.poi', name: 'poi', version: poiversion
+    def poiversion = '3.17'
+    implementation(group: 'org.apache.poi', name: 'poi', version: poiversion) {
+        exclude group: 'org.apache.xmlbeans'
+    }
     implementation(group: 'org.apache.poi', name: 'poi-ooxml', version: poiversion) {
         exclude group: 'org.apache.xmlbeans'
     }
-    implementation group: 'org.apache.poi', name: 'poi-ooxml-schemas', version: poiversion
-    implementation group: 'org.apache.poi', name: 'poi-scratchpad', version: poiversion
-    implementation group: 'org.apache.xmlbeans', name: 'xmlbeans', version: '3.0.2'
-//    implementation group: 'org.apache.xmlbeans', name: 'xmlbeans', version: '3.0.0'
+    implementation(group: 'org.apache.poi', name: 'poi-ooxml-schemas', version: poiversion) {
+        exclude group: 'org.apache.xmlbeans'
+    }
+    implementation(group: 'org.apache.poi', name: 'poi-scratchpad', version: poiversion) {
+        exclude group: 'org.apache.xmlbeans'
+    }
+//    implementation group: 'org.apache.xmlbeans', name: 'xmlbeans', version: '2.6.0'
+    implementation group: 'org.apache.xmlbeans', name: 'xmlbeans', version: '3.0.0'
 
 
     //rxjava
@@ -147,7 +154,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'com.android.support:design:29.0.0'
+//    provided files ('/Library/Java/JavaVirtualMachines/jdk1.8.0_281.jdk/Contents/Home/jre/lib/rt.jar')
 }
+
 repositories {
     mavenCentral()
 }

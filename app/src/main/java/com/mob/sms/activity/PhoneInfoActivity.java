@@ -29,6 +29,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -120,24 +122,26 @@ public class PhoneInfoActivity extends BaseActivity {
     }
 
     private void readDocx() {
-//        FileInputStream in;
-//        String text = null;
-//        try {
-//            in = new FileInputStream(new File(mFilePath));
-//            XWPFDocument doc = new XWPFDocument(in);
-//            XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
-//            text = extractor.getText();
-//            if (text.contains("\n")) {
-//                String[] split = text.split("\n");
-//                for (String s : split) {
-//                    mDatas.add(new PhoneInfoBean(s, "无姓名", false));
-//                }
-//            } else {
-//                mDatas.add(new PhoneInfoBean(text, "无姓名", false));
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        FileInputStream in;
+        String text = null;
+        try {
+            in = new FileInputStream(new File(mFilePath));
+            XWPFDocument doc = new XWPFDocument(in);
+            XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
+            text = extractor.getText();
+            if (text.contains("\n")) {
+                String[] split = text.split("\n");
+                for (String s : split) {
+                    mDatas.add(new PhoneInfoBean(s, "无姓名", false));
+                }
+            } else {
+                mDatas.add(new PhoneInfoBean(text, "无姓名", false));
+            }
+        } catch (Exception e) {
+            System.out.println("ppppp报错ppppp");
+            e.printStackTrace();
+            System.out.println("------ppppp报错ppppp-----");
+        }
     }
 
     public void readXlsx(File file) throws FileNotFoundException {
@@ -163,7 +167,9 @@ public class PhoneInfoActivity extends BaseActivity {
             }
         } catch (Exception e) {
             /* proper exception handling to be here */
-            LogUtils.e(e.toString());
+            System.out.println("xxxxx爆粗xxxx");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
 
     }
@@ -174,8 +180,8 @@ public class PhoneInfoActivity extends BaseActivity {
             Cell cell = row.getCell(c);
             CellValue cellValue = formulaEvaluator.evaluate(cell);
             switch (cellValue.getCellType()) {
-//                case Cell.CELL_TYPE_NUMERIC:
-                case NUMERIC:
+                case Cell.CELL_TYPE_NUMERIC:
+//                case NUMERIC:
                     double strCell = cell.getNumericCellValue();
                     DecimalFormat formatCell = (DecimalFormat) NumberFormat.getPercentInstance();
                     formatCell.applyPattern("0");
@@ -185,8 +191,8 @@ public class PhoneInfoActivity extends BaseActivity {
                         value = formatCell.format(strCell);
                     }
                     break;
-//                case Cell.CELL_TYPE_STRING:
-                case STRING:
+                case Cell.CELL_TYPE_STRING:
+//                case STRING:
                     value = "" + cellValue.getStringValue();
                     break;
                 default:
