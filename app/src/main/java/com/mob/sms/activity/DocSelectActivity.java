@@ -170,8 +170,6 @@ public class DocSelectActivity extends BaseActivity {
         }
     };
 
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-
     private class FileFilterThread implements Runnable {
         File file;
 

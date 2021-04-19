@@ -3,7 +3,6 @@ package com.mob.sms.activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Xml;
 import android.view.View;
 import android.widget.TextView;
 
@@ -19,19 +18,29 @@ import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
 import com.mob.sms.db.SmsContactTable;
 import com.mob.sms.utils.ToastUtil;
+import com.youth.banner.util.LogUtils;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hwpf.extractor.WordExtractor;
-import org.xmlpull.v1.XmlPullParser;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -70,9 +79,21 @@ public class PhoneInfoActivity extends BaseActivity {
         mType2 = getIntent().getStringExtra("type2");
 
         if (mType == 0) {
-            readWord(mFilePath);
+            if (mFilePath.endsWith("docx")) {
+                readDocx();
+            }else {
+                readWord(mFilePath);
+            }
         } else if (mType == 1) {
-            readExcel(mFilePath);
+            try {
+                if (mFilePath.endsWith("xlsx")) {
+                    readXlsx(new File(mFilePath));
+                } else if (mFilePath.endsWith("xls")) {
+                    readXls(mFilePath);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         } else if (mType == 2) {
             readTxtFile(mFilePath);
         } else if (mType == 3) {
@@ -98,88 +119,99 @@ public class PhoneInfoActivity extends BaseActivity {
         });
     }
 
-    private void readExcel(String strFilePath) {
-        File file = new File(strFilePath);
-        Log.e("yy", "file=" + file.getAbsolutePath());
-        String str = "";
-        String v = null;
-        boolean flat = false;
-        List<String> ls = new ArrayList<String>();
+    private void readDocx() {
+//        FileInputStream in;
+//        String text = null;
+//        try {
+//            in = new FileInputStream(new File(mFilePath));
+//            XWPFDocument doc = new XWPFDocument(in);
+//            XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
+//            text = extractor.getText();
+//            if (text.contains("\n")) {
+//                String[] split = text.split("\n");
+//                for (String s : split) {
+//                    mDatas.add(new PhoneInfoBean(s, "无姓名", false));
+//                }
+//            } else {
+//                mDatas.add(new PhoneInfoBean(text, "无姓名", false));
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    public void readXlsx(File file) throws FileNotFoundException {
+        if (file == null) {
+            Log.e("NullFile", "读取Excel出错，文件为空文件");
+            return;
+        }
+        InputStream stream = new BufferedInputStream(new FileInputStream(file));
         try {
-            ZipFile xlsxFile = new ZipFile(file);
-            ZipEntry sharedStringXML = xlsxFile
-                    .getEntry("xl/sharedStrings.xml");
-            InputStream inputStream = xlsxFile.getInputStream(sharedStringXML);
-            XmlPullParser xmlParser = Xml.newPullParser();
-            xmlParser.setInput(inputStream, "utf-8");
-            int evtType = xmlParser.getEventType();
-            Log.e("=====>", "==xmlParser====>" + xmlParser.toString());
-            while (evtType != XmlPullParser.END_DOCUMENT) {
-                switch (evtType) {
-                    case XmlPullParser.START_TAG:
-                        String tag = xmlParser.getName();
-                        if (tag.equalsIgnoreCase("t")) {
-                            ls.add(xmlParser.nextText());
-                            Log.e("=====>", "===xmlParser===>" + ls.toString());
-                        }
-                        break;
-                    case XmlPullParser.END_TAG:
-                        break;
-                    default:
-                        break;
+            XSSFWorkbook workbook = new XSSFWorkbook(stream);
+            Sheet sheet = workbook.getSheetAt(0);
+            int rowsCount = sheet.getPhysicalNumberOfRows();
+            FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+            for (int r = 0; r < rowsCount; r++) {
+                Row row = sheet.getRow(r);
+                int cellsCount = row.getPhysicalNumberOfCells();
+                //每次读取一行的内容
+                for (int c = 0; c < cellsCount; c++) {
+                    //将每一格子的内容转换为字符串形式
+                    String value = getCellAsString(row, c, formulaEvaluator);
+                    mDatas.add(new PhoneInfoBean(value, "无姓名", false));
                 }
-                evtType = xmlParser.next();
             }
-            ZipEntry sheetXML = xlsxFile.getEntry("xl/worksheets/sheet1.xml");
-            InputStream inputStreamsheet = xlsxFile.getInputStream(sheetXML);
-            XmlPullParser xmlParsersheet = Xml.newPullParser();
-            xmlParsersheet.setInput(inputStreamsheet, "utf-8");
-            int evtTypesheet = xmlParsersheet.getEventType();
-            while (evtTypesheet != XmlPullParser.END_DOCUMENT) {
-                switch (evtTypesheet) {
-                    case XmlPullParser.START_TAG:
-                        String tag = xmlParsersheet.getName();
-                        Log.e("=====>", "===tag222===>" + tag);
-                        if (tag.equalsIgnoreCase("row")) {
-                        } else if (tag.equalsIgnoreCase("c")) {
-                            String t = xmlParsersheet.getAttributeValue(null, "t");
-                            if (t != null) {
-                                flat = true;
-                                System.out.println(flat + "有");
-                            } else {
-                                System.out.println(flat + "没有");
-                                flat = false;
-                            }
-                        } else if (tag.equalsIgnoreCase("v")) {
-                            v = xmlParsersheet.nextText();
-                            if (v != null) {
-                                if (flat) {
-                                    str += ls.get(Integer.parseInt(v)) + " ";
-                                } else {
-                                    str += v + " ";
-                                }
-                            }
-                        }
-                        break;
-                    case XmlPullParser.END_TAG:
-                        if (xmlParsersheet.getName().equalsIgnoreCase("row")
-                                && v != null) {
-                            str += "\n";
-                        }
-                        break;
-                }
-                evtTypesheet = xmlParsersheet.next();
+        } catch (Exception e) {
+            /* proper exception handling to be here */
+            LogUtils.e(e.toString());
+        }
+
+    }
+
+    private static String getCellAsString(Row row, int c, FormulaEvaluator formulaEvaluator) {
+        String value = "";
+        try {
+            Cell cell = row.getCell(c);
+            CellValue cellValue = formulaEvaluator.evaluate(cell);
+            switch (cellValue.getCellType()) {
+//                case Cell.CELL_TYPE_NUMERIC:
+                case NUMERIC:
+                    double strCell = cell.getNumericCellValue();
+                    DecimalFormat formatCell = (DecimalFormat) NumberFormat.getPercentInstance();
+                    formatCell.applyPattern("0");
+                    value = formatCell.format(strCell);
+                    if (Double.parseDouble(value) != strCell) {
+                        formatCell.applyPattern(Double.toString(strCell));
+                        value = formatCell.format(strCell);
+                    }
+                    break;
+//                case Cell.CELL_TYPE_STRING:
+                case STRING:
+                    value = "" + cellValue.getStringValue();
+                    break;
+                default:
+                    break;
+            }
+        } catch (NullPointerException e) {
+            /* proper error handling should be here */
+            LogUtils.e(e.toString());
+        }
+        return value;
+    }
+
+    private void readXls(String strFilePath) {
+        File file = new File(strFilePath);
+        try {
+            Workbook workbook = new HSSFWorkbook(new FileInputStream(file));
+            Sheet sheet = workbook.getSheetAt(0);
+            int sheetRows = sheet.getLastRowNum();
+            FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+            for (int i = 0; i < sheetRows; i++) {
+                String cellAsString = getCellAsString(sheet.getRow(i), 0, formulaEvaluator);
+                mDatas.add(new PhoneInfoBean(cellAsString, "无姓名", false));
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        if (str.contains("\n")) {
-            int length = str.split("\n").length;
-            for (int i = 0; i < length; i++) {
-                mDatas.add(new PhoneInfoBean(str.split("\n")[i], "无姓名", false));
-            }
-        } else {
-            mDatas.add(new PhoneInfoBean(str, "无姓名", false));
         }
     }
 
@@ -188,16 +220,12 @@ public class PhoneInfoActivity extends BaseActivity {
         String text = null;
         try {
             in = new FileInputStream(new File(strFilePath));
-            WordExtractor extractor = null;
-            //创建WordExtractor
-            extractor = new WordExtractor(in);
-            //进行提取对doc文件
+            WordExtractor extractor = new WordExtractor(in);
             text = extractor.getText();
-
             if (text.contains("\n")) {
-                int length = text.split("\n").length;
-                for (int i = 0; i < length; i++) {
-                    mDatas.add(new PhoneInfoBean(text.split("\n")[i], "无姓名", false));
+                String[] split = text.split("\n");
+                for (String s : split) {
+                    mDatas.add(new PhoneInfoBean(s, "无姓名", false));
                 }
             } else {
                 mDatas.add(new PhoneInfoBean(text, "无姓名", false));
@@ -264,7 +292,7 @@ public class PhoneInfoActivity extends BaseActivity {
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle("请稍后...");
             progressDialog.show();
-            new Thread(){
+            new Thread() {
                 @Override
                 public void run() {
                     insertDb();
