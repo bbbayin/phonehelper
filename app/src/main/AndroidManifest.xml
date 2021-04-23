@@ -22,6 +22,7 @@
 
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <application
+        android:extractNativeLibs="true"
         android:requestLegacyExternalStorage="true"
         android:name=".application.MyApplication"
         android:allowBackup="true"
@@ -179,6 +180,7 @@
             android:launchMode="singleTask"/>
         <activity android:name=".activity.SetSecretInfoActivity" />
         <activity android:name=".activity.ImageViewerActivity" />
+        <activity android:name=".activity.RecordListActivity" />
 
         <provider
             android:authorities="com.mob.sms.fileprovider2"

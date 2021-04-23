@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <RelativeLayout
+        android:id="@+id/sms_single_send_switch"
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:layout_marginTop="10dp">
@@ -135,6 +136,7 @@
 
         <LinearLayout
             android:id="@+id/sms_fscs_rl"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:gravity="center_vertical"
@@ -174,6 +176,8 @@
 
 
     <RelativeLayout
+        android:id="@+id/sms_multi_send_layout"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="54dp">
 

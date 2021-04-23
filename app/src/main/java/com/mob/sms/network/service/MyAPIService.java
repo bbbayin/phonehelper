@@ -3,6 +3,7 @@ package com.mob.sms.network.service;
 import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.ChannelChargeBean;
 import com.mob.sms.bean.CloudPermissionBean;
+import com.mob.sms.bean.HomeFuncBean;
 import com.mob.sms.bean.UpdateBean;
 import com.mob.sms.network.bean.AuthoLoginBean;
 import com.mob.sms.network.bean.BaseBean;
@@ -252,4 +253,16 @@ public interface MyAPIService {
     @POST("prod-api/restApi/market/channelName")
     Observable<BaseResponse<ChannelChargeBean>> getMarketCharge(@Query("channelName")String channel);
 
+    //获取首页功能列表 status用来显示隐藏功能 0隐藏 1显示
+    @POST("prod-api/restApi/setting/getSetting")
+    Observable<BaseResponse<List<HomeFuncBean>>> getHomeSetting();
+
+    // 获取功能隐藏项目设置 status=1显示 0隐藏
+    //1拨打电话 2批量拨打 3发送短信
+    @POST("prod-api/restApi/setting/getHideSetting")
+    Observable<BaseResponse<List<HomeFuncBean>>> getHiddenSetting(@Query("type")int type);
+
+    // prod-api/restApi/setting/getOneDial
+    @POST("prod-api/restApi/setting/getOneDial")
+    Observable<BaseResponse<Object>> getOneDialTimes();
 }

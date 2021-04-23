@@ -246,7 +246,6 @@ public class MineFragment extends BaseFragment {
                 //APP Key：1166dd0fd38327bb8f4da43276b8865f
                 //审核通过
                 Tencent instance = Tencent.createInstance("101924228", mActivity);
-                QzoneShare mTencent = new QzoneShare(mActivity, new QQToken("1166dd0fd38327bb8f4da43276b8865f"));
                 final Bundle params = new Bundle();
                 params.putInt(QzoneShare.SHARE_TO_QZONE_KEY_TYPE, QzoneShare.SHARE_TO_QZONE_TYPE_IMAGE_TEXT);
                 params.putString(QzoneShare.SHARE_TO_QQ_TITLE, mShareInfo.title);//必填
@@ -279,19 +278,73 @@ public class MineFragment extends BaseFragment {
             }
 
             @Override
-            public void qrcode() {
+            public void wechat() {
                 if (mShareInfo != null) {
-                    Intent intent = new Intent(getContext(), ShareQrcodeActivity.class);
-                    intent.putExtra("url", mShareInfo.url);
-                    startActivity(intent);
+                    Glide.with(getContext()).load(mShareInfo.logo)
+                            .listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    ToastUtil.show("图片加载失败");
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    WXWebpageObject obj = new WXWebpageObject();
+                                    obj.webpageUrl = mShareInfo.url;
+                                    WXMediaMessage msg = new WXMediaMessage();
+                                    msg.title = mShareInfo.title;
+                                    msg.description = mShareInfo.content;
+                                    msg.mediaObject = obj;
+                                    Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565);
+                                    Canvas canvas = new Canvas(bitmap);
+                                    resource.setBounds(0,0,200,200);
+                                    resource.draw(canvas);
+                                    msg.thumbData = Utils.bmpToByteArray(bitmap, true);
+                                    SendMessageToWX.Req req = new SendMessageToWX.Req();
+                                    req.message = msg;
+                                    req.scene = SendMessageToWX.Req.WXSceneSession;
+                                    req.transaction = String.valueOf(System.currentTimeMillis());
+                                    MyApplication.wxApi.sendReq(req);
+                                    return false;
+                                }
+                            }).submit();
                 }
             }
 
             @Override
-            public void copyUrl() {
+            public void qqChat() {
                 if (mShareInfo != null) {
-                    ToastUtil.show("已复制链接");
-                    copyContentToClipboard(mShareInfo.url, getContext());
+                    Tencent instance = Tencent.createInstance("101924228", mActivity);
+                    final Bundle params = new Bundle();
+                    params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_DEFAULT);
+                    params.putString(QzoneShare.SHARE_TO_QQ_TITLE, mShareInfo.title);//必填
+                    params.putString(QzoneShare.SHARE_TO_QQ_SUMMARY, mShareInfo.content);//选填
+                    params.putString(QzoneShare.SHARE_TO_QQ_TARGET_URL, mShareInfo.url);//必填
+                    ArrayList<String> images = new ArrayList<>();
+                    images.add(mShareInfo.logo);
+                    params.putStringArrayList(QzoneShare.SHARE_TO_QQ_IMAGE_URL, images);
+                    instance.shareToQQ(mActivity, params, new IUiListener() {
+                        @Override
+                        public void onComplete(Object o) {
+
+                        }
+
+                        @Override
+                        public void onError(UiError uiError) {
+
+                        }
+
+                        @Override
+                        public void onCancel() {
+
+                        }
+
+                        @Override
+                        public void onWarning(int i) {
+
+                        }
+                    });
                 }
             }
         });

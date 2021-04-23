@@ -1,6 +1,7 @@
 package com.mob.sms.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mob.sms.R;
+import com.mob.sms.activity.RecordListActivity;
 import com.mob.sms.network.bean.CallRecordBean;
 import com.mob.sms.network.bean.HistoryFeedBackBean;
 import com.mob.sms.network.bean.RecordBean;
@@ -58,19 +60,20 @@ public class BhjlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         VHolder vHolder = (VHolder) viewHolder;
-        vHolder.time.setText(mDatas.get(position).createTime);
-        vHolder.time2.setText(mDatas.get(position).createTime);
-        if ("-1".equals(mDatas.get(position).status)) {
+        CallRecordBean.DataBean.RowsBean rowsBean = mDatas.get(position);
+        vHolder.time.setText(rowsBean.createTime);
+        vHolder.time2.setText(rowsBean.createTime);
+        if ("-1".equals(rowsBean.status)) {
             vHolder.state.setText("未接通");
             vHolder.state.setTextColor(Color.parseColor("#00C296"));
             vHolder.call.setBackgroundResource(R.drawable.round_36_green);
             vHolder.call.setText("立即拨打");
-        } else if ("0".equals(mDatas.get(position).status)) {
+        } else if ("0".equals(rowsBean.status)) {
             vHolder.state.setText("已暂停");
             vHolder.state.setTextColor(Color.parseColor("#FFA439"));
             vHolder.call.setBackgroundResource(R.drawable.round_36_yellow);
             vHolder.call.setText("继续拨打");
-        } else if("1".equals(mDatas.get(position).status)){
+        } else if("1".equals(rowsBean.status)){
             vHolder.state.setText("已拨打");
             vHolder.state.setTextColor(Color.parseColor("#A6A6A6"));
             vHolder.call.setBackgroundResource(R.drawable.round_36_red);
@@ -80,7 +83,7 @@ public class BhjlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             vHolder.select_iv.setVisibility(View.GONE);
         } else {
             vHolder.select_iv.setVisibility(View.VISIBLE);
-            vHolder.select_iv.setImageResource(mDatas.get(position).isSelect?R.mipmap.selected_icon:R.mipmap.unselected_icon);
+            vHolder.select_iv.setImageResource(rowsBean.isSelect?R.mipmap.selected_icon:R.mipmap.unselected_icon);
         }
 
         vHolder.root_ll.setOnClickListener(view -> {
@@ -93,6 +96,25 @@ public class BhjlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 mOnItemClickListener.jump(position);
             }
         });
+        final boolean isSingleCall = rowsBean.tels != null && rowsBean.tels.length() <= 11;
+        if (isSingleCall) {
+            vHolder.tvPhone.setText(rowsBean.tels);
+            vHolder.tvTimes.setText(String.format("%s次", rowsBean.successNum));
+        }else {
+            vHolder.tvPhone.setText("");
+        }
+
+        if (!isSingleCall) {
+            vHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, RecordListActivity.class);
+                    intent.putExtra("list", rowsBean.tels);
+                    mContext.startActivity(intent);
+
+                }
+            });
+        }
     }
 
     @Override
@@ -115,6 +137,10 @@ public class BhjlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView time2;
         @BindView(R.id.call)
         TextView call;
+        @BindView(R.id.tv_record_phone)
+        TextView tvPhone;
+        @BindView(R.id.tv_times)
+        TextView tvTimes;
         public VHolder(View view) {
             super(view);
             ButterKnife.bind(this, itemView);

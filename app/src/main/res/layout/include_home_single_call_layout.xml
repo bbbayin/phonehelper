@@ -251,7 +251,9 @@
         android:background="#e0e0e0" />
 
     <RelativeLayout
+        android:id="@+id/single_call_auto_finish_layout"
         android:layout_width="match_parent"
+        android:visibility="gone"
         android:layout_height="54dp">
 
         <ImageView

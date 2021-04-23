@@ -23,8 +23,8 @@ public class ShareDialog extends Dialog {
     public interface OnClickListener {
         void shareWx();
         void shareQQ();
-        void qrcode();
-        void copyUrl();
+        void wechat();
+        void qqChat();
     }
 
     public void setOnClickListener(OnClickListener onClickListener) {
@@ -46,10 +46,15 @@ public class ShareDialog extends Dialog {
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
-    @OnClick({R.id.wx_ll, R.id.qq_ll, R.id.qrcode_ll, R.id.copy_ll})
+    @OnClick({R.id.wx_ll, R.id.qq_ll, R.id.wx_wechat, R.id.qq_chat})
     public void onViewClicked(View view) {
         dismiss();
         switch (view.getId()) {
+            case R.id.wx_wechat:
+                if(mOnClickListener!=null){
+                    mOnClickListener.wechat();
+                }
+                break;
             case R.id.wx_ll:
                 if(mOnClickListener!=null){
                     mOnClickListener.shareWx();
@@ -60,14 +65,9 @@ public class ShareDialog extends Dialog {
                     mOnClickListener.shareQQ();
                 }
                 break;
-            case R.id.qrcode_ll:
+            case R.id.qq_chat:
                 if(mOnClickListener!=null){
-                    mOnClickListener.qrcode();
-                }
-                break;
-            case R.id.copy_ll:
-                if(mOnClickListener!=null){
-                    mOnClickListener.copyUrl();
+                    mOnClickListener.qqChat();
                 }
                 break;
         }

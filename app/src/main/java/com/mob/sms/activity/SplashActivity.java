@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -22,17 +23,21 @@ import com.mob.sms.R;
 import com.mob.sms.adapter.SplashBannerAdapter;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.bean.SplashBean;
+import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.network.bean.BaseResponse;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
 import com.youth.banner.Banner;
 import com.youth.banner.indicator.CircleIndicator;
+import com.youth.banner.util.LogUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import rx.functions.Action1;
 
 public class SplashActivity extends Activity {
     @BindView(R.id.banner)
@@ -41,7 +46,6 @@ public class SplashActivity extends Activity {
     ImageView mSkip;
     @BindView(R.id.welcome_rl)
     RelativeLayout mWelcomeRl;
-
 
 
     @Override
@@ -62,6 +66,17 @@ public class SplashActivity extends Activity {
             // 默认随机30
             SPUtils.put(SPConstant.SP_CALL_JGSZ, "15-30");
         }
+
+
+
+
+        RetrofitHelper.getApi().getOneDialTimes().subscribe(new Action1<BaseResponse<Object>>() {
+            @Override
+            public void call(BaseResponse<Object> objectBaseResponse) {
+                Log.d("xxx","单号拨打配置："+objectBaseResponse.data);
+            }
+        });
+
     }
 
     private void initView() {
@@ -93,11 +108,11 @@ public class SplashActivity extends Activity {
         }
     }
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            switch (msg.what){
+            switch (msg.what) {
                 case 0:
                     if (TextUtils.isEmpty(SPUtils.getString(SPConstant.SP_USER_TOKEN, ""))) {
                         startActivity(new Intent(SplashActivity.this, LoginActivity.class));

@@ -1,6 +1,7 @@
 package com.mob.sms.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
@@ -88,7 +89,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
 
     private String mType;
     private int mTotalCallTimes;//总拨打次数
-    private int mSendIndex;//当前拨打序列
+    private volatile int mSendIndex;//当前拨打序列
     private int mInterval;//拨打间隔
     private String mDsbdTime;//定时拨打
     private int mCountDownTime;//显示的倒计时时间
@@ -101,6 +102,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
     private TelephonyManager mTm;
     private String mSimCard;// 用的sim卡
     private String dialNumber;// 要拨打的电话
+    private boolean isOutCalling = false;// 是否已经拨出去电话，用此标志位拦截多次收到挂断广播执行下次拨号的问题
 
     //指定SIM卡拨打
     private String[] dualSimTypes = {"subscription", "Subscription",
@@ -231,6 +233,10 @@ public class AutoCallPhoneActivity extends BaseActivity {
     }
 
     private void nextCall(CallEvent event) {
+        if (!isOutCalling) return;
+        // 重置标志位
+        isOutCalling = false;
+
         if (isRandomInterval) {
             mInterval = Utils.generateRandomInterval();
         }
@@ -367,7 +373,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                     simType = SPUtils.getString(SPConstant.SP_SIM_CARD_TYPE, Constants.SIM_TYPE_SIM_1);
                 } else {
                     // 批量拨打类型
-                    simType = SPUtils.getString(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_MIX);
+                    simType = SPUtils.getString(SPConstant.SP_CALL_SKSZ, Constants.SIM_TYPE_SIM_1);
                 }
                 for (int i = 0; i < dualSimTypes.length; i++) {
                     //0代表卡1,1代表卡2
@@ -396,6 +402,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                     }
                 }
                 startActivity(intent);
+                isOutCalling = true;
                 // 停止计时
                 mHandler.removeMessages(0);
                 mHandler.removeMessages(1);
@@ -412,7 +419,8 @@ public class AutoCallPhoneActivity extends BaseActivity {
     private final int msg_single_call = 0;
     private final int msg_single_interval = 2;
 
-    private Handler mHandler = new Handler() {
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
@@ -426,7 +434,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                             sendEmptyMessageDelayed(msg_single_call, 1000);
                         } else {
                             mCountDownTime = mInterval;
-                            mSendIndex++;
+                            increaseIndex();
                             mNum.setText("(" + (mSendIndex + 1) + "/" + mTotalCallTimes + "次)");
                             mTime.setText("下一次拨打还需要" + mInterval + "s");
                             mTm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -445,7 +453,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
                             sendEmptyMessageDelayed(msg_multi_call, 1000);
                         } else {
                             mCountDownTime = mInterval;
-                            mSendIndex++;
+                            increaseIndex();
                             if (mSendIndex < mDatas.size()) {
                                 mMobile.setText(mDatas.get(mSendIndex).mobile);
                                 mNum.setText("(" + (mSendIndex + 1) + "/" + mDatas.size() + "联系人)");
@@ -519,7 +527,7 @@ public class AutoCallPhoneActivity extends BaseActivity {
             case R.id.next:
                 if (mSendIndex + 1 < mDatas.size()) {
                     mCountDownTime = mInterval;
-                    mSendIndex++;
+                    increaseIndex();
                     mMobile.setText(mDatas.get(mSendIndex).mobile);
                     mNum.setText("(" + (mSendIndex + 1) + "/" + mDatas.size() + "联系人)");
                     mTime.setText("拨打下一个号码还需要" + mInterval + "s");
@@ -529,6 +537,10 @@ public class AutoCallPhoneActivity extends BaseActivity {
                 }
                 break;
         }
+    }
+
+    private void increaseIndex() {
+        mSendIndex++;
     }
 
     private Set<String> autoFinishSet = new HashSet<>();

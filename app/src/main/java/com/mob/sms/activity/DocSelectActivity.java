@@ -14,6 +14,8 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -107,6 +109,8 @@ public class DocSelectActivity extends BaseActivity {
         }
     }
 
+    private long lastTime = 0;
+
     private void initView() {
         fileType = getIntent().getStringExtra("type");
         mDocAdapter = new DocAdapter(this, mOriginDataList);
@@ -127,6 +131,17 @@ public class DocSelectActivity extends BaseActivity {
             }
         });
 
+        liveData.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                long l = System.currentTimeMillis();
+                if (l - lastTime > 1000) {
+                    mDocAdapter.notifyDataSetChanged();
+                    lastTime = l;
+                }
+            }
+        });
+
         // 遍历文件
         boolean sdCardExist = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
         if (sdCardExist) {
@@ -140,17 +155,17 @@ public class DocSelectActivity extends BaseActivity {
                 @Override
                 public void run() {
                     while (true) {
-                        int size = mOriginDataList.size();
-                        if (lastSize == size) {
+                        if (System.currentTimeMillis() - lastTime > 5000) {
                             mHandler.sendEmptyMessageDelayed(0, 100);
+                            this.interrupt();
                             break;
-                        } else {
-                            lastSize = size;
-                            try {
+                        }
+                        try {
+                            if (!isInterrupted()) {
                                 sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
                             }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -159,6 +174,8 @@ public class DocSelectActivity extends BaseActivity {
             System.out.println("目录不存在。。。");
         }
     }
+
+    private MutableLiveData<Boolean> liveData = new MutableLiveData<Boolean>();
 
     @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler() {
@@ -189,6 +206,7 @@ public class DocSelectActivity extends BaseActivity {
                         } else {
                             try {
                                 addFileToList(fileType, f);
+                                liveData.postValue(true);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

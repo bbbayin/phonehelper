@@ -39,9 +39,9 @@ import com.mob.sms.base.BaseFragment;
 import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.ChannelChargeBean;
 import com.mob.sms.bean.CloudPermissionBean;
+import com.mob.sms.bean.HomeFuncBean;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
-import com.mob.sms.db.DbHelper;
 import com.mob.sms.db.SmsContactTable;
 import com.mob.sms.dialog.DocImportDialog;
 import com.mob.sms.dialog.ImportDialog;
@@ -151,6 +151,26 @@ public class HomeFragment extends BaseFragment {
     ImageView ivClearSmsImportPhone;
     @BindView(R.id.banner)
     Banner banner;
+    @BindView(R.id.top1_ll)
+    View singleCallBtn;
+    @BindView(R.id.top2_ll)
+    View multiCallBtn;
+    @BindView(R.id.top3_ll)
+    View smsSendBtn;
+    @BindView(R.id.home_error_layout)
+    View homeErrorLayout;
+    @BindView(R.id.home_tv_error_msg)
+    TextView tvErrorMsg;
+    @BindView(R.id.single_call_auto_finish_layout)
+    View singleCallSwitchLayout;// 单号自动挂断开关
+    @BindView(R.id.multi_call_auto_finish_layout)
+    View multiCallSwitchLayout;// 批量拨号自动挂断开关
+    @BindView(R.id.sms_multi_send_layout)
+    View smsMultiSendSwitch;// 批量发送短信开关
+    @BindView(R.id.sms_fscs_rl)
+    View smsSendTimesLayout;// 发送短信次数设置
+    @BindView(R.id.sms_single_send_switch)
+    View smsSingleSendSwitch;// 单号发送开关
 
     private final int REQUEST_CODE_TAB1_SRHM = 1;
     private final int REQUEST_CODE_TAB1_CALL_TYPE = 2;
@@ -183,6 +203,117 @@ public class HomeFragment extends BaseFragment {
 
                     }
                 });
+        // 3大功能隐藏配置
+        RetrofitHelper.getApi().getHomeSetting().subscribe(new Action1<BaseResponse<List<HomeFuncBean>>>() {
+            @Override
+            public void call(BaseResponse<List<HomeFuncBean>> response) {
+                if (response != null) {
+                    if (response.code == 200 && response.data != null) {
+                        int activeId = -1;
+                        homeErrorLayout.setVisibility(View.GONE);
+                        for (HomeFuncBean config : response.data) {
+                            // 获取每个功能的隐藏开关配置
+                            initHiddenSetting(config.id);
+
+                            switch (config.id) {
+                                case 1:// 单号
+                                    if (TextUtils.equals(config.status, "1")) {
+                                        singleCallBtn.setVisibility(View.VISIBLE);
+                                        activeId = 1;
+                                        // 获取隐藏配置
+
+                                    } else {
+                                        singleCallBtn.setVisibility(View.GONE);
+                                        bddh_ll.setVisibility(View.GONE);
+                                    }
+                                    break;
+                                case 2:// 批量
+                                    if (TextUtils.equals(config.status, "1")) {
+                                        multiCallBtn.setVisibility(View.VISIBLE);
+                                        activeId = (activeId < 0 ? 2 : activeId);
+                                    } else {
+                                        multiCallBtn.setVisibility(View.GONE);
+                                        plbd_ll.setVisibility(View.GONE);
+                                    }
+                                    break;
+                                case 3:// 短信
+                                    if (TextUtils.equals(config.status, "1")) {
+                                        smsSendBtn.setVisibility(View.VISIBLE);
+                                        activeId = (activeId < 0 ? 3 : activeId);
+                                    } else {
+                                        smsSendBtn.setVisibility(View.GONE);
+                                        dxds_ll.setVisibility(View.GONE);
+                                    }
+                                    break;
+                            }
+                        }
+                        selectFunc(activeId);
+                    } else {
+                        // error
+                        errorLayout(response.msg);
+                    }
+                } else {
+                    //error
+                    errorLayout(response.msg);
+                }
+            }
+        });
+    }
+
+    /**
+     * 隐藏开关
+     * @param type
+     */
+    private void initHiddenSetting(final int type) {
+        RetrofitHelper.getApi().getHiddenSetting(type).subscribe(new Action1<BaseResponse<List<HomeFuncBean>>>() {
+            @Override
+            public void call(BaseResponse<List<HomeFuncBean>> response) {
+                if (response != null && response.code == 200) {
+                    for(HomeFuncBean bean : response.data) {
+                        // 3处配置，自动挂断，发送短信次数，批量发送短信
+                        if (bean.type == 1 || bean.type == 2) {// 单号就一个开关
+                            showSettings(bean.type, TextUtils.equals(bean.status, "1"), false);
+                        }else {
+                            // 短信配置
+                            if (bean.id == 1) {
+                                // 发送次数
+                                smsSendTimesLayout.setVisibility(TextUtils.equals(bean.status, "1")? View.VISIBLE: View.GONE);
+                            }else {
+                                // 批量发送
+                                smsMultiSendSwitch.setVisibility(TextUtils.equals(bean.status, "1")? View.VISIBLE: View.GONE);
+                                smsSingleSendSwitch.setVisibility(TextUtils.equals(bean.status, "1")? View.VISIBLE: View.GONE);
+                            }
+                        }
+                    }
+                }else {
+                    // 隐藏
+                    showSettings(type, false, false);
+                }
+            }
+        });
+    }
+
+    /**
+     * 隐藏自动挂断，发送次数，批量发送短信等功能
+     * @param type
+     */
+    private void showSettings(int type, boolean show1, boolean show2) {
+        if (type == 1) {
+            singleCallSwitchLayout.setVisibility(show1?View.VISIBLE: View.GONE);
+        }else if (type ==2) {
+            multiCallSwitchLayout.setVisibility(show1?View.VISIBLE: View.GONE);
+        }
+    }
+
+    private void errorLayout(String errorMsg) {
+        homeErrorLayout.setVisibility(View.VISIBLE);
+        tvErrorMsg.setText(errorMsg);
+        singleCallBtn.setVisibility(View.GONE);
+        multiCallBtn.setVisibility(View.GONE);
+        smsSendBtn.setVisibility(View.GONE);
+        dxds_ll.setVisibility(View.GONE);
+        plbd_ll.setVisibility(View.GONE);
+        bddh_ll.setVisibility(View.GONE);
     }
 
     private void initBanner(List<BannerBean> list) {
@@ -287,15 +418,43 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
+    private void selectFunc(int id) {
+        if (id == 1) {
+            bddh_iv.setBackgroundResource(R.mipmap.bddh_green);
+            plbd_iv.setBackgroundResource(R.mipmap.plbd_grey);
+            dxds_iv.setBackgroundResource(R.mipmap.dxds_grey);
+            bddh_ll.setVisibility(View.VISIBLE);
+            plbd_ll.setVisibility(View.GONE);
+            dxds_ll.setVisibility(View.GONE);
+        } else if (id == 2) {
+            bddh_iv.setBackgroundResource(R.mipmap.bddh_green);
+            plbd_iv.setBackgroundResource(R.mipmap.plbd_green);
+            dxds_iv.setBackgroundResource(R.mipmap.dxds_grey);
+            bddh_ll.setVisibility(View.GONE);
+            plbd_ll.setVisibility(View.VISIBLE);
+            dxds_ll.setVisibility(View.GONE);
+        } else if (id == 3) {
+            bddh_iv.setBackgroundResource(R.mipmap.bddh_grey);
+            plbd_iv.setBackgroundResource(R.mipmap.plbd_grey);
+            dxds_iv.setBackgroundResource(R.mipmap.dxds_green);
+            bddh_ll.setVisibility(View.GONE);
+            plbd_ll.setVisibility(View.GONE);
+            dxds_ll.setVisibility(View.VISIBLE);
+        }
+    }
+
     @OnClick({R.id.top1_ll, R.id.top2_ll, R.id.top3_ll, R.id.txl_iv, R.id.dsbh_rl, R.id.bdcs_rl, R.id.bdjg_rl, R.id.bdfs_rl,
             R.id.gd_switch, R.id.home_btn_single_call_now,
             R.id.hmdr_rl, R.id.skzs_rl, R.id.jgsz_rl, R.id.pl_switch_gd, R.id.pl_call_tv,
             R.id.dhfs_switch, R.id.sms_txl_iv, R.id.sms_dsfs_rl, R.id.sms_fscs_rl, R.id.plfs_switch,
             R.id.sms_hmdr_rl, R.id.sms_sksz_rl, R.id.sms_fsjg_rl, R.id.bjdx_rl, R.id.sms_ljfs, R.id.home_single_btn_clear_phone,
             R.id.home_single_btn_clear_time, R.id.multi_iv_clear_interval, R.id.sms_iv_clear_phone,
-            R.id.multi_btn_clear_phone, R.id.sms_btn_clear_phone})
+            R.id.multi_btn_clear_phone, R.id.sms_btn_clear_phone, R.id.home_btn_reload})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.home_btn_reload:
+                initData();
+                break;
             case R.id.sms_btn_clear_phone:// 清除短信导入号码
                 ivClearSmsImportPhone.setVisibility(View.GONE);
                 mSmsHmdrTip.setText("");
@@ -422,11 +581,11 @@ public class HomeFragment extends BaseFragment {
                     FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
                         @Override
                         public void onResult(boolean free) {
-                            if (free){
+                            if (free) {
                                 Intent intent = new Intent(getContext(), SingleAutoTaskActivity.class);
                                 intent.putExtra(SingleAutoTaskActivity.KEY_TASK, SingleAutoTaskActivity.VALUE_TASK_DIAL);
                                 startActivity(intent);
-                            }else {
+                            } else {
                                 startActivity(new Intent(getContext(), VipActivity.class));
                             }
                         }
@@ -524,11 +683,11 @@ public class HomeFragment extends BaseFragment {
                     FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
                         @Override
                         public void onResult(boolean free) {
-                            if (free){
+                            if (free) {
                                 Intent intent = new Intent(getContext(), AutoCallPhoneActivity.class);
                                 intent.putExtra("type", "plbd");
                                 startActivity(intent);
-                            }else {
+                            } else {
                                 startActivity(new Intent(getContext(), VipActivity.class));
                             }
                         }
@@ -668,9 +827,9 @@ public class HomeFragment extends BaseFragment {
                 FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
                     @Override
                     public void onResult(boolean free) {
-                        if (free){
+                        if (free) {
                             toSmsSendActivity();
-                        }else {
+                        } else {
                             startActivity(new Intent(getContext(), VipActivity.class));
                         }
                     }
@@ -931,8 +1090,8 @@ public class HomeFragment extends BaseFragment {
         //短信定时
         if (sms_dhfs_open) {
             //单号发送
-            if (!TextUtils.isEmpty(mSmsMobileEt.getText().toString()) &&
-                    !TextUtils.isEmpty(mSmsFscsTip.getText().toString()) &&
+            boolean b = (smsSendTimesLayout.getVisibility() == View.VISIBLE && !TextUtils.isEmpty(mSmsFscsTip.getText().toString())) || smsSendTimesLayout.getVisibility() == View.GONE;
+            if (!TextUtils.isEmpty(mSmsMobileEt.getText().toString()) && b &&
                     !TextUtils.isEmpty(mBjdxTip.getText().toString())) {
                 mSmsLjfs.setBackgroundResource(R.drawable.round_36_green);
             } else {

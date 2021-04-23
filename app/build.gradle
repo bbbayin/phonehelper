@@ -7,10 +7,10 @@ android {
     defaultConfig {
         multiDexEnabled = true
         applicationId "com.mob.sms"
-        minSdkVersion 23
+        minSdkVersion 26
         targetSdkVersion 29
-        versionCode 117
-        versionName "1.1.7"
+        versionCode 119
+        versionName "1.1.9"
 
     }
 
@@ -27,6 +27,14 @@ android {
 
     signingConfigs {
         debug {
+            storeFile file("mob.jks")   //你的发布用keystore
+            storePassword "mob1216" //你的store密码
+            keyAlias "mobandsms"  //别名
+            keyPassword "mob1216"  //别名密码
+
+            //百度云Access Key fe205c344a4d4a2cae7fb8bb10dec20d    Secret Key 1af0a6a68be34c5985b456123721a4b1
+        }
+        release {
             storeFile file("mob.jks")   //你的发布用keystore
             storePassword "mob1216" //你的store密码
             keyAlias "mobandsms"  //别名
@@ -99,7 +107,7 @@ dependencies {
 
     // butterknife∏
     implementation 'com.jakewharton:butterknife:10.0.0'
-    implementation files('libs/rt.jar')
+//    implementation files('libs/rt.jar')
 //    implementation files('libs/aa-poi-3.10-min-0.1.5.jar')
 //    implementation files('libs/aa-poi-ooxml-schemas-3.10-reduced-more-0.1.5.jar')
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
@@ -154,7 +162,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'com.android.support:design:29.0.0'
-//    provided files ('/Library/Java/JavaVirtualMachines/jdk1.8.0_281.jdk/Contents/Home/jre/lib/rt.jar')
+    implementation group: 'androidx.lifecycle', name: 'lifecycle-livedata', version: '2.0.0'
+
+
 }
 
 repositories {
