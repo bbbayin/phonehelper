@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mob.sms.DialKeyBoard;
 import com.mob.sms.R;
 import com.mob.sms.activity.VipActivity;
 import com.mob.sms.adapter.ContactsAdapter2;
@@ -34,6 +35,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class TxlFragment extends BaseFragment {
     @BindView(R.id.recyclerview)
@@ -202,5 +204,13 @@ public class TxlFragment extends BaseFragment {
         }
         return mSortList;
 
+    }
+
+    @OnClick({R.id.btn_toggle_dial_keyboard})
+    public void onClick(View view) {
+        int id = view.getId();
+        if (id == R.id.btn_toggle_dial_keyboard) {
+            new DialKeyBoard().show(getChildFragmentManager(), "dialkey");
+        }
     }
 }

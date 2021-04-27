@@ -2,6 +2,7 @@ package com.mob.sms.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
@@ -334,6 +335,17 @@ public class HomeFragment extends BaseFragment {
                                     .error(R.drawable.ic_launcher_background)
                                     .placeholder(R.drawable.ic_prompt_loading))
                             .into(holder.image);
+                    if (!TextUtils.isEmpty(data.url)) {
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setData(Uri.parse(data.url));
+                                startActivity(intent);
+                            }
+                        });
+
+                    }
                 }
             });
             banner.setDatas(list);

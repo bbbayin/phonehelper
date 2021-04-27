@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -14,8 +15,10 @@ import androidx.annotation.Nullable;
 import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.bean.CloudPermissionBean;
+import com.mob.sms.bean.HomeFuncBean;
 import com.mob.sms.dialog.CheckTipDialog;
 import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.network.bean.BaseResponse;
 import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
@@ -41,6 +44,8 @@ public class CallTypeActivity extends BaseActivity {
     RelativeLayout mSimRl2;
     @BindView(R.id.divider2)
     View mDivider2;
+    @BindView(R.id.ysh_rl)
+    View secretTypeLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,6 +78,21 @@ public class CallTypeActivity extends BaseActivity {
             mGouIv2.setVisibility(View.GONE);
             mGouIv3.setVisibility(View.VISIBLE);
         }
+
+        initData();
+    }
+
+    private void initData() {
+        RetrofitHelper.getApi().getThreadInfo().subscribe(new Action1<BaseResponse<HomeFuncBean>>() {
+            @Override
+            public void call(BaseResponse<HomeFuncBean> response) {
+                if (response != null && response.data != null && TextUtils.equals(response.data.status, "1")) {
+                    secretTypeLayout.setVisibility(View.VISIBLE);
+                } else {
+                    secretTypeLayout.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     @OnClick({R.id.back, R.id.sim_rl, R.id.sim_rl2, R.id.ysh_rl})
@@ -131,12 +151,12 @@ public class CallTypeActivity extends BaseActivity {
                         if (permissionBean != null) {
                             if ("200".equals(permissionBean.code)) {
                                 enableCloudCall();
-                            }else {
+                            } else {
                                 CheckTipDialog dialog = new CheckTipDialog(CallTypeActivity.this);
                                 dialog.setContent(permissionBean.msg);
                                 dialog.show();
                             }
-                        }else {
+                        } else {
                             CheckTipDialog dialog = new CheckTipDialog(CallTypeActivity.this);
                             dialog.setContent("隐私拨打不能使用，您还未购买套餐");
                             dialog.show();

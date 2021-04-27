@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -39,11 +40,14 @@ import com.mob.sms.activity.UserInfoActivity;
 import com.mob.sms.activity.VipActivity;
 import com.mob.sms.application.MyApplication;
 import com.mob.sms.base.BaseFragment;
+import com.mob.sms.bean.BannerBean;
 import com.mob.sms.debug.DebugActivity;
 import com.mob.sms.dialog.ShareDialog;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.ShareBean;
 import com.mob.sms.network.bean.UserInfoBean;
+import com.mob.sms.rx.BaseObserver;
+import com.mob.sms.rx.MobError;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
@@ -60,6 +64,7 @@ import com.tencent.tauth.Tencent;
 import com.tencent.tauth.UiError;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,6 +89,8 @@ public class MineFragment extends BaseFragment {
     ProgressBar mProgressbar;
     @BindView(R.id.me_vip_info_layout)
     View vipLayout;
+    @BindView(R.id.mine_iv_ads)
+    ImageView ivAds;
 
     private ShareBean.DataBean mShareInfo;
     private UserInfoBean.DataBean mUserInfo;
@@ -106,8 +113,41 @@ public class MineFragment extends BaseFragment {
 //        Glide.with(getContext()).load(SPUtils.getString(SPConstant.SP_USER_HEAD, "")).into(mHead);
         getShareInfo();
         getUserInfo();
+        getAds();
         isCreated = true;
         return view;
+    }
+
+    private void getAds() {
+        RetrofitHelper.getApi().getImage(2)
+                .subscribe(new BaseObserver<List<BannerBean>>() {
+                    @Override
+                    protected void onSuccess(List<BannerBean> list) {
+                        initBanner(list);
+                    }
+
+                    @Override
+                    protected void onFailed(MobError error) {
+
+                    }
+                });
+    }
+
+    private void initBanner(List<BannerBean> list) {
+        if (list != null && !list.isEmpty()) {
+            Glide.with(this).load(list.get(0).img).into(ivAds);
+            String url = list.get(0).url;
+            if (!TextUtils.isEmpty(url)) {
+                ivAds.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(url));
+                        startActivity(intent);
+                    }
+                });
+            }
+        }
     }
 
     private void getShareInfo() {
@@ -225,7 +265,7 @@ public class MineFragment extends BaseFragment {
                                 Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565);
                                 Canvas canvas = new Canvas(bitmap);
 //                                canvas.drawColor(Color.BLUE);
-                                resource.setBounds(0,0,200,200);
+                                resource.setBounds(0, 0, 200, 200);
                                 resource.draw(canvas);
                                 msg.thumbData = Utils.bmpToByteArray(bitmap, true);
                                 SendMessageToWX.Req req = new SendMessageToWX.Req();
@@ -298,7 +338,7 @@ public class MineFragment extends BaseFragment {
                                     msg.mediaObject = obj;
                                     Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565);
                                     Canvas canvas = new Canvas(bitmap);
-                                    resource.setBounds(0,0,200,200);
+                                    resource.setBounds(0, 0, 200, 200);
                                     resource.draw(canvas);
                                     msg.thumbData = Utils.bmpToByteArray(bitmap, true);
                                     SendMessageToWX.Req req = new SendMessageToWX.Req();

@@ -265,4 +265,8 @@ public interface MyAPIService {
     // prod-api/restApi/setting/getOneDial
     @POST("prod-api/restApi/setting/getOneDial")
     Observable<BaseResponse<Object>> getOneDialTimes();
+
+    //获取第三方接口信息,status用于显示隐藏=0隐藏 1显示
+    @POST("prod-api/restApi/third/getThirdInfo")
+    Observable<BaseResponse<HomeFuncBean>> getThreadInfo();
 }

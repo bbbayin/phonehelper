@@ -429,6 +429,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="15dp"
                 android:background="#EFEFEF"/>
+
+            <ImageView
+                android:id="@+id/mine_iv_ads"
+                android:layout_width="match_parent"
+                android:scaleType="centerCrop"
+                android:layout_height="120dp"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

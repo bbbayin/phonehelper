@@ -25,6 +25,9 @@ import com.mob.sms.rx.BaseObserver;
 import com.mob.sms.rx.MobError;
 import com.mob.sms.utils.AppManager;
 import com.mob.sms.utils.ToastUtil;
+import com.youth.banner.util.LogUtils;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -106,12 +109,17 @@ public class UpdateService extends IntentService {
             request.setTitle("隐藏拨号更新");
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
             request.allowScanningByMediaScanner();
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "apks");
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, getApkName());
             long enqueue = downloadManager.enqueue(request);
 
             listen(enqueue);
         }
 
+    }
+
+    @NotNull
+    private String getApkName() {
+        return String.format("隐藏拨号_%s.apk", BuildConfig.VERSION_NAME);
     }
 
     private void listen(final long id) {
@@ -132,6 +140,7 @@ public class UpdateService extends IntentService {
                             startActivity(setting);
                         }else {
                             Uri fileUri = downloadManager.getUriForDownloadedFile(id);
+                            LogUtils.d("下载文件:"+fileUri.toString());
                             installAPK(fileUri);
                         }
                     }
