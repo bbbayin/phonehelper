@@ -58,8 +58,8 @@ public class FreeCheckUtils {
 //                            intent.putExtra("type", "dhbd");
 //                            activity.startActivity(intent);
                         } else if ("500".equals(permissionBean.code)) {
-//                            ToastUtil.show(permissionBean.msg);
-                            callback.onResult(true);
+                            ToastUtil.show(permissionBean.msg);
+                            callback.onResult(false);
                         } else {
                             if (callback != null) {
                                 callback.onResult(false);

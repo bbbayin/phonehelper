@@ -47,6 +47,7 @@
         <TextView
             android:id="@+id/dial_sim_secret"
             style="@style/DialBtnText"
+            android:visibility="gone"
             android:text="隐私拨号" />
 
         <View

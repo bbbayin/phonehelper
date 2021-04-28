@@ -52,6 +52,7 @@
             android:background="#e0e0e0"/>
 
         <TextView
+            android:id="@+id/tv_max_call_times"
             android:layout_width="wrap_content"
             android:textColor="@color/color_33c197"
             android:layout_gravity="center_horizontal"

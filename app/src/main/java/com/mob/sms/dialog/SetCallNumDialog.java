@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.mob.sms.R;
+import com.mob.sms.config.GlobalConfig;
 import com.zyyoona7.wheel.WheelView;
 
 import java.util.ArrayList;
@@ -28,6 +29,8 @@ public class SetCallNumDialog extends Dialog {
     WheelView mWheelView;
     @BindView(R.id.title)
     TextView mTitle;
+    @BindView(R.id.tv_max_call_times)
+    TextView mTvMaxCall;
 
     private int mSelectNum = 1;
     private OnClickListener mOnClickListener;
@@ -57,7 +60,12 @@ public class SetCallNumDialog extends Dialog {
         mTitle.setText("call".equals(type)?"拨打次数":"发送次数");
 
         List<Integer> list = new ArrayList<>();
-        for (int i = 1; i <= 100; i++) {
+        int max = 100;
+        if ("call".equals(type)) {
+            mTvMaxCall.setText(String.format("最多拨打%s次", GlobalConfig.oneDialTimes));
+            max = GlobalConfig.oneDialTimes;
+        }
+        for (int i = 1; i <= max; i++) {
             list.add(i);
         }
         mWheelView.setData(list);

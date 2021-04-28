@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.telecom.TelecomManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +24,13 @@ import com.mob.sms.activity.VipActivity;
 import com.mob.sms.adapter.ContactsAdapter2;
 import com.mob.sms.base.BaseFragment;
 import com.mob.sms.bean.ContactsBean;
+import com.mob.sms.bean.HomeFuncBean;
 import com.mob.sms.contacts.CharacterParser;
 import com.mob.sms.contacts.PinyinComparator;
 import com.mob.sms.contacts.SideBar;
 import com.mob.sms.contacts.SortModel;
+import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.network.bean.BaseResponse;
 import com.mob.sms.utils.FreeCheckUtils;
 
 import java.util.ArrayList;
@@ -36,6 +40,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import rx.functions.Action1;
 
 public class TxlFragment extends BaseFragment {
     @BindView(R.id.recyclerview)

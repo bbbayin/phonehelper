@@ -5,4 +5,6 @@ public class GlobalConfig {
     public static boolean isSingleCallSwitchBtnShow = false;
     // 批量拨打自动开关
     public static boolean isMultiCallSwitchBtnShow = false;
+
+    public static int oneDialTimes;
 }

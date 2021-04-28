@@ -119,7 +119,7 @@ public class MineFragment extends BaseFragment {
     }
 
     private void getAds() {
-        RetrofitHelper.getApi().getImage(2)
+        RetrofitHelper.getApi().getImage(4)
                 .subscribe(new BaseObserver<List<BannerBean>>() {
                     @Override
                     protected void onSuccess(List<BannerBean> list) {

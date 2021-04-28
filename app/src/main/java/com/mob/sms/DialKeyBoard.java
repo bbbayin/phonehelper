@@ -23,7 +23,9 @@ import com.mob.sms.activity.SetSecretInfoActivity;
 import com.mob.sms.activity.VipActivity;
 import com.mob.sms.auto.SingleAutoTaskActivity;
 import com.mob.sms.bean.CloudPermissionBean;
+import com.mob.sms.bean.HomeFuncBean;
 import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.network.bean.BaseResponse;
 import com.mob.sms.pns.BaiduPnsServiceImpl;
 import com.mob.sms.utils.FreeCheckUtils;
 import com.mob.sms.utils.MyItemDecoration;
@@ -46,6 +48,7 @@ public class DialKeyBoard extends BottomSheetDialogFragment implements View.OnCl
 
     private static final List<DialKeyBean> keys = new ArrayList<>();
     private TextView tvInput;
+    private View secretLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -71,7 +74,9 @@ public class DialKeyBoard extends BottomSheetDialogFragment implements View.OnCl
         recyclerView.setAdapter(adapter);
         rootView.findViewById(R.id.dial_sim_1).setOnClickListener(this);
         rootView.findViewById(R.id.dial_sim_2).setOnClickListener(this);
-        rootView.findViewById(R.id.dial_sim_secret).setOnClickListener(this);
+        secretLayout = rootView.findViewById(R.id.dial_sim_secret);
+        secretLayout.setOnClickListener(this);
+
         return rootView;
     }
 
@@ -372,6 +377,17 @@ public class DialKeyBoard extends BottomSheetDialogFragment implements View.OnCl
         keys.get(10).number = "0";
         keys.get(10).type = DialKeyBean.TYPE_ZERO;
         keys.get(11).type = DialKeyBean.TYPE_DELETE;
+
+        RetrofitHelper.getApi().getThreadInfo().subscribe(new Action1<BaseResponse<HomeFuncBean>>() {
+            @Override
+            public void call(BaseResponse<HomeFuncBean> response) {
+                if (response != null && response.data != null && TextUtils.equals(response.data.status, "1")) {
+                    secretLayout.setVisibility(View.VISIBLE);
+                } else {
+                    secretLayout.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     private static class DialKeyBean {

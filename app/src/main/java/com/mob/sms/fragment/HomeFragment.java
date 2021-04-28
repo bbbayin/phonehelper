@@ -263,7 +263,7 @@ public class HomeFragment extends BaseFragment {
 
     /**
      * 隐藏开关
-     * @param type
+     * @param type 1：单号，2：批量，3：短信
      */
     private void initHiddenSetting(final int type) {
         RetrofitHelper.getApi().getHiddenSetting(type).subscribe(new Action1<BaseResponse<List<HomeFuncBean>>>() {
@@ -276,7 +276,7 @@ public class HomeFragment extends BaseFragment {
                             showSettings(bean.type, TextUtils.equals(bean.status, "1"), false);
                         }else {
                             // 短信配置
-                            if (bean.id == 1) {
+                            if (bean.id == 4) {
                                 // 发送次数
                                 smsSendTimesLayout.setVisibility(TextUtils.equals(bean.status, "1")? View.VISIBLE: View.GONE);
                             }else {

@@ -26,11 +26,14 @@ import com.mob.sms.BuildConfig;
 import com.mob.sms.R;
 import com.mob.sms.adapter.ViewPagerAdapter;
 import com.mob.sms.base.BaseActivity;
+import com.mob.sms.bean.OneDialBean;
+import com.mob.sms.config.GlobalConfig;
 import com.mob.sms.fragment.ContactsFragment;
 import com.mob.sms.fragment.HomeFragment;
 import com.mob.sms.fragment.MineFragment;
 import com.mob.sms.fragment.RecordFragment;
 import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.network.bean.BaseResponse;
 import com.mob.sms.rx.ExitEvent;
 import com.mob.sms.rx.RxBus;
 import com.mob.sms.service.UpdateService;
@@ -50,6 +53,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 
 public class MainActivity extends BaseActivity {
     @BindView(R.id.viewPager)
@@ -133,6 +137,15 @@ public class MainActivity extends BaseActivity {
 
     private void initData() {
         RetrofitHelper.getApi().getAllMarket().subscribe();
+
+        RetrofitHelper.getApi().getOneDialTimes().subscribe(new Action1<BaseResponse<OneDialBean>>() {
+            @Override
+            public void call(BaseResponse<OneDialBean> response) {
+                if (response.code == 200) {
+                    GlobalConfig.oneDialTimes = response.data.endNum;
+                }
+            }
+        });
     }
 
     private void initBottomNavigationBar() {

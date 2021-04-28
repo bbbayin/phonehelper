@@ -22,7 +22,9 @@ import androidx.core.content.ContextCompat;
 import com.mob.sms.R;
 import com.mob.sms.adapter.SplashBannerAdapter;
 import com.mob.sms.base.BaseActivity;
+import com.mob.sms.bean.OneDialBean;
 import com.mob.sms.bean.SplashBean;
+import com.mob.sms.config.GlobalConfig;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.BaseResponse;
 import com.mob.sms.utils.SPConstant;
@@ -66,16 +68,6 @@ public class SplashActivity extends Activity {
             // 默认随机30
             SPUtils.put(SPConstant.SP_CALL_JGSZ, "15-30");
         }
-
-
-
-
-        RetrofitHelper.getApi().getOneDialTimes().subscribe(new Action1<BaseResponse<Object>>() {
-            @Override
-            public void call(BaseResponse<Object> objectBaseResponse) {
-                Log.d("xxx","单号拨打配置："+objectBaseResponse.data);
-            }
-        });
 
     }
 

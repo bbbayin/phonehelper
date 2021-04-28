@@ -26,16 +26,17 @@ public class ToastUtil {
         show(text, Toast.LENGTH_SHORT);
     }
 
-    public static void showCenterGravity(CharSequence text) {
-        showCenterGravity(text, Toast.LENGTH_SHORT);
-    }
+//    public static void showCenterGravity(CharSequence text) {
+//        showCenterGravity(text, Toast.LENGTH_SHORT);
+//    }
+//
+//    public static void showCenterGravity(CharSequence text, int duration) {
+//        Toast toast = show(text, duration);
+//        toast.setGravity(Gravity.CENTER, 0, 0);
+//    }
 
-    public static void showCenterGravity(CharSequence text, int duration) {
-        Toast toast = show(text, duration);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-    }
-
-    public static Toast show(CharSequence text, int duration) {
+    public static void show(CharSequence text, int duration) {
+        if (text == null) return;
         try {
             if (toast != null) {
                 toast.cancel();
@@ -45,7 +46,6 @@ public class ToastUtil {
         } catch (Exception e) {
 
         }
-        return toast;
     }
 
 }
