@@ -319,6 +319,7 @@ public class HomeFragment extends BaseFragment {
 
     private void initBanner(List<BannerBean> list) {
         if (list != null && !list.isEmpty()) {
+            banner.setVisibility(View.VISIBLE);
             banner.setAdapter(new BannerAdapter<BannerBean, BannerHolder>(list) {
                 @Override
                 public BannerHolder onCreateHolder(ViewGroup parent, int viewType) {
@@ -350,6 +351,8 @@ public class HomeFragment extends BaseFragment {
             });
             banner.setDatas(list);
             banner.start();
+        }else {
+            banner.setVisibility(View.GONE);
         }
     }
 
@@ -590,7 +593,7 @@ public class HomeFragment extends BaseFragment {
                         !TextUtils.isEmpty(mCallBdjgTv.getText().toString()) &&
                         !TextUtils.isEmpty(mCallBdfsTv.getText().toString())) {
 
-                    FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+                    FreeCheckUtils.check(getActivity(), FreeCheckUtils.isSecretCall(), new FreeCheckUtils.OnCheckCallback() {
                         @Override
                         public void onResult(boolean free) {
                             if (free) {
@@ -692,7 +695,7 @@ public class HomeFragment extends BaseFragment {
             case R.id.pl_call_tv:
                 if (!TextUtils.isEmpty(mCallHmdrTip.getText().toString()) &&
                         !TextUtils.isEmpty(mCallJgszTip.getText().toString())) {
-                    FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+                    FreeCheckUtils.check(getActivity(), false, new FreeCheckUtils.OnCheckCallback() {
                         @Override
                         public void onResult(boolean free) {
                             if (free) {
@@ -836,7 +839,7 @@ public class HomeFragment extends BaseFragment {
                     Utils.jumpToPermissionsEditorActivity(getContext());
                     return;
                 }
-                FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+                FreeCheckUtils.check(getActivity(), false, new FreeCheckUtils.OnCheckCallback() {
                     @Override
                     public void onResult(boolean free) {
                         if (free) {

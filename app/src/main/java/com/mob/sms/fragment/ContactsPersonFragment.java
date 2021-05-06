@@ -117,7 +117,7 @@ public class ContactsPersonFragment extends BaseFragment {
 
             @Override
             public void call(int position) {
-                FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+                FreeCheckUtils.check(getActivity(),false, new FreeCheckUtils.OnCheckCallback() {
                     @Override
                     public void onResult(boolean free) {
                         if (free) {
@@ -134,7 +134,7 @@ public class ContactsPersonFragment extends BaseFragment {
 
             @Override
             public void sms(int position) {
-                FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+                FreeCheckUtils.check(getActivity(),false, new FreeCheckUtils.OnCheckCallback() {
                     @Override
                     public void onResult(boolean free) {
                         if (free) {

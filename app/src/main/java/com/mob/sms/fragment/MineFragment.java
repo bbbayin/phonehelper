@@ -44,6 +44,7 @@ import com.mob.sms.bean.BannerBean;
 import com.mob.sms.debug.DebugActivity;
 import com.mob.sms.dialog.ShareDialog;
 import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.network.bean.EnterpriseBean;
 import com.mob.sms.network.bean.ShareBean;
 import com.mob.sms.network.bean.UserInfoBean;
 import com.mob.sms.rx.BaseObserver;
@@ -70,6 +71,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class MineFragment extends BaseFragment {
@@ -91,6 +93,8 @@ public class MineFragment extends BaseFragment {
     View vipLayout;
     @BindView(R.id.mine_iv_ads)
     ImageView ivAds;
+    @BindView(R.id.qiye_rl)
+    View enterpriseLayout;
 
     private ShareBean.DataBean mShareInfo;
     private UserInfoBean.DataBean mUserInfo;
@@ -114,8 +118,25 @@ public class MineFragment extends BaseFragment {
         getShareInfo();
         getUserInfo();
         getAds();
+        getEnterpriseInfo();
         isCreated = true;
         return view;
+    }
+
+    private void getEnterpriseInfo() {
+        RetrofitHelper.getApi().getEnterpriseInfo()
+                .subscribe(new Action1<EnterpriseBean>() {
+                    @Override
+                    public void call(EnterpriseBean enterpriseBean) {
+                        if (enterpriseBean != null && enterpriseBean.data != null) {
+                            if (TextUtils.equals("0", enterpriseBean.data.status)) {
+                                enterpriseLayout.setVisibility(View.GONE);
+                            }else {
+                                enterpriseLayout.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+                });
     }
 
     private void getAds() {
@@ -135,6 +156,7 @@ public class MineFragment extends BaseFragment {
 
     private void initBanner(List<BannerBean> list) {
         if (list != null && !list.isEmpty()) {
+            ivAds.setVisibility(View.VISIBLE);
             Glide.with(this).load(list.get(0).img).into(ivAds);
             String url = list.get(0).url;
             if (!TextUtils.isEmpty(url)) {

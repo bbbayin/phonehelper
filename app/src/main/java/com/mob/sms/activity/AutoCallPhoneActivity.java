@@ -270,7 +270,8 @@ public class AutoCallPhoneActivity extends BaseActivity {
             mTotalCallTimes = mDatas.size();
             mMobile.setText(mDatas.get(mSendIndex).mobile);
             mTvProgress.setText("(" + 1 + "/" + mDatas.size() + "联系人)");
-            startCallCounter();
+
+            callPhone(mDatas.get(mSendIndex).mobile);
         }
     }
 

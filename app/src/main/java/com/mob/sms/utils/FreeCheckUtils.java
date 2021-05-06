@@ -1,6 +1,7 @@
 package com.mob.sms.utils;
 
 import android.app.Activity;
+import android.text.TextUtils;
 
 import com.mob.sms.BuildConfig;
 import com.mob.sms.bean.ChannelChargeBean;
@@ -13,10 +14,16 @@ import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class FreeCheckUtils {
-    public static void check(Activity activity, OnCheckCallback callback) {
-        checkPermission(activity, callback);
+
+    public static boolean isSecretCall() {
+        String sim = (String) SPUtils.get(SPConstant.SP_SIM_CARD_TYPE, "");
+        return TextUtils.equals(sim, Constants.SIM_TYPE_SECRET);
     }
-    private static void checkPermission(Activity activity, OnCheckCallback callback) {
+
+    public static void check(Activity activity,boolean isSecretCall, OnCheckCallback callback) {
+        checkPermission(activity,isSecretCall, callback);
+    }
+    private static void checkPermission(Activity activity, boolean isSecretCall, OnCheckCallback callback) {
         // 先判断渠道
         RetrofitHelper.getApi().getMarketCharge(BuildConfig.FLAVOR)
                 .subscribe(new Action1<BaseResponse<ChannelChargeBean>>() {
@@ -33,7 +40,7 @@ public class FreeCheckUtils {
 //                                    activity.startActivity(intent);
                                     break;
                                 default:
-                                    checkUserVip(activity, callback);
+                                    checkUserVip(activity, isSecretCall, callback);
                                     break;
                             }
                         }
@@ -42,7 +49,7 @@ public class FreeCheckUtils {
                 });
     }
 
-    private static void checkUserVip(Activity activity, OnCheckCallback callback) {
+    private static void checkUserVip(Activity activity,boolean isSecretCall, OnCheckCallback callback) {
         RetrofitHelper.getApi().cloudDial()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -58,8 +65,13 @@ public class FreeCheckUtils {
 //                            intent.putExtra("type", "dhbd");
 //                            activity.startActivity(intent);
                         } else if ("500".equals(permissionBean.code)) {
-                            ToastUtil.show(permissionBean.msg);
-                            callback.onResult(false);
+                            if (isSecretCall) {
+                                ToastUtil.show(permissionBean.msg);
+                                callback.onResult(false);
+                            }else {
+                                // 非隐私拨号不用拦截时间
+                                callback.onResult(true);
+                            }
                         } else {
                             if (callback != null) {
                                 callback.onResult(false);

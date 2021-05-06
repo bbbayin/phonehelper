@@ -146,6 +146,10 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
+
+        // TODO: 2021/4/30
+
+        RetrofitHelper.getApi().getNotifications().subscribe();
     }
 
     private void initBottomNavigationBar() {

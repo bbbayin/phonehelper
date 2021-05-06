@@ -1,30 +1,24 @@
 package com.mob.sms.activity;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
 import com.mob.sms.R;
 import com.mob.sms.adapter.SplashBannerAdapter;
-import com.mob.sms.base.BaseActivity;
-import com.mob.sms.bean.OneDialBean;
+import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.SplashBean;
-import com.mob.sms.config.GlobalConfig;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.BaseResponse;
 import com.mob.sms.utils.SPConstant;
@@ -32,7 +26,6 @@ import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
 import com.youth.banner.Banner;
 import com.youth.banner.indicator.CircleIndicator;
-import com.youth.banner.util.LogUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +41,8 @@ public class SplashActivity extends Activity {
     ImageView mSkip;
     @BindView(R.id.welcome_rl)
     RelativeLayout mWelcomeRl;
+    @BindView(R.id.splash_image)
+    ImageView launchImage;
 
 
     @Override
@@ -73,31 +68,51 @@ public class SplashActivity extends Activity {
 
     private void initView() {
         if (SPUtils.getBoolean(SPConstant.SP_SPLASH_WELCOME, false)) {
+            RetrofitHelper.getApi().getImage(1)
+                    .subscribe(new Action1<BaseResponse<List<BannerBean>>>() {
+                        @Override
+                        public void call(BaseResponse<List<BannerBean>> listBaseResponse) {
+                            if (listBaseResponse != null && listBaseResponse.data != null && !listBaseResponse.data.isEmpty()) {
+                                BannerBean imageBean = listBaseResponse.data.get(0);
+                                Glide.with(SplashActivity.this)
+                                        .load(imageBean.img)
+                                        .into(launchImage);
+                            }
+                        }
+                    });
             mWelcomeRl.setVisibility(View.VISIBLE);
             mBanner.setVisibility(View.GONE);
             mSkip.setVisibility(View.GONE);
-            mHandler.sendEmptyMessageDelayed(0, 2000);
+            mHandler.sendEmptyMessageDelayed(0, 3000);
         } else {
-            List<String> datas = new ArrayList<>();
-            datas.add("");
-            datas.add("");
-            datas.add("");
-            List<SplashBean> lists = new ArrayList<>();
-            lists.add(new SplashBean(R.mipmap.guide1, ""));
-            lists.add(new SplashBean(R.mipmap.guide2, ""));
-            lists.add(new SplashBean(R.mipmap.guide3, ""));
-            mBanner.setAdapter(new SplashBannerAdapter(this, datas, lists))
-                    .setIndicator(new CircleIndicator(this))
-                    .setIndicatorRadius(0).start();
 
+            RetrofitHelper.getApi().getImage(2)
+                    .subscribe(new Action1<BaseResponse<List<BannerBean>>>() {
+                        @Override
+                        public void call(BaseResponse<List<BannerBean>> response) {
+                            if (response != null && response.data!=null && !response.data.isEmpty()) {
+                                mWelcomeRl.setVisibility(View.GONE);
+                                initGuideBanner(response.data);
+                            }
+                        }
+                    });
             mSkip.setOnClickListener(view -> {
                 SPUtils.put(SPConstant.SP_SPLASH_WELCOME, true);
-                mWelcomeRl.setVisibility(View.VISIBLE);
-                mBanner.setVisibility(View.GONE);
-                mSkip.setVisibility(View.GONE);
-                mHandler.sendEmptyMessageDelayed(0, 2000);
+                mHandler.sendEmptyMessageDelayed(0, 500);
             });
         }
+    }
+
+    private void initGuideBanner(List<BannerBean> list) {
+        ArrayList<String> data = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            data.add(list.get(i).img);
+        }
+        // 第一次启动
+        mBanner.setAdapter(new SplashBannerAdapter(this, data, list))
+                .setIndicator(new CircleIndicator(this))
+                .setIndicatorRadius(0).start();
+
     }
 
     private Handler mHandler = new Handler() {

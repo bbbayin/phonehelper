@@ -36,8 +36,7 @@ public class EnterpriseActivity extends BaseActivity {
     }
 
     private void getData() {
-        RetrofitHelper.getApi().getEnterpriseInfo().subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+        RetrofitHelper.getApi().getEnterpriseInfo()
                 .subscribe(enterpriseBean -> {
                     if (enterpriseBean != null && enterpriseBean.code == 200) {
                         mEnterpriseBean = enterpriseBean.data;
@@ -57,9 +56,8 @@ public class EnterpriseActivity extends BaseActivity {
             case R.id.upgrade:
                 try {
                     if (mEnterpriseBean != null && !TextUtils.isEmpty(mEnterpriseBean.link)) {
-                        Uri uri = Uri.parse(mEnterpriseBean.link);
                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(uri);
+                        intent.setData(Uri.parse(mEnterpriseBean.link));
                         startActivity(intent);
                     }
                 } catch (Exception e) {

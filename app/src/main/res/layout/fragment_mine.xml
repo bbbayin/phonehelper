@@ -391,6 +391,7 @@
 
             <RelativeLayout
                 android:id="@+id/qiye_rl"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="54dp">
                 <ImageView
@@ -434,6 +435,7 @@
                 android:id="@+id/mine_iv_ads"
                 android:layout_width="match_parent"
                 android:scaleType="centerCrop"
+                android:visibility="gone"
                 android:layout_height="120dp"/>
         </LinearLayout>
     </ScrollView>

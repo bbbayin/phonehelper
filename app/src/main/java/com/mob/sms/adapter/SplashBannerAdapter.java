@@ -8,7 +8,9 @@ import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.mob.sms.R;
+import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.SplashBean;
 import com.youth.banner.adapter.BannerAdapter;
 
@@ -16,26 +18,32 @@ import java.util.List;
 
 public class SplashBannerAdapter extends BannerAdapter<String, SplashBannerAdapter.BannerViewHolder> {
     private Context mContext;
-    private List<SplashBean> mLists;
+    private List<BannerBean> mLists;
 
-    public SplashBannerAdapter(Context context, List<String> mDatas, List<SplashBean> lists) {
+    public SplashBannerAdapter(Context context, List<String> mDatas, List<BannerBean> lists) {
         //设置数据，也可以调用banner提供的方法,或者自己在adapter中实现
         super(mDatas);
         mContext = context;
         mLists = lists;
     }
 
+    @Override
+    public int getItemCount() {
+        if (mLists != null && !mLists.isEmpty()) return mLists.size();
+        return 0;
+    }
+
     //创建ViewHolder，可以用viewType这个字段来区分不同的ViewHolder
     @Override
     public BannerViewHolder onCreateHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.item_banner_splash, parent, false);
-        BannerViewHolder holder = new BannerViewHolder(view);
-        return holder;
+        return new BannerViewHolder(view);
     }
 
     @Override
     public void onBindView(BannerViewHolder holder, String img, int position, int size) {
-        holder.imageView.setBackgroundResource(mLists.get(position).res);
+        BannerBean bannerBean = mLists.get(position);
+        Glide.with(mContext).load(bannerBean.img).into(holder.imageView);
     }
 
 

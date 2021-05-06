@@ -4,6 +4,7 @@ import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.ChannelChargeBean;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.bean.HomeFuncBean;
+import com.mob.sms.bean.MsgResponse;
 import com.mob.sms.bean.OneDialBean;
 import com.mob.sms.bean.UpdateBean;
 import com.mob.sms.network.bean.AuthoLoginBean;
@@ -270,4 +271,8 @@ public interface MyAPIService {
     //获取第三方接口信息,status用于显示隐藏=0隐藏 1显示
     @POST("prod-api/restApi/third/getThirdInfo")
     Observable<BaseResponse<HomeFuncBean>> getThreadInfo();
+
+    // 消息
+    @POST("prod-api/restApi/message/getMsg")
+    Observable<BaseResponse<MsgResponse>> getNotifications();
 }

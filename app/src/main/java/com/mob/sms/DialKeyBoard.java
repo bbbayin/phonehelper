@@ -102,7 +102,9 @@ public class DialKeyBoard extends BottomSheetDialogFragment implements View.OnCl
             ToastUtil.show("手机号正确");
             return;
         }
-        FreeCheckUtils.check(getActivity(), new FreeCheckUtils.OnCheckCallback() {
+        boolean isSecretCall = v.getId() == R.id.dial_sim_secret;
+
+        FreeCheckUtils.check(getActivity(), isSecretCall, new FreeCheckUtils.OnCheckCallback() {
             @Override
             public void onResult(boolean free) {
                 if (free) {
