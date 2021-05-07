@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +42,8 @@ import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.ChannelChargeBean;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.bean.HomeFuncBean;
+import com.mob.sms.bean.MsgBean;
+import com.mob.sms.bean.MsgResponse;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
 import com.mob.sms.db.SmsContactTable;
@@ -56,6 +59,7 @@ import com.mob.sms.rx.BaseObserver;
 import com.mob.sms.rx.MobError;
 import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.FreeCheckUtils;
+import com.mob.sms.utils.MsgViewFactory;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
@@ -172,6 +176,8 @@ public class HomeFragment extends BaseFragment {
     View smsSendTimesLayout;// 发送短信次数设置
     @BindView(R.id.sms_single_send_switch)
     View smsSingleSendSwitch;// 单号发送开关
+    @BindView(R.id.msg_flipper)
+    ViewFlipper flipper;
 
     private final int REQUEST_CODE_TAB1_SRHM = 1;
     private final int REQUEST_CODE_TAB1_CALL_TYPE = 2;
@@ -204,6 +210,22 @@ public class HomeFragment extends BaseFragment {
 
                     }
                 });
+        // 消息
+        RetrofitHelper.getApi().getNotifications().subscribe(new Action1<BaseResponse<MsgResponse>>() {
+            @Override
+            public void call(BaseResponse<MsgResponse> response) {
+                if (response != null && response.data != null && response.data.rows != null && !response.data.rows.isEmpty()) {
+                    flipper.setVisibility(View.VISIBLE);
+                    for (MsgBean msg:
+                            response.data.rows) {
+                        flipper.addView(MsgViewFactory.create(getContext(), msg, flipper));
+                    }
+                    flipper.startFlipping();
+                }else {
+                    flipper.setVisibility(View.GONE);
+                }
+            }
+        });
         // 3大功能隐藏配置
         RetrofitHelper.getApi().getHomeSetting().subscribe(new Action1<BaseResponse<List<HomeFuncBean>>>() {
             @Override

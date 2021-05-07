@@ -26,6 +26,10 @@ public class ToastUtil {
         show(text, Toast.LENGTH_SHORT);
     }
 
+    public static void showLong(CharSequence text) {
+        show(text, Toast.LENGTH_LONG);
+    }
+
 //    public static void showCenterGravity(CharSequence text) {
 //        showCenterGravity(text, Toast.LENGTH_SHORT);
 //    }

@@ -144,8 +144,6 @@ public class ContactsPersonFragment extends BaseFragment {
                             it.setType("vnd.android-dir/mms-sms") ; // 短信的MIME类型
                             it.setData(uri) ;// 要设置的数据
                             startActivity(it) ; // 执行跳转
-                        }else {
-                            startActivity(new Intent(getContext(), VipActivity.class));
                         }
                     }
                 });
