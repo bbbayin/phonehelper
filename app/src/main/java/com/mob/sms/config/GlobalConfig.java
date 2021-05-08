@@ -7,4 +7,6 @@ public class GlobalConfig {
     public static boolean isMultiCallSwitchBtnShow = false;
 
     public static int oneDialTimes;
+
+    public static boolean isVip = false;
 }

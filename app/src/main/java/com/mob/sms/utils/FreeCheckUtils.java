@@ -1,11 +1,14 @@
 package com.mob.sms.utils;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.text.TextUtils;
 
 import com.mob.sms.BuildConfig;
+import com.mob.sms.activity.VipActivity;
 import com.mob.sms.bean.ChannelChargeBean;
 import com.mob.sms.bean.CloudPermissionBean;
+import com.mob.sms.config.GlobalConfig;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.BaseResponse;
 
@@ -20,9 +23,10 @@ public class FreeCheckUtils {
         return TextUtils.equals(sim, Constants.SIM_TYPE_SECRET);
     }
 
-    public static void check(Activity activity,boolean isSecretCall, OnCheckCallback callback) {
-        checkPermission(activity,isSecretCall, callback);
+    public static void check(Activity activity, boolean isSecretCall, OnCheckCallback callback) {
+        checkPermission(activity, isSecretCall, callback);
     }
+
     private static void checkPermission(Activity activity, boolean isSecretCall, OnCheckCallback callback) {
         // 先判断渠道
         RetrofitHelper.getApi().getMarketCharge(BuildConfig.FLAVOR)
@@ -49,7 +53,7 @@ public class FreeCheckUtils {
                 });
     }
 
-    private static void checkUserVip(Activity activity,boolean isSecretCall, OnCheckCallback callback) {
+    private static void checkUserVip(Activity activity, boolean isSecretCall, OnCheckCallback callback) {
         RetrofitHelper.getApi().cloudDial()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -61,28 +65,20 @@ public class FreeCheckUtils {
                             if (callback != null) {
                                 callback.onResult(true);
                             }
-//                            Intent intent = new Intent(activity, SingleAutoTaskActivity.class);
-//                            intent.putExtra("type", "dhbd");
-//                            activity.startActivity(intent);
-                        } else if ("500".equals(permissionBean.code)) {
-                            if (isSecretCall) {
-                                ToastUtil.show(permissionBean.msg);
-                                callback.onResult(false);
-                            }else {
-                                // 非隐私拨号不用拦截时间
-                                callback.onResult(true);
-                            }
                         } else {
-                            if (callback != null) {
-                                callback.onResult(false);
+                            if (isSecretCall && GlobalConfig.isVip) {
+                                ToastUtil.showLong(permissionBean.msg);
+                            } else {
+                                if (callback != null) {
+                                    callback.onResult(false);
+                                }
                             }
-                            //activity.startActivity(new Intent(activity, VipActivity.class));
                         }
                     }
                 });
     }
 
-    public interface OnCheckCallback{
+    public interface OnCheckCallback {
         void onResult(boolean free);
     }
 }

@@ -21,4 +21,17 @@ public class MsgViewFactory {
 //        });
         return inflate;
     }
+
+    public static View create(Context context, ViewGroup parent) {
+        View inflate = LayoutInflater.from(context).inflate(R.layout.item_msg_layout, parent, false);
+        TextView content = inflate.findViewById(R.id.msg_content);
+        content.setText("系统消息：您的会员即将过期，请及时续费");
+//        inflate.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
+        return inflate;
+    }
 }

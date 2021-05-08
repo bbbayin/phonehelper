@@ -9,6 +9,7 @@ import android.telephony.SubscriptionManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,7 @@ import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.bean.HomeFuncBean;
 import com.mob.sms.bean.MsgBean;
 import com.mob.sms.bean.MsgResponse;
+import com.mob.sms.config.GlobalConfig;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
 import com.mob.sms.db.SmsContactTable;
@@ -55,6 +57,7 @@ import com.mob.sms.dialog.SetCallTimingDialog;
 import com.mob.sms.dialog.SetMultiCallIntervalDialog;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.BaseResponse;
+import com.mob.sms.network.bean.UserInfoBean;
 import com.mob.sms.rx.BaseObserver;
 import com.mob.sms.rx.MobError;
 import com.mob.sms.utils.Constants;
@@ -67,7 +70,11 @@ import com.mob.sms.utils.Utils;
 import com.youth.banner.Banner;
 import com.youth.banner.adapter.BannerAdapter;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -177,7 +184,7 @@ public class HomeFragment extends BaseFragment {
     @BindView(R.id.sms_single_send_switch)
     View smsSingleSendSwitch;// 单号发送开关
     @BindView(R.id.msg_flipper)
-    ViewFlipper flipper;
+    LinearLayout msgContainer;
 
     private final int REQUEST_CODE_TAB1_SRHM = 1;
     private final int REQUEST_CODE_TAB1_CALL_TYPE = 2;
@@ -197,6 +204,11 @@ public class HomeFragment extends BaseFragment {
         return view;
     }
 
+    private void initMsg() {
+        msgContainer.setVisibility(View.VISIBLE);
+        msgContainer.addView(MsgViewFactory.create(getContext(), msgContainer));
+    }
+
     private void initData() {
         RetrofitHelper.getApi().getImage(3)
                 .subscribe(new BaseObserver<List<BannerBean>>() {
@@ -210,22 +222,58 @@ public class HomeFragment extends BaseFragment {
 
                     }
                 });
-        // 消息
-        RetrofitHelper.getApi().getNotifications().subscribe(new Action1<BaseResponse<MsgResponse>>() {
+        RetrofitHelper.getApi().getUserInfo().subscribe(new Action1<UserInfoBean>() {
             @Override
-            public void call(BaseResponse<MsgResponse> response) {
-                if (response != null && response.data != null && response.data.rows != null && !response.data.rows.isEmpty()) {
-                    flipper.setVisibility(View.VISIBLE);
-                    for (MsgBean msg:
-                            response.data.rows) {
-                        flipper.addView(MsgViewFactory.create(getContext(), msg, flipper));
+            public void call(UserInfoBean userInfoBean) {
+                if (userInfoBean.data != null) {
+                    GlobalConfig.isVip = TextUtils.equals(userInfoBean.data.type, "1");
+                    if (GlobalConfig.isVip) {
+                        // 展示是否会员过期提示
+                        try {
+                            String expTime = userInfoBean.data.expTime;
+                            if (!TextUtils.isEmpty(expTime)) {
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:ss", Locale.CHINA);
+                                Date expdate = simpleDateFormat.parse(expTime);
+                                Calendar calendar = Calendar.getInstance();
+                                Date current = calendar.getTime();
+                                if (current.after(expdate)) {
+                                    //已经过期了
+
+                                } else {
+                                    calendar.add(Calendar.DAY_OF_YEAR, 30);// 30天后
+                                    Calendar instance = Calendar.getInstance();
+                                    instance.setTime(expdate);
+                                    if (calendar.after(instance)) {
+                                        initMsg();
+                                    }
+                                }
+                            }
+
+                        } catch (Exception e) {
+
+                        }
                     }
-                    flipper.startFlipping();
-                }else {
-                    flipper.setVisibility(View.GONE);
                 }
             }
         });
+
+
+        // 消息
+//        RetrofitHelper.getApi().getNotifications().subscribe(new Action1<BaseResponse<MsgResponse>>() {
+//            @Override
+//            public void call(BaseResponse<MsgResponse> response) {
+//                if (response != null && response.data != null && response.data.rows != null && !response.data.rows.isEmpty()) {
+//                    flipper.setVisibility(View.VISIBLE);
+//                    for (MsgBean msg:
+//                            response.data.rows) {
+//                        flipper.addView(MsgViewFactory.create(getContext(), msg, flipper));
+//                    }
+//                    flipper.startFlipping();
+//                }else {
+//                    flipper.setVisibility(View.GONE);
+//                }
+//            }
+//        });
         // 3大功能隐藏配置
         RetrofitHelper.getApi().getHomeSetting().subscribe(new Action1<BaseResponse<List<HomeFuncBean>>>() {
             @Override
@@ -285,6 +333,7 @@ public class HomeFragment extends BaseFragment {
 
     /**
      * 隐藏开关
+     *
      * @param type 1：单号，2：批量，3：短信
      */
     private void initHiddenSetting(final int type) {
@@ -292,23 +341,23 @@ public class HomeFragment extends BaseFragment {
             @Override
             public void call(BaseResponse<List<HomeFuncBean>> response) {
                 if (response != null && response.code == 200) {
-                    for(HomeFuncBean bean : response.data) {
+                    for (HomeFuncBean bean : response.data) {
                         // 3处配置，自动挂断，发送短信次数，批量发送短信
                         if (bean.type == 1 || bean.type == 2) {// 单号就一个开关
                             showSettings(bean.type, TextUtils.equals(bean.status, "1"), false);
-                        }else {
+                        } else {
                             // 短信配置
                             if (bean.id == 4) {
                                 // 发送次数
-                                smsSendTimesLayout.setVisibility(TextUtils.equals(bean.status, "1")? View.VISIBLE: View.GONE);
-                            }else {
+                                smsSendTimesLayout.setVisibility(TextUtils.equals(bean.status, "1") ? View.VISIBLE : View.GONE);
+                            } else {
                                 // 批量发送
-                                smsMultiSendSwitch.setVisibility(TextUtils.equals(bean.status, "1")? View.VISIBLE: View.GONE);
-                                smsSingleSendSwitch.setVisibility(TextUtils.equals(bean.status, "1")? View.VISIBLE: View.GONE);
+                                smsMultiSendSwitch.setVisibility(TextUtils.equals(bean.status, "1") ? View.VISIBLE : View.GONE);
+                                smsSingleSendSwitch.setVisibility(TextUtils.equals(bean.status, "1") ? View.VISIBLE : View.GONE);
                             }
                         }
                     }
-                }else {
+                } else {
                     // 隐藏
                     showSettings(type, false, false);
                 }
@@ -318,13 +367,14 @@ public class HomeFragment extends BaseFragment {
 
     /**
      * 隐藏自动挂断，发送次数，批量发送短信等功能
+     *
      * @param type
      */
     private void showSettings(int type, boolean show1, boolean show2) {
         if (type == 1) {
-            singleCallSwitchLayout.setVisibility(show1?View.VISIBLE: View.GONE);
-        }else if (type ==2) {
-            multiCallSwitchLayout.setVisibility(show1?View.VISIBLE: View.GONE);
+            singleCallSwitchLayout.setVisibility(show1 ? View.VISIBLE : View.GONE);
+        } else if (type == 2) {
+            multiCallSwitchLayout.setVisibility(show1 ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -373,7 +423,7 @@ public class HomeFragment extends BaseFragment {
             });
             banner.setDatas(list);
             banner.start();
-        }else {
+        } else {
             banner.setVisibility(View.GONE);
         }
     }

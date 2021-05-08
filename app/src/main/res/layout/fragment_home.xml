@@ -31,7 +31,8 @@
                 app:banner_indicator_space="5dp" />
 
 
-            <ViewFlipper
+            <LinearLayout
+                android:orientation="vertical"
                 android:id="@+id/msg_flipper"
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
