@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.telephony.SubscriptionManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;

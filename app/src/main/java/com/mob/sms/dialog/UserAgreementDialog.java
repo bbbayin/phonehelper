@@ -20,8 +20,6 @@ import androidx.annotation.NonNull;
 import com.mob.sms.R;
 import com.mob.sms.policy.PolicyActivity;
 
-import org.w3c.dom.Text;
-
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;

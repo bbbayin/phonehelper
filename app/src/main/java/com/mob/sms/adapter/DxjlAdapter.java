@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mob.sms.R;
 import com.mob.sms.activity.RecordListActivity;
-import com.mob.sms.network.bean.RecordBean;
 import com.mob.sms.network.bean.SmsRecordBean;
 
 import java.util.ArrayList;

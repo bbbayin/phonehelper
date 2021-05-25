@@ -14,7 +14,6 @@ import com.bumptech.glide.Glide;
 import com.mob.sms.R;
 import com.mob.sms.activity.ImageViewerActivity;
 import com.mob.sms.network.bean.FeedbackDetailBean;
-import com.mob.sms.network.bean.OrderHistoryBean;
 
 import java.util.ArrayList;
 

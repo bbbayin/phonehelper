@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -19,8 +18,6 @@ import com.mob.sms.base.BaseActivity;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.rx.ContactEvent;
 import com.mob.sms.rx.RxBus;
-import com.mob.sms.utils.SPConstant;
-import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
 
 import butterknife.BindView;

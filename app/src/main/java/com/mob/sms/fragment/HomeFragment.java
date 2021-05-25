@@ -9,7 +9,6 @@ import android.telephony.SubscriptionManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.mob.sms.BuildConfig;
 import com.mob.sms.R;
 import com.mob.sms.activity.AutoCallPhoneActivity;
 import com.mob.sms.activity.AutoSendSmsActivity;
@@ -37,14 +34,13 @@ import com.mob.sms.activity.EditSmsActivity;
 import com.mob.sms.activity.ImportContactsActivity;
 import com.mob.sms.activity.SimSettingActivity;
 import com.mob.sms.activity.VipActivity;
+import com.mob.sms.application.MyApplication;
 import com.mob.sms.auto.SingleAutoTaskActivity;
 import com.mob.sms.base.BaseFragment;
 import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.ChannelChargeBean;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.bean.HomeFuncBean;
-import com.mob.sms.bean.MsgBean;
-import com.mob.sms.bean.MsgResponse;
 import com.mob.sms.config.GlobalConfig;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
@@ -951,7 +947,7 @@ public class HomeFragment extends BaseFragment {
 
     private void checkPermission() {
         // 先判断渠道
-        RetrofitHelper.getApi().getMarketCharge(BuildConfig.FLAVOR)
+        RetrofitHelper.getApi().getMarketCharge(MyApplication.Channel)
                 .subscribe(new Action1<BaseResponse<ChannelChargeBean>>() {
                     @Override
                     public void call(BaseResponse<ChannelChargeBean> response) {

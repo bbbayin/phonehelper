@@ -1,19 +1,15 @@
 package com.mob.sms.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.network.RetrofitHelper;
-import com.mob.sms.utils.SPConstant;
-import com.mob.sms.utils.SPUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

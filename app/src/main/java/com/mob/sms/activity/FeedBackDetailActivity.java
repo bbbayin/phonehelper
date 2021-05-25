@@ -24,8 +24,6 @@ import com.mob.sms.adapter.FeedbackDetailAdapter;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.FeedbackDetailBean;
-import com.mob.sms.utils.SPConstant;
-import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
 
 import java.io.File;

@@ -27,7 +27,6 @@ import com.mob.sms.dialog.SortDialog;
 import com.mob.sms.utils.ToastUtil;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;

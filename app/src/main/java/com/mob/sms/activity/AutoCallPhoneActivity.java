@@ -39,7 +39,6 @@ import com.mob.sms.utils.CollectionUtils;
 import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
-import com.mob.sms.utils.ToastUtil;
 import com.mob.sms.utils.Utils;
 
 import org.json.JSONException;

@@ -1,6 +1,5 @@
 package com.mob.sms.activity;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 

@@ -2,7 +2,6 @@ package com.mob.sms.utils;
 
 
 import android.content.Context;
-import android.view.Gravity;
 import android.widget.Toast;
 
 import com.mob.sms.application.MyApplication;

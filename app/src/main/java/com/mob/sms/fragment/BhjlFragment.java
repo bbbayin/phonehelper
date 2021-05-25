@@ -15,21 +15,15 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.mob.sms.R;
-import com.mob.sms.activity.AutoCallPhoneActivity;
 import com.mob.sms.activity.ReCallPhoneActivity;
 import com.mob.sms.adapter.BhjlAdapter;
 import com.mob.sms.base.BaseFragment;
-import com.mob.sms.bean.CallPhoneRecord;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.CallRecordBean;
-import com.mob.sms.network.bean.OnlineContactBean;
-import com.mob.sms.network.bean.RecordBean;
-import com.mob.sms.rx.ChooseEvent;
 import com.mob.sms.rx.ChooseRecordEvent;
 import com.mob.sms.rx.RxBus;
-import com.mob.sms.utils.SPConstant;
-import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
 
 import java.util.ArrayList;

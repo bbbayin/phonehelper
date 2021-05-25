@@ -9,8 +9,8 @@ android {
         applicationId "com.mob.sms"
         minSdkVersion 26
         targetSdkVersion 29
-        versionCode 125
-        versionName "1.2.5"
+        versionCode 130
+        versionName "1.0"
 
     }
 
@@ -44,19 +44,65 @@ android {
         }
     }
 
-    flavorDimensions "default"
-
-    productFlavors {
-        huawei {
-
-        }
-        yingyongbao {
-
-        }
-        xiaomi {
-
-        }
-    }
+//    flavorDimensions "default"
+//
+//    productFlavors {
+//        huawei {
+//
+//        }
+//        yingyongbao {
+//
+//        }
+//
+//        mobile_360 {
+//
+//        }
+//        anzhi {
+//
+//        }
+//        baidu {
+//
+//        }
+//        jinli {
+//
+//        }
+//        lianxiang {
+//
+//        }
+//        meizu {
+//
+//        }
+//        mumayi {
+//
+//        }
+//        oppo {
+//
+//        }
+//        vivo{
+//
+//        }
+//        sanxing {
+//
+//        }
+//        sougou {
+//
+//        }
+//        wandoujia {
+//
+//        }
+//        xiaomi {
+//
+//        }
+//        yingyonghui {
+//
+//        }
+//        qita1 {
+//
+//        }
+//        qita2 {
+//
+//        }
+//    }
 
     buildTypes {
         debug {
@@ -97,7 +143,6 @@ dependencies {
 
 
     implementation files('libs/MagicIndicator-1.5.0.aar')
-    implementation files('libs/umeng-asms-armeabi-v1.1.4.aar')
     implementation files("libs/keepalive-release.aar")
     implementation files("libs/alipaysdk.aar")
 
@@ -107,6 +152,11 @@ dependencies {
 
     // butterknife∏
     implementation 'com.jakewharton:butterknife:10.0.0'
+    implementation files('libs/umeng-share-core-7.1.3.jar')
+    implementation files('libs/umeng-share-QQ-full-7.1.3.jar')
+    implementation files('libs/umeng-share-wechat-full-7.1.3.jar')
+    implementation files('libs/umeng-shareboard-widget-7.1.3.jar')
+    implementation files('libs/umeng-sharetool-7.1.3.jar')
 //    implementation files('libs/rt.jar')
 //    implementation files('libs/aa-poi-3.10-min-0.1.5.jar')
 //    implementation files('libs/aa-poi-ooxml-schemas-3.10-reduced-more-0.1.5.jar')
@@ -164,6 +214,9 @@ dependencies {
     implementation 'com.android.support:design:29.0.0'
     implementation group: 'androidx.lifecycle', name: 'lifecycle-livedata', version: '2.0.0'
 
+    // umeng
+    implementation  'com.umeng.umsdk:common:9.3.8'// 必选
+    implementation  'com.umeng.umsdk:asms:1.2.2'// 必选
 
 }
 

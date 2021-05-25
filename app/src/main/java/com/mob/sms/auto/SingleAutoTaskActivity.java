@@ -46,7 +46,6 @@ import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.mob.sms.utils.ToastUtil;
 import com.mob.sms.utils.Utils;
-import com.youth.banner.util.LogUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;

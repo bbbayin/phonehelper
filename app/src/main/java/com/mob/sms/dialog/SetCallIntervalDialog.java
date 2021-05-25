@@ -11,7 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.mob.sms.R;
-import com.mob.sms.utils.Constants;
 import com.zyyoona7.wheel.WheelView;
 
 import java.util.ArrayList;

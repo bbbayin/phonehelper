@@ -22,7 +22,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
-import com.mob.sms.BuildConfig;
 import com.mob.sms.R;
 import com.mob.sms.adapter.ViewPagerAdapter;
 import com.mob.sms.base.BaseActivity;
@@ -132,7 +131,6 @@ public class MainActivity extends BaseActivity {
         mViewPager.setOffscreenPageLimit(1);
         initBottomNavigationBar();
         initData();
-        System.out.println("渠道号："+BuildConfig.FLAVOR);
     }
 
     private void initData() {

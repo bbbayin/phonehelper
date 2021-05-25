@@ -12,8 +12,6 @@ import com.mob.sms.adapter.OrderHistoryAdapter;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.OrderHistoryBean;
-import com.mob.sms.utils.SPConstant;
-import com.mob.sms.utils.SPUtils;
 
 import java.util.ArrayList;
 

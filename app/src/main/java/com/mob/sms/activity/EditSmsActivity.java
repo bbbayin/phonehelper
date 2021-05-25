@@ -1,7 +1,5 @@
 package com.mob.sms.activity;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;

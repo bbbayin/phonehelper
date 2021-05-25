@@ -12,10 +12,6 @@ import androidx.annotation.NonNull;
 
 import com.mob.sms.R;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
-
 public class CheckTipDialog extends Dialog {
     private View btnCancel;
     private View btnLine;

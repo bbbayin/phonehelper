@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.mob.sms.activity.SetSecretInfoActivity;
 import com.mob.sms.activity.VipActivity;
-import com.mob.sms.auto.SingleAutoTaskActivity;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.bean.HomeFuncBean;
 import com.mob.sms.network.RetrofitHelper;

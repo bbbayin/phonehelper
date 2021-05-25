@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.mob.sms.R;
 import com.mob.sms.bean.BannerBean;
-import com.mob.sms.bean.SplashBean;
 import com.youth.banner.adapter.BannerAdapter;
 
 import java.util.List;

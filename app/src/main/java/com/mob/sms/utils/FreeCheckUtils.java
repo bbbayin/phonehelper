@@ -1,11 +1,9 @@
 package com.mob.sms.utils;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.text.TextUtils;
 
-import com.mob.sms.BuildConfig;
-import com.mob.sms.activity.VipActivity;
+import com.mob.sms.application.MyApplication;
 import com.mob.sms.bean.ChannelChargeBean;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.config.GlobalConfig;
@@ -29,7 +27,7 @@ public class FreeCheckUtils {
 
     private static void checkPermission(Activity activity, boolean isSecretCall, OnCheckCallback callback) {
         // 先判断渠道
-        RetrofitHelper.getApi().getMarketCharge(BuildConfig.FLAVOR)
+        RetrofitHelper.getApi().getMarketCharge(MyApplication.Channel)
                 .subscribe(new Action1<BaseResponse<ChannelChargeBean>>() {
                     @Override
                     public void call(BaseResponse<ChannelChargeBean> response) {

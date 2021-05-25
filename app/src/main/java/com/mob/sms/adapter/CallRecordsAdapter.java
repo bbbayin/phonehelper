@@ -11,9 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mob.sms.R;
 import com.mob.sms.db.CallRecordsTable;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

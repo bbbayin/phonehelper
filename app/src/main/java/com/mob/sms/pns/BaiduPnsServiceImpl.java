@@ -1,7 +1,5 @@
 package com.mob.sms.pns;
 
-import android.util.Log;
-
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.Calendar;

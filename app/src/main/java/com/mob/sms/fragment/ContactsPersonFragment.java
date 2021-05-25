@@ -1,6 +1,5 @@
 package com.mob.sms.fragment;
 
-import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,16 +21,12 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.j256.ormlite.stmt.query.In;
 import com.mob.sms.DialKeyBoard;
 import com.mob.sms.R;
 import com.mob.sms.activity.VipActivity;
 import com.mob.sms.adapter.ContactsPersonAdapter;
 import com.mob.sms.base.BaseFragment;
-import com.mob.sms.bean.ContactsBean;
 import com.mob.sms.contacts.SideBar;
-import com.mob.sms.db.CallRecordsTable;
-import com.mob.sms.db.DatabaseBusiness;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.OnlineContactBean;
 import com.mob.sms.rx.ChooseEvent;

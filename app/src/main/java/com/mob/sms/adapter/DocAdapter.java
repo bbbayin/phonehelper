@@ -12,9 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mob.sms.R;
 import com.mob.sms.bean.DocBean;
-import com.mob.sms.network.bean.QuestionBean;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;

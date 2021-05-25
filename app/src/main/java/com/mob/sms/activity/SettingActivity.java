@@ -13,7 +13,6 @@ import com.mob.sms.dialog.CheckTipDialog;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.rx.ExitEvent;
 import com.mob.sms.rx.RxBus;
-import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 
 import butterknife.ButterKnife;

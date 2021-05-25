@@ -11,7 +11,6 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mob.sms.R;
-import com.mob.sms.bean.ContactsBean;
 import com.mob.sms.network.bean.OnlineContactBean;
 
 import java.util.ArrayList;

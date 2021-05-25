@@ -14,7 +14,6 @@ import com.mob.sms.base.BaseActivity;
 import com.mob.sms.bean.PhoneInfoBean;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

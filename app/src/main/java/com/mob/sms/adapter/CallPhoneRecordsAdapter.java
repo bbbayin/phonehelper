@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mob.sms.R;
 import com.mob.sms.bean.CallPhoneRecord;
-import com.mob.sms.bean.SendSmsRecord;
 
 import java.util.ArrayList;
 

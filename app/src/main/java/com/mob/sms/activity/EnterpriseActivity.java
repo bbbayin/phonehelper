@@ -17,8 +17,6 @@ import com.mob.sms.network.bean.EnterpriseBean;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class EnterpriseActivity extends BaseActivity {
     @BindView(R.id.info)

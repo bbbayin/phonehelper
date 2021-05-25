@@ -14,8 +14,6 @@ import com.mob.sms.utils.Constants;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 
-import java.math.BigDecimal;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;

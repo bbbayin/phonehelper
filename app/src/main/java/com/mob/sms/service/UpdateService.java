@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInstaller;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -30,8 +29,6 @@ import com.youth.banner.util.LogUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 public class UpdateService extends IntentService {
