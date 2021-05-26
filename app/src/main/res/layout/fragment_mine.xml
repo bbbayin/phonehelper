@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="44dp"
-        android:text="我的"
-        android:textSize="18sp"
         android:background="@color/green"
+        android:gravity="center"
+        android:text="我的"
         android:textColor="@color/white"
-        android:gravity="center"/>
+        android:textSize="18sp" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:background="@color/white"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:orientation="vertical"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/user_ll"
@@ -82,9 +83,9 @@
                             android:id="@+id/me_vip_info_layout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:visibility="gone"
                             android:layout_alignParentRight="true"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:visibility="gone">
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -104,43 +105,52 @@
                         </LinearLayout>
                     </RelativeLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="22dp"
-                        android:text="隐私拨号使用"
-                        android:textColor="#33C197"
-                        android:textSize="10sp" />
-
-                    <ProgressBar
-                        android:id="@+id/progressbar"
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        style="@style/StyleProgressBarMini"
-                        android:layout_marginTop="5dp" />
-
-                    <RelativeLayout
+                    <LinearLayout
+                        android:visibility="gone"
+                        android:id="@+id/secret_info_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp">
+                        android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/user_minute"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="4分钟"
-                            android:textColor="@color/color_A6A6A6"
+                            android:layout_marginTop="22dp"
+                            android:text="隐私拨号使用"
+                            android:textColor="#33C197"
                             android:textSize="10sp" />
 
-                        <TextView
-                            android:id="@+id/all_minute"
-                            android:layout_width="wrap_content"
+                        <ProgressBar
+                            android:id="@+id/progressbar"
+                            style="@style/StyleProgressBarMini"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_marginTop="5dp" />
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:text=""
-                            android:textColor="@color/color_A6A6A6"
-                            android:textSize="10sp" />
-                    </RelativeLayout>
+                            android:layout_marginTop="2dp">
+
+                            <TextView
+                                android:id="@+id/user_minute"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="4分钟"
+                                android:textColor="@color/color_A6A6A6"
+                                android:textSize="10sp" />
+
+                            <TextView
+                                android:id="@+id/all_minute"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:text=""
+                                android:textColor="@color/color_A6A6A6"
+                                android:textSize="10sp" />
+                        </RelativeLayout>
+                    </LinearLayout>
+
 
                 </LinearLayout>
 
@@ -149,294 +159,309 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="10dp"
-                android:background="#EFEFEF"/>
+                android:background="#EFEFEF" />
 
             <RelativeLayout
                 android:id="@+id/vip_rl"
                 android:layout_width="match_parent"
                 android:layout_height="54dp">
+
                 <ImageView
                     android:layout_width="wrap_content"
-                    android:background="@mipmap/vip_icon"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/vip_icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:text="成为VIP"
-                    android:textSize="17sp"
-                    android:layout_marginLeft="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="50dp"
+                    android:text="成为VIP"
                     android:textColor="@color/color_454545"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="17sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:background="@mipmap/right_arrow_grey"
                     android:layout_marginRight="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/right_arrow_grey" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:layout_marginHorizontal="20dp"
-                android:background="#e0e0e0"/>
+                android:background="#e0e0e0" />
 
             <RelativeLayout
                 android:id="@+id/about_rl"
                 android:layout_width="match_parent"
                 android:layout_height="54dp">
+
                 <ImageView
                     android:layout_width="wrap_content"
-                    android:background="@mipmap/about_icon"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/about_icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:text="关于我们"
-                    android:textSize="17sp"
-                    android:layout_marginLeft="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="50dp"
+                    android:text="关于我们"
                     android:textColor="@color/color_454545"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="17sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:background="@mipmap/right_arrow_grey"
                     android:layout_marginRight="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/right_arrow_grey" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:layout_marginHorizontal="20dp"
-                android:background="#e0e0e0"/>
+                android:background="#e0e0e0" />
 
             <RelativeLayout
                 android:id="@+id/question_rl"
                 android:layout_width="match_parent"
                 android:layout_height="54dp">
+
                 <ImageView
                     android:layout_width="wrap_content"
-                    android:background="@mipmap/question_icon"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/question_icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:text="问题反馈"
-                    android:textSize="17sp"
-                    android:layout_marginLeft="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="50dp"
+                    android:text="问题反馈"
                     android:textColor="@color/color_454545"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="17sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:background="@mipmap/right_arrow_grey"
                     android:layout_marginRight="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/right_arrow_grey" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:layout_marginHorizontal="20dp"
-                android:background="#e0e0e0"/>
+                android:background="#e0e0e0" />
 
             <RelativeLayout
                 android:id="@+id/share_rl"
                 android:layout_width="match_parent"
                 android:layout_height="54dp">
+
                 <ImageView
                     android:layout_width="wrap_content"
-                    android:background="@mipmap/share_icon"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/share_icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:text="分享软件"
-                    android:textSize="17sp"
-                    android:layout_marginLeft="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="50dp"
+                    android:text="分享软件"
                     android:textColor="@color/color_454545"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="17sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:background="@mipmap/right_arrow_grey"
                     android:layout_marginRight="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/right_arrow_grey" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:layout_marginHorizontal="20dp"
-                android:background="#e0e0e0"/>
+                android:background="#e0e0e0" />
 
             <RelativeLayout
                 android:id="@+id/problem_rl"
                 android:layout_width="match_parent"
                 android:layout_height="54dp">
+
                 <ImageView
                     android:layout_width="wrap_content"
-                    android:background="@mipmap/problem_icon"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/problem_icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:text="常见问题"
-                    android:textSize="17sp"
-                    android:layout_marginLeft="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="50dp"
+                    android:text="常见问题"
                     android:textColor="@color/color_454545"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="17sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:background="@mipmap/right_arrow_grey"
                     android:layout_marginRight="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/right_arrow_grey" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:layout_marginHorizontal="20dp"
-                android:background="#e0e0e0"/>
+                android:background="#e0e0e0" />
 
             <RelativeLayout
                 android:id="@+id/xiaofei_rl"
                 android:layout_width="match_parent"
                 android:layout_height="54dp">
+
                 <ImageView
                     android:layout_width="wrap_content"
-                    android:background="@mipmap/xiaofei_icon"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/xiaofei_icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:text="消费记录"
-                    android:textSize="17sp"
-                    android:layout_marginLeft="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="50dp"
+                    android:text="消费记录"
                     android:textColor="@color/color_454545"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="17sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:background="@mipmap/right_arrow_grey"
                     android:layout_marginRight="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/right_arrow_grey" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:layout_marginHorizontal="20dp"
-                android:background="#e0e0e0"/>
+                android:background="#e0e0e0" />
 
             <RelativeLayout
                 android:id="@+id/setting_rl"
                 android:layout_width="match_parent"
                 android:layout_height="54dp">
+
                 <ImageView
                     android:layout_width="wrap_content"
-                    android:background="@mipmap/setting_icon"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/setting_icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:text="设置"
-                    android:textSize="17sp"
-                    android:layout_marginLeft="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="50dp"
+                    android:text="设置"
                     android:textColor="@color/color_454545"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="17sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:background="@mipmap/right_arrow_grey"
                     android:layout_marginRight="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/right_arrow_grey" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:layout_marginHorizontal="20dp"
-                android:background="#e0e0e0"/>
+                android:background="#e0e0e0" />
 
             <RelativeLayout
                 android:id="@+id/qiye_rl"
-                android:visibility="gone"
                 android:layout_width="match_parent"
-                android:layout_height="54dp">
+                android:layout_height="54dp"
+                android:visibility="gone">
+
                 <ImageView
                     android:layout_width="wrap_content"
-                    android:background="@mipmap/qiye_icon"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/qiye_icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:text="升级为企业版"
-                    android:textSize="17sp"
-                    android:layout_marginLeft="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="50dp"
+                    android:text="升级为企业版"
                     android:textColor="@color/color_454545"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="17sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:background="@mipmap/right_arrow_grey"
                     android:layout_marginRight="20dp"
-                    android:layout_height="wrap_content"/>
+                    android:background="@mipmap/right_arrow_grey" />
             </RelativeLayout>
 
             <Button
-                android:visibility="gone"
                 android:id="@+id/settings_btn_debug"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="debug"/>
+                android:text="debug"
+                android:visibility="gone" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="15dp"
-                android:background="#EFEFEF"/>
+                android:background="#EFEFEF" />
 
             <ImageView
                 android:id="@+id/mine_iv_ads"
                 android:layout_width="match_parent"
+                android:layout_height="120dp"
                 android:scaleType="centerCrop"
-                android:visibility="gone"
-                android:layout_height="120dp"/>
+                android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

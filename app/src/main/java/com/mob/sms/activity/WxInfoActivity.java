@@ -17,6 +17,8 @@ import com.mob.sms.rx.LoginEvent;
 import com.mob.sms.rx.RxBus;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
+import com.umeng.socialize.UMShareAPI;
+import com.umeng.socialize.bean.SHARE_MEDIA;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +47,7 @@ public class WxInfoActivity extends BaseActivity {
 
         Glide.with(this).load(iconurl).into(mUserhead);
         mUsername.setText(name);
+        UMShareAPI.get(this).deleteOauth(this, SHARE_MEDIA.WEIXIN, null);
     }
 
     @OnClick({R.id.close, R.id.refuse, R.id.agree, R.id.add})

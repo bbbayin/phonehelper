@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.mob.sms.R;
+import com.mob.sms.application.MyApplication;
 import com.mob.sms.base.BaseActivity;
 import com.mob.sms.dialog.UserAgreementDialog;
 import com.mob.sms.network.RetrofitHelper;
@@ -34,6 +35,10 @@ import com.mob.sms.rx.LoginEvent;
 import com.mob.sms.rx.RxBus;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
+import com.tencent.mm.opensdk.modelbase.BaseReq;
+import com.tencent.mm.opensdk.modelmsg.SendAuth;
+import com.tencent.mm.opensdk.openapi.IWXAPI;
+import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.umeng.socialize.UMAuthListener;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.bean.SHARE_MEDIA;
@@ -235,6 +240,12 @@ public class LoginActivity extends BaseActivity {
                 mEyeIcon.setBackgroundResource(mCanSeePwd ? R.mipmap.eye_icon : R.mipmap.eye2_icon);
                 break;
             case R.id.wx_login:
+//                IWXAPI wxapi = WXAPIFactory.createWXAPI(this, "wx22e1a70e838f3267");
+//                SendAuth.Req req = new SendAuth.Req();
+//                req.scope = "snsapi_userinfo";
+//                req.state = "wechat_sdk_demo_test";
+//                wxapi.sendReq(req);
+
                 UMShareAPI.get(this).getPlatformInfo(this, SHARE_MEDIA.WEIXIN, new UMAuthListener() {
                     @Override
                     public void onStart(SHARE_MEDIA share_media) {

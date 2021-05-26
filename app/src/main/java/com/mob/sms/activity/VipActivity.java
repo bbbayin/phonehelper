@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.mob.sms.R;
 import com.mob.sms.adapter.VipAdapter;
 import com.mob.sms.base.BaseActivity;
+import com.mob.sms.config.GlobalConfig;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.VipBean;
 import com.mob.sms.utils.PayResult;
@@ -47,6 +48,8 @@ public class VipActivity extends BaseActivity {
     TextView mUsername;
     @BindView(R.id.recyclerview)
     RecyclerView mRecyclerView;
+    @BindView(R.id.tv_tip)
+    TextView tvTip;
 
     private VipAdapter mVipAdapter;
     private ArrayList<VipBean.DataBean> mDatas = new ArrayList<>();
@@ -64,7 +67,7 @@ public class VipActivity extends BaseActivity {
     private void initView() {
         Glide.with(this).load(SPUtils.getString(SPConstant.SP_USER_HEAD, "")).into(mAvatar);
         mUsername.setText(SPUtils.getString(SPConstant.SP_USER_NAME, ""));
-
+        tvTip.setVisibility(GlobalConfig.isVip? View.GONE: View.VISIBLE);
         mVipAdapter = new VipAdapter(this, mDatas);
         mRecyclerView.setAdapter(mVipAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));

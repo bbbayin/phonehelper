@@ -38,9 +38,11 @@ import com.mob.sms.activity.VipActivity;
 import com.mob.sms.application.MyApplication;
 import com.mob.sms.base.BaseFragment;
 import com.mob.sms.bean.BannerBean;
+import com.mob.sms.bean.HomeFuncBean;
 import com.mob.sms.debug.DebugActivity;
 import com.mob.sms.dialog.ShareDialog;
 import com.mob.sms.network.RetrofitHelper;
+import com.mob.sms.network.bean.BaseResponse;
 import com.mob.sms.network.bean.EnterpriseBean;
 import com.mob.sms.network.bean.ShareBean;
 import com.mob.sms.network.bean.UserInfoBean;
@@ -90,6 +92,8 @@ public class MineFragment extends BaseFragment {
     ImageView ivAds;
     @BindView(R.id.qiye_rl)
     View enterpriseLayout;
+    @BindView(R.id.secret_info_layout)
+    View secretLayout;
 
     private ShareBean.DataBean mShareInfo;
     private UserInfoBean.DataBean mUserInfo;
@@ -429,6 +433,19 @@ public class MineFragment extends BaseFragment {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser && isCreated) {
             getUserInfo();
+            // 隐藏拨号功能是否隐藏
+            RetrofitHelper.getApi().getThreadInfo().subscribe(new Action1<BaseResponse<HomeFuncBean>>() {
+                @Override
+                public void call(BaseResponse<HomeFuncBean> response) {
+                    if (response != null && response.data != null && TextUtils.equals(response.data.status, "1")) {
+                        // 展示
+                        secretLayout.setVisibility(View.VISIBLE);
+                    } else {
+                        // 隐藏
+                        secretLayout.setVisibility(View.GONE);
+                    }
+                }
+            });
         }
     }
 }
