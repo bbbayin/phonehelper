@@ -33,6 +33,7 @@ import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.policy.PolicyActivity;
 import com.mob.sms.rx.LoginEvent;
 import com.mob.sms.rx.RxBus;
+import com.mob.sms.sdk.SDKManager;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
@@ -78,6 +79,7 @@ public class LoginActivity extends BaseActivity {
 
     private Subscription mSub;
     private boolean mSelectAgreement;
+    private SDKManager sdkManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,6 +93,8 @@ public class LoginActivity extends BaseActivity {
                 .subscribe(this::finishPage);
         initPolicy();
         showPolicyDialog();
+        sdkManager = new SDKManager();
+        sdkManager.addObserver(MyApplication.mApplication);
     }
 
     private void initPolicy() {
@@ -322,6 +326,8 @@ public class LoginActivity extends BaseActivity {
                     mCanLogin = false;
                 }
                 mLoginIv.setBackgroundResource(mCanLogin ? R.mipmap.login_bg_green : R.mipmap.login_bg_grey);
+                SPUtils.put(SPConstant.SP_USER_PERMISSION_OK, true);
+                sdkManager.init();
             }
 
             @Override

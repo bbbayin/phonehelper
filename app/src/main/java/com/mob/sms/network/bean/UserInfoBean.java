@@ -13,7 +13,7 @@ public class UserInfoBean {
         public int useMinute;
         public int allMinute;
         public String expTime;
-        public String isAll;
+        public String isAll;// 永久会员：1
         public String avatar;
         public String originate;
         public String memberName;

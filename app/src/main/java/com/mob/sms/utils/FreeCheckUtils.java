@@ -48,6 +48,12 @@ public class FreeCheckUtils {
                         }
 
                     }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        throwable.printStackTrace();
+                        checkUserVip(activity, isSecretCall, callback);
+                    }
                 });
     }
 

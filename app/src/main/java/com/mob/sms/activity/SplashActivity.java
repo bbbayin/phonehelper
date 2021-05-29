@@ -43,6 +43,8 @@ public class SplashActivity extends Activity {
     RelativeLayout mWelcomeRl;
     @BindView(R.id.splash_image)
     ImageView launchImage;
+    @BindView(R.id.logo_text)
+    View logoText;
 
 
     @Override
@@ -67,6 +69,18 @@ public class SplashActivity extends Activity {
     }
 
     private void initView() {
+        // 隐私协议是否允许
+        if (!SPUtils.getBoolean(SPConstant.SP_USER_PERMISSION_OK, false)) {
+            mSkip.setOnClickListener(view -> {
+                SPUtils.put(SPConstant.SP_SPLASH_WELCOME, true);
+                mHandler.sendEmptyMessageDelayed(0, 500);
+            });
+            logoText.setVisibility(View.VISIBLE);
+            mHandler.sendEmptyMessageDelayed(0, 3000);
+            return;
+        }else {
+            logoText.setVisibility(View.GONE);
+        }
         if (SPUtils.getBoolean(SPConstant.SP_SPLASH_WELCOME, false)) {
             RetrofitHelper.getApi().getImage(1)
                     .subscribe(new Action1<BaseResponse<List<BannerBean>>>() {
@@ -85,12 +99,11 @@ public class SplashActivity extends Activity {
             mSkip.setVisibility(View.GONE);
             mHandler.sendEmptyMessageDelayed(0, 3000);
         } else {
-
             RetrofitHelper.getApi().getImage(2)
                     .subscribe(new Action1<BaseResponse<List<BannerBean>>>() {
                         @Override
                         public void call(BaseResponse<List<BannerBean>> response) {
-                            if (response != null && response.data!=null && !response.data.isEmpty()) {
+                            if (response != null && response.data != null && !response.data.isEmpty()) {
                                 mWelcomeRl.setVisibility(View.GONE);
                                 initGuideBanner(response.data);
                             }

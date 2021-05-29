@@ -80,6 +80,8 @@ public class MineFragment extends BaseFragment {
     TextView mUserid;
     @BindView(R.id.time)
     TextView mTime;
+    @BindView(R.id.vip_member_name)
+    TextView tvVipName;
     @BindView(R.id.user_minute)
     TextView mUseMinute;
     @BindView(R.id.all_minute)
@@ -190,8 +192,6 @@ public class MineFragment extends BaseFragment {
                     if (userInfoBean != null && userInfoBean.code == 200) {
                         mUserInfo = userInfoBean.data;
                         mUserid.setText("ID: " + mUserInfo.userId);
-                        mTime.setText(mUserInfo.expTime);
-
                         if (!TextUtils.isEmpty(mUserInfo.avatar)) {
                             SPUtils.put(SPConstant.SP_USER_HEAD, mUserInfo.avatar);
                             Glide.with(getContext()).load(mUserInfo.avatar).into(mHead);
@@ -202,6 +202,14 @@ public class MineFragment extends BaseFragment {
                         }
                         if (mUserInfo.allMinute > 0) {
                             vipLayout.setVisibility(View.VISIBLE);
+                            if (TextUtils.equals(mUserInfo.isAll, "1")) {
+                                // 永久
+                                tvVipName.setText("永久 vip会员");
+                                mTime.setText("");
+                            }else {
+                                tvVipName.setText("vip会员");
+                                mTime.setText(mUserInfo.expTime);
+                            }
                         } else {
                             vipLayout.setVisibility(View.GONE);
                         }
