@@ -36,6 +36,7 @@ import com.mob.sms.rx.RxBus;
 import com.mob.sms.sdk.SDKManager;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
+import com.mob.sms.utils.ToastUtil;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
@@ -249,6 +250,10 @@ public class LoginActivity extends BaseActivity {
 //                req.scope = "snsapi_userinfo";
 //                req.state = "wechat_sdk_demo_test";
 //                wxapi.sendReq(req);
+                if (!mSelectAgreement) {
+                    ToastUtil.show("请勾选用户隐私协议");
+                    return;
+                }
 
                 UMShareAPI.get(this).getPlatformInfo(this, SHARE_MEDIA.WEIXIN, new UMAuthListener() {
                     @Override
@@ -277,6 +282,10 @@ public class LoginActivity extends BaseActivity {
                 });
                 break;
             case R.id.qq_login:
+                if (!mSelectAgreement) {
+                    ToastUtil.show("请勾选用户隐私协议");
+                    return;
+                }
                 UMShareAPI.get(this).getPlatformInfo(this, SHARE_MEDIA.QQ, new UMAuthListener() {
                     @Override
                     public void onStart(SHARE_MEDIA share_media) {
@@ -305,8 +314,20 @@ public class LoginActivity extends BaseActivity {
                 }
                 break;
             case R.id.select_iv:
-                showPolicyDialog();
+                enablePermission(!mSelectAgreement);
                 break;
+        }
+    }
+
+    private void enablePermission(boolean enable) {
+        mSelectAgreement = enable;
+        mSelectIv.setBackgroundResource(enable?R.mipmap.selected_icon: R.mipmap.unselected_icon);
+        if (mTxMobile && mTxPwd && enable) {
+            mCanLogin = true;
+            mLoginIv.setBackgroundResource(R.mipmap.login_bg_green);
+        }else {
+            mCanLogin = false;
+            mLoginIv.setBackgroundResource(R.mipmap.login_bg_grey);
         }
     }
 
@@ -316,8 +337,7 @@ public class LoginActivity extends BaseActivity {
         userAgreementDialog.setOnClickListener(new UserAgreementDialog.OnClickListener() {
             @Override
             public void agree() {
-                mSelectAgreement = true;
-                mSelectIv.setBackgroundResource(R.mipmap.selected_icon);
+
                 userAgreementDialog.dismiss();
 
                 if (mTxMobile && mTxPwd && mSelectAgreement) {
@@ -332,8 +352,6 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void refuse() {
-                mSelectAgreement = false;
-                mSelectIv.setBackgroundResource(R.mipmap.unselected_icon);
                 userAgreementDialog.dismiss();
 
                 if (mTxMobile && mTxPwd && mSelectAgreement) {
