@@ -1,11 +1,14 @@
 package com.mob.sms.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
@@ -13,14 +16,21 @@ import com.mob.sms.dialog.CheckTipDialog;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.rx.ExitEvent;
 import com.mob.sms.rx.RxBus;
+import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class SettingActivity extends BaseActivity {
+    @BindView(R.id.toggle_push)
+    SwitchCompat toggle;
+    private ProgressDialog progressDialog;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,9 +38,35 @@ public class SettingActivity extends BaseActivity {
         ButterKnife.bind(this);
         setStatusBar(getResources().getColor(R.color.green));
         initView();
+        toggle.setChecked(SPUtils.getBoolean(SPConstant.SP_PUSH, true));
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                showProgress();
+                toggle.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        dismissProgress();
+                    }
+                }, 2000);
+                SPUtils.getBoolean(SPConstant.SP_PUSH, isChecked);
+            }
+        });
     }
 
-    private void initView(){
+    private void showProgress() {
+        if (progressDialog == null)
+            progressDialog = new ProgressDialog(this);
+        progressDialog.show();
+    }
+
+    private void dismissProgress() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
+    private void initView() {
 
     }
 

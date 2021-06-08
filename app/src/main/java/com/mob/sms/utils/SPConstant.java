@@ -34,5 +34,6 @@ public class SPConstant {
     public static String SP_SMS_FSJG = "sp_sms_fsjg"; //发送间隔
     public static String SP_SMS_CONTENT = "sp_sms_content"; //编辑短信内容
 
+    public static String SP_PUSH = "sp_push";
     public static String SP_USER_PERMISSION_OK = "sp_user_permission";// 用户隐私协议是否允许了
 }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 
 import com.mob.sms.utils.ChannelUtil;
-import com.mob.sms.utils.KeepAlive;
 import com.mob.sms.utils.SPConstant;
 import com.mob.sms.utils.SPUtils;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
@@ -36,9 +35,6 @@ public class MyApplication extends Application implements Observer {
 
     private void initSDK() {
         Channel = ChannelUtil.getChannel(this);
-        System.out.println("渠道好："+Channel);
-        KeepAlive.init(this);
-
         UMConfigure.setLogEnabled(true);
         UMConfigure.init(this, "6099327553b6726499f68bb7", Channel, UMConfigure.DEVICE_TYPE_PHONE, "");
 //        UMConfigure.init(this, "6099327553b6726499f68bb7", Channel, UMConfigure.DEVICE_TYPE_PHONE, "");
