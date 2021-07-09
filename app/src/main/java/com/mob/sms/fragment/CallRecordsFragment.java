@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mob.sms.R;
 import com.mob.sms.adapter.CallRecordsAdapter;
 import com.mob.sms.base.BaseFragment;
+import com.mob.sms.base.SimpleObserver;
 import com.mob.sms.db.CallRecordsTable;
 import com.mob.sms.db.DatabaseBusiness;
 import com.mob.sms.utils.CallLogBean;
@@ -78,9 +79,9 @@ public class CallRecordsFragment extends BaseFragment {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<CallRecordsTable>>() {
+                .subscribe(new SimpleObserver<List<CallRecordsTable>>() {
                     @Override
-                    public void call(List<CallRecordsTable> list) {
+                    public void onNext(List<CallRecordsTable> list) {
                         if (list != null && !list.isEmpty()) {
                             mCallRecordsAdapter.notifyDataSetChanged();
                         }

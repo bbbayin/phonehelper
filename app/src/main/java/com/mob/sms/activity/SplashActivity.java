@@ -17,7 +17,7 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.mob.sms.R;
 import com.mob.sms.adapter.SplashBannerAdapter;
-import com.mob.sms.application.MyApplication;
+import com.mob.sms.base.SimpleObserver;
 import com.mob.sms.bean.BannerBean;
 import com.mob.sms.network.RetrofitHelper;
 import com.mob.sms.network.bean.BaseResponse;
@@ -83,9 +83,9 @@ public class SplashActivity extends Activity {
         }
         if (SPUtils.getBoolean(SPConstant.SP_SPLASH_WELCOME, false)) {
             RetrofitHelper.getApi().getImage(1)
-                    .subscribe(new Action1<BaseResponse<List<BannerBean>>>() {
+                    .subscribe(new SimpleObserver<BaseResponse<List<BannerBean>>>() {
                         @Override
-                        public void call(BaseResponse<List<BannerBean>> listBaseResponse) {
+                        public void onNext(BaseResponse<List<BannerBean>> listBaseResponse) {
                             if (listBaseResponse != null && listBaseResponse.data != null && !listBaseResponse.data.isEmpty()) {
                                 BannerBean imageBean = listBaseResponse.data.get(0);
                                 Glide.with(SplashActivity.this)
@@ -100,9 +100,9 @@ public class SplashActivity extends Activity {
             mHandler.sendEmptyMessageDelayed(0, 3000);
         } else {
             RetrofitHelper.getApi().getImage(2)
-                    .subscribe(new Action1<BaseResponse<List<BannerBean>>>() {
+                    .subscribe(new SimpleObserver<BaseResponse<List<BannerBean>>>() {
                         @Override
-                        public void call(BaseResponse<List<BannerBean>> response) {
+                        public void onNext(BaseResponse<List<BannerBean>> response) {
                             if (response != null && response.data != null && !response.data.isEmpty()) {
                                 mWelcomeRl.setVisibility(View.GONE);
                                 initGuideBanner(response.data);
@@ -139,7 +139,12 @@ public class SplashActivity extends Activity {
                     } else {
                         startActivity(new Intent(SplashActivity.this, MainActivity.class));
                     }
-                    finish();
+                    postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            finish();
+                        }
+                    }, 3000);
                     break;
             }
         }

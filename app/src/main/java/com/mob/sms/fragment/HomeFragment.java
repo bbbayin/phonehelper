@@ -37,6 +37,7 @@ import com.mob.sms.activity.VipActivity;
 import com.mob.sms.application.MyApplication;
 import com.mob.sms.auto.SingleAutoTaskActivity;
 import com.mob.sms.base.BaseFragment;
+import com.mob.sms.base.SimpleObserver;
 import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.ChannelChargeBean;
 import com.mob.sms.bean.CloudPermissionBean;
@@ -218,9 +219,9 @@ public class HomeFragment extends BaseFragment {
 
                     }
                 });
-        RetrofitHelper.getApi().getUserInfo().subscribe(new Action1<UserInfoBean>() {
+        RetrofitHelper.getApi().getUserInfo().subscribe(new SimpleObserver<UserInfoBean>() {
             @Override
-            public void call(UserInfoBean userInfoBean) {
+            public void onNext(UserInfoBean userInfoBean) {
                 if (userInfoBean.data != null) {
                     GlobalConfig.isVip = TextUtils.equals(userInfoBean.data.type, "1");
                     if (GlobalConfig.isVip) {
@@ -271,9 +272,9 @@ public class HomeFragment extends BaseFragment {
 //            }
 //        });
         // 3大功能隐藏配置
-        RetrofitHelper.getApi().getHomeSetting().subscribe(new Action1<BaseResponse<List<HomeFuncBean>>>() {
+        RetrofitHelper.getApi().getHomeSetting().subscribe(new SimpleObserver<BaseResponse<List<HomeFuncBean>>>() {
             @Override
-            public void call(BaseResponse<List<HomeFuncBean>> response) {
+            public void onNext(BaseResponse<List<HomeFuncBean>> response) {
                 if (response != null) {
                     if (response.code == 200 && response.data != null) {
                         int activeId = -1;
@@ -333,9 +334,9 @@ public class HomeFragment extends BaseFragment {
      * @param type 1：单号，2：批量，3：短信
      */
     private void initHiddenSetting(final int type) {
-        RetrofitHelper.getApi().getHiddenSetting(type).subscribe(new Action1<BaseResponse<List<HomeFuncBean>>>() {
+        RetrofitHelper.getApi().getHiddenSetting(type).subscribe(new SimpleObserver<BaseResponse<List<HomeFuncBean>>>() {
             @Override
-            public void call(BaseResponse<List<HomeFuncBean>> response) {
+            public void onNext(BaseResponse<List<HomeFuncBean>> response) {
                 if (response != null && response.code == 200) {
                     for (HomeFuncBean bean : response.data) {
                         // 3处配置，自动挂断，发送短信次数，批量发送短信
@@ -948,9 +949,9 @@ public class HomeFragment extends BaseFragment {
     private void checkPermission() {
         // 先判断渠道
         RetrofitHelper.getApi().getMarketCharge(MyApplication.Channel)
-                .subscribe(new Action1<BaseResponse<ChannelChargeBean>>() {
+                .subscribe(new SimpleObserver<BaseResponse<ChannelChargeBean>>() {
                     @Override
-                    public void call(BaseResponse<ChannelChargeBean> response) {
+                    public void onNext(BaseResponse<ChannelChargeBean> response) {
                         if (response != null && response.data != null) {
                             switch (response.data.status) {
                                 case "0":
@@ -972,9 +973,9 @@ public class HomeFragment extends BaseFragment {
         RetrofitHelper.getApi().cloudDial()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<CloudPermissionBean>() {
+                .subscribe(new SimpleObserver<CloudPermissionBean>() {
                     @Override
-                    public void call(CloudPermissionBean permissionBean) {
+                    public void onNext(CloudPermissionBean permissionBean) {
                         if (permissionBean != null && "200".equals(permissionBean.code)) {
                             // 有权限
                             Intent intent = new Intent(getContext(), SingleAutoTaskActivity.class);

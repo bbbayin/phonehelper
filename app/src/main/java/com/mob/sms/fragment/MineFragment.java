@@ -37,6 +37,7 @@ import com.mob.sms.activity.UserInfoActivity;
 import com.mob.sms.activity.VipActivity;
 import com.mob.sms.application.MyApplication;
 import com.mob.sms.base.BaseFragment;
+import com.mob.sms.base.SimpleObserver;
 import com.mob.sms.bean.BannerBean;
 import com.mob.sms.bean.HomeFuncBean;
 import com.mob.sms.debug.DebugActivity;
@@ -126,9 +127,9 @@ public class MineFragment extends BaseFragment {
 
     private void getEnterpriseInfo() {
         RetrofitHelper.getApi().getEnterpriseInfo()
-                .subscribe(new Action1<EnterpriseBean>() {
+                .subscribe(new SimpleObserver<EnterpriseBean>() {
                     @Override
-                    public void call(EnterpriseBean enterpriseBean) {
+                    public void onNext(EnterpriseBean enterpriseBean) {
                         if (enterpriseBean != null && enterpriseBean.data != null) {
                             if (TextUtils.equals("0", enterpriseBean.data.status)) {
                                 enterpriseLayout.setVisibility(View.GONE);
@@ -442,9 +443,9 @@ public class MineFragment extends BaseFragment {
         if (isVisibleToUser && isCreated) {
             getUserInfo();
             // 隐藏拨号功能是否隐藏
-            RetrofitHelper.getApi().getThreadInfo().subscribe(new Action1<BaseResponse<HomeFuncBean>>() {
+            RetrofitHelper.getApi().getThreadInfo().subscribe(new SimpleObserver<BaseResponse<HomeFuncBean>>() {
                 @Override
-                public void call(BaseResponse<HomeFuncBean> response) {
+                public void onNext(BaseResponse<HomeFuncBean> response) {
                     if (response != null && response.data != null && TextUtils.equals(response.data.status, "1")) {
                         // 展示
                         secretLayout.setVisibility(View.VISIBLE);

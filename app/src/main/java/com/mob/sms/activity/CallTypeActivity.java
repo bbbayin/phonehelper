@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 
 import com.mob.sms.R;
 import com.mob.sms.base.BaseActivity;
+import com.mob.sms.base.SimpleObserver;
 import com.mob.sms.bean.CloudPermissionBean;
 import com.mob.sms.bean.HomeFuncBean;
 import com.mob.sms.dialog.CheckTipDialog;
@@ -83,9 +84,9 @@ public class CallTypeActivity extends BaseActivity {
     }
 
     private void initData() {
-        RetrofitHelper.getApi().getThreadInfo().subscribe(new Action1<BaseResponse<HomeFuncBean>>() {
+        RetrofitHelper.getApi().getThreadInfo().subscribe(new SimpleObserver<BaseResponse<HomeFuncBean>>() {
             @Override
-            public void call(BaseResponse<HomeFuncBean> response) {
+            public void onNext(BaseResponse<HomeFuncBean> response) {
                 if (response != null && response.data != null && TextUtils.equals(response.data.status, "1")) {
                     secretTypeLayout.setVisibility(View.VISIBLE);
                 } else {
@@ -145,9 +146,9 @@ public class CallTypeActivity extends BaseActivity {
         RetrofitHelper.getApi().cloudDial()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<CloudPermissionBean>() {
+                .subscribe(new SimpleObserver<CloudPermissionBean>() {
                     @Override
-                    public void call(CloudPermissionBean permissionBean) {
+                    public void onNext(CloudPermissionBean permissionBean) {
                         if (permissionBean != null) {
                             if ("200".equals(permissionBean.code)) {
                                 enableCloudCall();

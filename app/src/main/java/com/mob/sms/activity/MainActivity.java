@@ -4,8 +4,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -25,8 +27,10 @@ import androidx.viewpager.widget.ViewPager;
 import com.mob.sms.R;
 import com.mob.sms.adapter.ViewPagerAdapter;
 import com.mob.sms.base.BaseActivity;
+import com.mob.sms.base.SimpleObserver;
 import com.mob.sms.bean.OneDialBean;
 import com.mob.sms.config.GlobalConfig;
+import com.mob.sms.dialog.CheckTipDialog;
 import com.mob.sms.fragment.ContactsFragment;
 import com.mob.sms.fragment.HomeFragment;
 import com.mob.sms.fragment.MineFragment;
@@ -134,12 +138,12 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initData() {
-        RetrofitHelper.getApi().getAllMarket().subscribe();
+//        RetrofitHelper.getApi().getAllMarket().subscribe();
 
-        RetrofitHelper.getApi().getOneDialTimes().subscribe(new Action1<BaseResponse<OneDialBean>>() {
+        RetrofitHelper.getApi().getOneDialTimes().subscribe(new SimpleObserver<BaseResponse<OneDialBean>>() {
             @Override
-            public void call(BaseResponse<OneDialBean> response) {
-                if (response.code == 200) {
+            public void onNext(BaseResponse<OneDialBean> response) {
+                if (response != null && response.code == 200) {
                     GlobalConfig.oneDialTimes = response.data.endNum;
                 }
             }
@@ -234,8 +238,23 @@ public class MainActivity extends BaseActivity {
                 }
             }
             if (permissionDenied) {
-                ToastUtil.show("权限受限，退出APP");
-                finish();
+                CheckTipDialog dialog = new CheckTipDialog(this);
+                dialog.setTitle("提示");
+                dialog.setContent("您未授予app必须权限，将无法正常使用app的功能，是否现在授权？");
+                dialog.setCancelListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ToastUtil.show("后续您可以在应用设置中进行授权");
+                    }
+                });
+                dialog.setPositiveListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:com.mob.sms"));
+                        startActivity(intent);
+                    }
+                });
+                dialog.show();
             }
         }
     }
