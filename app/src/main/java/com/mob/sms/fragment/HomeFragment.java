@@ -1,9 +1,13 @@
 package com.mob.sms.fragment;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.text.Editable;
@@ -19,6 +23,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -46,6 +51,7 @@ import com.mob.sms.config.GlobalConfig;
 import com.mob.sms.db.CallContactTable;
 import com.mob.sms.db.DatabaseBusiness;
 import com.mob.sms.db.SmsContactTable;
+import com.mob.sms.dialog.CheckTipDialog;
 import com.mob.sms.dialog.DocImportDialog;
 import com.mob.sms.dialog.ImportDialog;
 import com.mob.sms.dialog.SetCallIntervalDialog;
@@ -190,6 +196,7 @@ public class HomeFragment extends BaseFragment {
     private int mVisibleTab = 0;//当前切换的tab
     private boolean mCallGd = false;//默认接通后自动挂断
     private boolean mPlCallGd = false;//默认接通后自动挂断
+    private boolean isShowSendTimes = true;// 是否展示短信发送次数
 
     @Nullable
     @Override
@@ -346,6 +353,7 @@ public class HomeFragment extends BaseFragment {
                             // 短信配置
                             if (bean.id == 4) {
                                 // 发送次数
+                                isShowSendTimes = false;
                                 smsSendTimesLayout.setVisibility(TextUtils.equals(bean.status, "1") ? View.VISIBLE : View.GONE);
                             } else {
                                 // 批量发送
@@ -604,6 +612,7 @@ public class HomeFragment extends BaseFragment {
                 bddh_iv.setBackgroundResource(R.mipmap.bddh_grey);
                 plbd_iv.setBackgroundResource(R.mipmap.plbd_grey);
                 dxds_iv.setBackgroundResource(R.mipmap.dxds_green);
+                changeSmsUi();
                 break;
             case R.id.txl_iv:
                 Intent intent = new Intent(getContext(), ContactsActivity.class);
@@ -900,26 +909,62 @@ public class HomeFragment extends BaseFragment {
                 startActivity(new Intent(getContext(), EditSmsActivity.class));
                 break;
             case R.id.sms_ljfs:
-                // 权限判断
-                final SubscriptionManager sManager = (SubscriptionManager) getContext().getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
-                List<SubscriptionInfo> list = sManager.getActiveSubscriptionInfoList();
-                if (list == null || list.isEmpty()) {
-                    ToastUtil.show("请设置权限");
-                    Utils.jumpToPermissionsEditorActivity(getContext());
+                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.READ_PHONE_STATE}, 999);
                     return;
                 }
-                FreeCheckUtils.check(getActivity(), false, new FreeCheckUtils.OnCheckCallback() {
+                autoSendSms();
+                break;
+        }
+    }
+
+    private void autoSendSms() {
+        final SubscriptionManager sManager = (SubscriptionManager) getContext().getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+        @SuppressLint("MissingPermission")
+        List<SubscriptionInfo> list = sManager.getActiveSubscriptionInfoList();
+        if (list == null || list.isEmpty()) {
+            ToastUtil.showLong("请允许获取手机设备信息权限，才能使用次功能");
+            Utils.jumpToPermissionsEditorActivity(getActivity());
+            return;
+        }
+        FreeCheckUtils.check(getActivity(), false, new FreeCheckUtils.OnCheckCallback() {
+            @Override
+            public void onResult(boolean free) {
+                if (free) {
+                    toSmsSendActivity();
+                } else {
+                    startActivity(new Intent(getContext(), VipActivity.class));
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 999) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                autoSendSms();
+            }else {
+                ToastUtil.show("权限被拒绝无法正常使用功能");
+                CheckTipDialog dialog = new CheckTipDialog(getActivity());
+                dialog.setTitle("提示");
+                dialog.setContent("您未授予app必须权限，将无法正常使用app的功能，是否现在授权？");
+                dialog.setCancelListener(new View.OnClickListener() {
                     @Override
-                    public void onResult(boolean free) {
-                        if (free) {
-                            toSmsSendActivity();
-                        } else {
-                            startActivity(new Intent(getContext(), VipActivity.class));
-                        }
+                    public void onClick(View v) {
+                        ToastUtil.show("后续您可以在应用设置中进行授权");
                     }
                 });
-
-                break;
+                dialog.setPositiveListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:com.mob.sms"));
+                        startActivity(intent);
+                    }
+                });
+                dialog.show();
+            }
         }
     }
 
@@ -928,11 +973,16 @@ public class HomeFragment extends BaseFragment {
         if (sms_dhfs_open) {
             //单号发送
             if (!TextUtils.isEmpty(mSmsMobileEt.getText().toString()) &&
-                    !TextUtils.isEmpty(mSmsFscsTip.getText().toString()) &&
                     !TextUtils.isEmpty(mBjdxTip.getText().toString())) {
-                intent = new Intent(getContext(), AutoSendSmsActivity.class);
-                intent.putExtra("type", "dhfs");
-                startActivity(intent);
+                if (isShowSendTimes && TextUtils.isEmpty(mSmsFscsTip.getText().toString())) {
+                    ToastUtil.show("请设置发送次数");
+                }else  {
+                    intent = new Intent(getContext(), AutoSendSmsActivity.class);
+                    intent.putExtra("type", "dhfs");
+                    startActivity(intent);
+                }
+            }else  {
+                ToastUtil.show("请填写正确的手机号和短信内容");
             }
         } else {
             //批量发送

@@ -119,7 +119,7 @@ public class AutoSendSmsActivity extends BaseActivity {
         if ("dhfs".equals(mType)) {
             mTip.setText("单号发送短信");
             mMobile.setText(SPUtils.getString(SPConstant.SP_SMS_SRHM, ""));
-            mSendNum = SPUtils.getInt(SPConstant.SP_SMS_FSCS, 0);
+            mSendNum = SPUtils.getInt(SPConstant.SP_SMS_FSCS, 1);
             mDsfsTime = SPUtils.getString(SPConstant.SP_SMS_DSFS, "");
 
             if (mSendIndex < mSendNum) {
@@ -202,7 +202,7 @@ public class AutoSendSmsActivity extends BaseActivity {
     private void sendSms(String mobile, String content) {
         Log.i("jqt", "mobile: " + mobile + "," + content);
         try {
-            String sksz = SPUtils.getString(SPConstant.SP_SMS_SKSZ, "");
+            String sksz = SPUtils.getString(SPConstant.SP_SMS_SKSZ, "sim1");
             Log.i("jqt", "sksz: " + sksz);
             SubscriptionInfo sInfo = null;
             final SubscriptionManager sManager = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);

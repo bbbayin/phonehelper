@@ -136,7 +136,6 @@
 
         <LinearLayout
             android:id="@+id/sms_fscs_rl"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:gravity="center_vertical"

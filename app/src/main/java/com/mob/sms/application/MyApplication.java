@@ -22,7 +22,7 @@ import java.util.zip.ZipFile;
 public class MyApplication extends Application implements Observer {
     public static MyApplication mApplication;
     public static IWXAPI wxApi;
-    public static String Channel = "default";
+    public static String Channel = "";
 
     @Override
     public void onCreate() {
