@@ -261,23 +261,6 @@ public class HomeFragment extends BaseFragment {
             }
         });
 
-
-        // 消息
-//        RetrofitHelper.getApi().getNotifications().subscribe(new Action1<BaseResponse<MsgResponse>>() {
-//            @Override
-//            public void call(BaseResponse<MsgResponse> response) {
-//                if (response != null && response.data != null && response.data.rows != null && !response.data.rows.isEmpty()) {
-//                    flipper.setVisibility(View.VISIBLE);
-//                    for (MsgBean msg:
-//                            response.data.rows) {
-//                        flipper.addView(MsgViewFactory.create(getContext(), msg, flipper));
-//                    }
-//                    flipper.startFlipping();
-//                }else {
-//                    flipper.setVisibility(View.GONE);
-//                }
-//            }
-//        });
         // 3大功能隐藏配置
         RetrofitHelper.getApi().getHomeSetting().subscribe(new SimpleObserver<BaseResponse<List<HomeFuncBean>>>() {
             @Override
@@ -666,11 +649,7 @@ public class HomeFragment extends BaseFragment {
                 SPUtils.put(SPConstant.SP_CALL_GD, mCallGd);
                 break;
             case R.id.home_btn_single_call_now:
-                if (!TextUtils.isEmpty(mCallMobileEt.getText().toString()) &&
-                        !TextUtils.isEmpty(mCallBdcsTv.getText().toString()) &&
-                        !TextUtils.isEmpty(mCallBdjgTv.getText().toString()) &&
-                        !TextUtils.isEmpty(mCallBdfsTv.getText().toString())) {
-
+                if (!TextUtils.isEmpty(mCallMobileEt.getText().toString())) {
                     FreeCheckUtils.check(getActivity(), FreeCheckUtils.isSecretCall(), new FreeCheckUtils.OnCheckCallback() {
                         @Override
                         public void onResult(boolean free) {
@@ -683,6 +662,8 @@ public class HomeFragment extends BaseFragment {
                             }
                         }
                     });
+                }else  {
+                    ToastUtil.show("请设置正确的号码");
                 }
                 break;
             case R.id.hmdr_rl:
@@ -785,6 +766,8 @@ public class HomeFragment extends BaseFragment {
                             }
                         }
                     });
+                }else {
+                    ToastUtil.show("请设置正确的间隔和号码");
                 }
                 break;
             //短信定时

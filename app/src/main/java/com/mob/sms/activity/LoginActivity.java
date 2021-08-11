@@ -81,6 +81,7 @@ public class LoginActivity extends BaseActivity {
     private Subscription mSub;
     private boolean mSelectAgreement;
     private SDKManager sdkManager;
+    private UMShareAPI umShareAPI;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -96,6 +97,7 @@ public class LoginActivity extends BaseActivity {
         showPolicyDialog();
         sdkManager = new SDKManager();
         sdkManager.addObserver(MyApplication.mApplication);
+        umShareAPI = UMShareAPI.get(this);
     }
 
     private void initPolicy() {
@@ -108,7 +110,7 @@ public class LoginActivity extends BaseActivity {
         int color = Color.parseColor("#33C197");
         spannableString.setSpan(new ForegroundColorSpan(color),
                 start1,
-                end1+1,
+                end1 + 1,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         spannableString.setSpan(new ForegroundColorSpan(color),
                 start2,
@@ -230,8 +232,10 @@ public class LoginActivity extends BaseActivity {
         return true;
     }
 
+
     @OnClick({R.id.register, R.id.forget, R.id.eye_icon, R.id.login, R.id.wx_login, R.id.qq_login, R.id.select_iv})
     public void onViewClicked(View view) {
+
         switch (view.getId()) {
             case R.id.register:
                 startActivity(new Intent(this, RegisterActivity.class));
@@ -255,7 +259,7 @@ public class LoginActivity extends BaseActivity {
                     return;
                 }
 
-                UMShareAPI.get(this).getPlatformInfo(this, SHARE_MEDIA.WEIXIN, new UMAuthListener() {
+                umShareAPI.getPlatformInfo(this, SHARE_MEDIA.WEIXIN, new UMAuthListener() {
                     @Override
                     public void onStart(SHARE_MEDIA share_media) {
 
@@ -263,10 +267,17 @@ public class LoginActivity extends BaseActivity {
 
                     @Override
                     public void onComplete(SHARE_MEDIA share_media, int i, Map<String, String> map) {
+                        umShareAPI.release();
+                        String avatarUrl = "";
+                        if (TextUtils.isEmpty(map.get("iconurl"))) {
+                            avatarUrl = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fitem%2F201912%2F25%2F20191225224833_zloky.thumb.400_0.jpg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1629380778&t=7bf1b0b77b81a074e4c318a71dfb3b09";
+                        } else {
+                            avatarUrl = map.get("iconurl");
+                        }
                         Intent intent = new Intent(LoginActivity.this, WxInfoActivity.class);
                         intent.putExtra("uid", map.get("uid"));
                         intent.putExtra("name", map.get("name"));
-                        intent.putExtra("iconurl", map.get("iconurl"));
+                        intent.putExtra("iconurl", avatarUrl);
                         startActivity(intent);
                     }
 
@@ -286,7 +297,7 @@ public class LoginActivity extends BaseActivity {
                     ToastUtil.show("请勾选用户隐私协议");
                     return;
                 }
-                UMShareAPI.get(this).getPlatformInfo(this, SHARE_MEDIA.QQ, new UMAuthListener() {
+                umShareAPI.getPlatformInfo(this, SHARE_MEDIA.QQ, new UMAuthListener() {
                     @Override
                     public void onStart(SHARE_MEDIA share_media) {
                     }
@@ -321,11 +332,11 @@ public class LoginActivity extends BaseActivity {
 
     private void enablePermission(boolean enable) {
         mSelectAgreement = enable;
-        mSelectIv.setBackgroundResource(enable?R.mipmap.selected_icon: R.mipmap.unselected_icon);
+        mSelectIv.setBackgroundResource(enable ? R.mipmap.selected_icon : R.mipmap.unselected_icon);
         if (mTxMobile && mTxPwd && enable) {
             mCanLogin = true;
             mLoginIv.setBackgroundResource(R.mipmap.login_bg_green);
-        }else {
+        } else {
             mCanLogin = false;
             mLoginIv.setBackgroundResource(R.mipmap.login_bg_grey);
         }
