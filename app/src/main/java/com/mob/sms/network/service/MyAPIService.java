@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.RequestBody;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -200,8 +202,9 @@ public interface MyAPIService {
 
     //修改用户信息
     @POST("prod-api/restApi/appUser/updateUser")
-    Observable<BaseBean> updateUser(@Query("avatar") String avatar,
-                                    @Query("nickName") String nickName);
+    @FormUrlEncoded
+    Observable<BaseBean> updateUser(@Field("avatar") String avatar,
+                                    @Field("nickName") String nickName);
 
     //支付订单
     @POST("prod-api/restApi/pay/toPay")

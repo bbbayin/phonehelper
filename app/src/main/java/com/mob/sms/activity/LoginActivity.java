@@ -307,7 +307,7 @@ public class LoginActivity extends BaseActivity {
                         SPUtils.put(SPConstant.SP_USER_NAME, map.get("name"));
                         SPUtils.put(SPConstant.SP_USER_HEAD, map.get("iconurl"));
                         SPUtils.put(SPConstant.SP_USER_ID, map.get("uid"));
-                        authLogin(map.get("iconurl"), "3", map.get("name"), map.get("uid"), "umeng");
+                        authLogin(map.get("iconurl"), "3", map.get("name"), map.get("uid"), MyApplication.Channel);
                     }
 
                     @Override

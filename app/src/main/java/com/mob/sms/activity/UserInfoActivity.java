@@ -119,7 +119,7 @@ public class UserInfoActivity extends BaseActivity {
     }
 
     private void updateUser(String avatar, String name){
-        RetrofitHelper.getApi().updateUser(avatar,name).subscribeOn(Schedulers.io())
+        RetrofitHelper.getApi().updateUser(Uri.encode(avatar),name).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(baseBean -> {
                     if (baseBean != null && baseBean.code == 200) {
